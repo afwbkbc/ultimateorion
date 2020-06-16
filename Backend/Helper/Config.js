@@ -13,14 +13,17 @@ class Config extends require( './_Helper' ) {
 			throw new Error( 'config.json missing, shutting down' );
 		
 		try {
-			this.Config = JSON.parse( this.H.Fs.ReadFile( path ) );
+			this.AllConfig = JSON.parse( this.H.Fs.ReadFile( path ) );
 		} catch ( e ) {
 			throw new Error( 'config.json corrupted or invalid' );
 		}
 	}
 	
-	GetModuleConfig( name ) {
-		return ( typeof( this.Config[ name ] ) !== 'undefined' ) ? this.Config[ name ] : {};
+	GetConfig( name ) {
+		var config = ( typeof( this.AllConfig[ name ] ) !== 'undefined' ) ? this.AllConfig[ name ] : {};
+		if ( typeof( this.AllConfig[ 'Common' ] ) !== 'undefined' )
+			config = Object.assign( config, this.AllConfig[ 'Common' ] );
+		return config;
 	}
 }
 

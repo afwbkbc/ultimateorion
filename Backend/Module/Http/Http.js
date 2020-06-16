@@ -12,7 +12,7 @@ class Http extends require( '../_Module' ) {
 			
 			this.Server = this.Http.createServer( ( req, res ) => {
 				
-				var filepath, status;
+				var filepath, status, contenttype;
 				switch ( req.url ) {
 					case '/index.html' :
 					case '/error.html' :
@@ -35,7 +35,22 @@ class Http extends require( '../_Module' ) {
 						return;
 					}
 				}
+				var ext = this.H.Fs.GetExtension( filepath );
+				switch ( ext ) {
+					case '.html':
+						contenttype = 'text/html';
+						break;
+					case '.css':
+						contenttype = 'text/css';
+						break;
+					case '.js':
+						contenttype = 'text/javascript';
+						break;
+					default:
+						contenttype = 'text/plain';
+				}
 				
+				res.setHeader( 'Content-Type', contenttype );
 				res.writeHead( status );
 				res.end( this.H.Fs.ReadFile( this.FrontendPath + filepath ) );
 				

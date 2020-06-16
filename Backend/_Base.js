@@ -36,6 +36,10 @@ for ( var k in helpers )
 	} catch ( e ) {
 		error_handler( e );
 	}
+// assign other stuff ( that is available after initialization )
+if ( typeof( helpers.Config ) !== 'undefined' )
+	for ( var k in helpers )
+		helpers[ k ].Config = helpers.Config.GetConfig( helpers[ k ].constructor.name );
 
 class _Base {
 	
@@ -47,7 +51,7 @@ class _Base {
 		this.NS = this.H.Fs.PathToNamespace( fname );
 		this.ModuleName = this.constructor.name;
 		this.Error = error_handler;
-		this.Config = this.H.Config.GetModuleConfig( this.ModuleName );
+		this.Config = this.H.Config.GetConfig( this.ModuleName );
 	}
 
 }

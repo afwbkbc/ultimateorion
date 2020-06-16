@@ -9,13 +9,17 @@ class Fs extends require( './_Helper' ) {
 	}
 	
 	ReadFile( path ) {
-		if ( typeof( this.Cache[ path ] ) === 'undefined' )
+		if ( typeof( this.Cache[ path ] ) === 'undefined' || this.Config.Debug ) // no cache for debug mode
 			this.Cache[ path ] = this.Fs.readFileSync( path );
 		return this.Cache[ path ];
 	}
 	
 	IsFile( path ) {
 		return this.Fs.existsSync( path ) && this.Fs.lstatSync( path ).isFile();
+	}
+	
+	GetExtension( path ) {
+		return this.Path.extname( path );
 	}
 	
 	// returns array of namespaces to classes found in directory ( no recursion except for Dir/Script.js cases )
