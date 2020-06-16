@@ -1,0 +1,7 @@
+DirectoryIndex disabled
+RewriteEngine On
+RewriteCond %{HTTP_HOST} ^www.ultimateorion.com [NC]
+RewriteRule ^(.*)$ http://ultimateorion.com/$1 [L,R=302]
+RewriteRule ^$ http://ultimateorion.com:16666/ [P,L]
+RewriteRule ^(.*)$ http://ultimateorion.com:16666/$1 [P,L]
+
