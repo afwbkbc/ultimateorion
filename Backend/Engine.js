@@ -13,6 +13,7 @@ class Engine extends require( './_Base' ) {
 					
 					next();
 				})
+				.catch( this.Error )
 			;
 			
 		});

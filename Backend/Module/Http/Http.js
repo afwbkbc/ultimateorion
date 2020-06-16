@@ -41,7 +41,7 @@ class Http extends require( '../_Module' ) {
 				
 			});
 			
-			this.Server.listen( 3000 );
+			this.Server.listen( this.Config.HttpPort );
 			
 			return next();
 		});

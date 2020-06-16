@@ -22,8 +22,10 @@ class Loader extends require( './_Helper' ) {
 									next( objects );
 								}
 							})
+							.catch( this.Error )
 						;
 					})
+					.catch( this.Error )
 				;
 			}
 		});
@@ -31,8 +33,12 @@ class Loader extends require( './_Helper' ) {
 	
 	LoadClass( name, namespace ) {
 		return new Promise( ( next, fail ) => {
-			
-			next( [ name, new ( this.Require( namespace ) ) ] )();
+			try {
+				var object = new ( this.Require( namespace ) )();
+				return next( [ name, object ] );
+			} catch ( e ) {
+				this.Error( e );
+			}
 		});
 	}
 
