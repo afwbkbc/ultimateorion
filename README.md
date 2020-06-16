@@ -1,2 +1,2 @@
-# infiniteorion
+# ultimateorion
 Freeorion-based MMO space strategy

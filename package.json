@@ -1,5 +1,5 @@
 {
-  "name": "infiniteorion",
+  "name": "ultimateorion",
   "version": "1.0.0",
   "description": "Freeorion-based web MMO space strategy",
   "main": "main.js",
@@ -8,12 +8,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/afwbkbc/infiniteorion.git"
+    "url": "git+https://github.com/afwbkbc/ultimateorion.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/afwbkbc/infiniteorion/issues"
+    "url": "https://github.com/afwbkbc/ultimateorion/issues"
   },
-  "homepage": "https://github.com/afwbkbc/infiniteorion#readme"
+  "homepage": "https://github.com/afwbkbc/ultimateorion#readme"
 }
