@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/afwbkbc/ultimateorion/issues"
   },
-  "homepage": "https://github.com/afwbkbc/ultimateorion#readme"
+  "homepage": "https://github.com/afwbkbc/ultimateorion#readme",
+  "dependencies": {
+    "md5": "^2.2.1",
+    "ws": "^7.3.0"
+  }
 }

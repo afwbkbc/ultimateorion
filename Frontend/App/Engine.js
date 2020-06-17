@@ -1,7 +1,11 @@
 window.App = {
 	
 	config: {
-		modules: [ 'Loader' ],
+		modules: [
+			'Loader',
+			'EventHandler',
+			'Connection',
+		],
 	},
 		
 	Init: function() {
