@@ -11,7 +11,7 @@ window.App.Extend({
 	
 	SetCookie: function( key, value ) {
 		console.log( '+COOKIE', key, value );
-		document.cookie = key + '=' + value + '; expires=Fri, 31 Dec 9999 23:59:59 GMT';
+		document.cookie = key + '=' + value + '; SameSite=strict; Secure=true; expires=Fri, 31 Dec 9999 23:59:59 GMT';
 	},
 	
 	RemoveCookie: function( key, value ) {

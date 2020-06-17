@@ -11,7 +11,7 @@ window.App.Extend({
 				step: 0.05,
 			},
 			scroll: {
-				interval: 30,
+				interval: 50,
 				step: 1,
 			},
 		},
