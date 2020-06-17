@@ -1,7 +1,7 @@
 class Label extends require( '../_Element' ) {
 	
 	constructor() {
-		super();
+		super( module.filename );
 		
 		this.SetAttributes({
 			Text: 'Test Text',

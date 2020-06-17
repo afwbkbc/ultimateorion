@@ -4,7 +4,7 @@ class GuestMenu extends require( '../Viewport' ) {
 		super( session );
 
 		this.WelcomeLabel = this.CreateElement( 'UI/Label', 0.3, 0.5, 'C', {
-			Text: 'kekw',
+			Text: 'Loading',
 		});
 		
 	}

@@ -14,7 +14,8 @@ class Viewport extends require( '../_Base' ) {
 		do {
 			id = Md5( Math.random() );
 		} while ( typeof( this.Elements ) === 'undefined' );
-		var element = new ( this.H.Loader.Require( 'Viewport/Element/' + namespace ) )( this, id );
+		var element = new ( this.H.Loader.Require( 'Viewport/Element/' + namespace ) )();
+		element.Attach( this, id, namespace );
 		if ( attributes )
 			element.SetAttributes( attributes );
 		element.SetAttributes({
@@ -40,8 +41,8 @@ class Viewport extends require( '../_Base' ) {
 	}
 	
 	RenderToConnection( connection ) {
-		for ( var k in this.Element )
-			this.Element.RenderToConnection( connection );
+		for ( var k in this.Elements )
+			this.Elements[ k ].RenderToConnection( connection );
 	}
 }
 
