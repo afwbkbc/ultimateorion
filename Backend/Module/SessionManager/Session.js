@@ -12,20 +12,16 @@ class Session extends require( '../../_Base' ) {
 	}
 	
 	AddConnection( connection ) {
-		if ( typeof( this.Connections[ connection.Id ] ) !== 'undefined' ) {
-			// something's very wrong
+		if ( typeof( this.Connections[ connection.Id ] ) !== 'undefined' )
 			throw new Error( 'Session connections collision at #' + connection.Id );
-		}
 		console.log( '+CONNECTION', this.Id, connection.Id );
 		this.Connections[ connection.Id ] = connection;
 		this.OnConnect( connection );
 	}
 	
 	RemoveConnection( connection ) {
-		if ( typeof( this.Connections[ connection.Id ] ) === 'undefined' ) {
-			// something's very wrong
+		if ( typeof( this.Connections[ connection.Id ] ) === 'undefined' )
 			throw new Error( 'Session connections invalid id #' + connection.Id );
-		}
 		console.log( '-CONNECTION', this.Id, connection.Id );
 		delete this.Connections[ connection.Id ];
 		this.OnDisconnect( connection );
@@ -40,12 +36,17 @@ class Session extends require( '../../_Base' ) {
 	
 	OnCreate() {
 		console.log( 'session create', this.Id );
+		
+		this.Viewport = new ( this.H.Loader.Require( 'Viewport/Template/GuestMenu' ) )( this );
 	}
 	
 	OnDestroy() {
 		console.log( 'session destroy', this.Id );
+		
 		if ( this.SessionTimeout )
 			clearTimeout( this.SessionTimeout );
+		
+		delete this.Viewport;
 	}
 	
 	OnConnect( connection ) {
@@ -58,6 +59,7 @@ class Session extends require( '../../_Base' ) {
 				guest_id: this.GuestId,
 			});
 		}
+		this.Viewport.RenderToConnection( connection );
 	}
 	
 	OnDisconnect( connection ) {
