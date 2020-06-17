@@ -6,6 +6,7 @@ class Session extends require( '../../_Base' ) {
 		this.Id = id;
 		this.SessionManager = session_manager;
 		this.Connections = {};
+		this.SessionTimeout = null;
 		
 		this.State = 'auth';
 	}
@@ -26,8 +27,8 @@ class Session extends require( '../../_Base' ) {
 			throw new Error( 'Session connections invalid id #' + connection.Id );
 		}
 		console.log( '-CONNECTION', this.Id, connection.Id );
-		this.OnDisconnect( connection );
 		delete this.Connections[ connection.Id ];
+		this.OnDisconnect( connection );
 	}
 	
 	SetGuestId( guest_id ) {
@@ -43,18 +44,34 @@ class Session extends require( '../../_Base' ) {
 	
 	OnDestroy() {
 		console.log( 'session destroy', this.Id );
+		if ( this.SessionTimeout )
+			clearTimeout( this.SessionTimeout );
 	}
 	
 	OnConnect( connection ) {
-		if ( this.GuestId )
+		if ( this.SessionTimeout ) {
+			clearTimeout( this.SessionTimeout );
+			this.SessionTimeout = null;
+		}
+		if ( this.GuestId ) {
 			connection.Send( 'set_guest_id', {
 				guest_id: this.GuestId,
 			});
+		}
 	}
 	
 	OnDisconnect( connection ) {
-		/*if ( Object.keys( this.Connections ).length == 0 && !this.UserId )
-			this.SessionManager.DestroySession( this );*/
+		if ( Object.keys( this.Connections ).length == 0 && !this.UserId ) {
+			// no connections left, guest session will timeout
+			if ( this.SessionTimeout )
+				throw new Error( 'SessionTimeout already active', this.Id );
+			console.log( 'timeout start', this.SessionManager.Config.GuestTimeout );
+			this.SessionTimeout = setTimeout( () => {
+				console.log( 'SESSION TIMEOUT' );
+				this.SessionTimeout = null;
+				this.SessionManager.DestroySession( this );
+			}, this.SessionManager.Config.GuestTimeout );
+		}
 	}
 	
 	Send( action, data, on_response ) {

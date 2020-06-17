@@ -24,37 +24,20 @@ class SessionManager extends require( '../_Module' ) {
 	
 	GetGuestSession( connection, guest_id ) {
 		var session;
-		var guest_id_full = null;
-		if ( guest_id )
-			guest_id_full = this.Md5( connection.RemoteAddress ) + '|' + guest_id;
-		if ( !guest_id_full || typeof( this.GuestSessions[ guest_id_full ] ) === 'undefined' ) {
+		if ( !guest_id || typeof( this.GuestSessions[ guest_id ] ) === 'undefined' ) {
 			// create new session
 			session = this.CreateSession();
-			var guest_id, guest_id_full;
 			do {
 				guest_id = this.Md5( Math.random() );
-				guest_id_full = this.Md5( connection.RemoteAddress ) + '|' + guest_id;
-			} while ( typeof( this.GuestSessions[ guest_id_full ] ) !== 'undefined' );
+			} while ( typeof( this.GuestSessions[ guest_id ] ) !== 'undefined' );
 			session.SetGuestId( guest_id );
-			this.GuestSessions[ guest_id_full ] = session;
+			this.GuestSessions[ guest_id ] = session;
 			session.OnCreate();
 		}
 		else
-			session = this.GuestSessions[ guest_id_full ];
+			session = this.GuestSessions[ guest_id ];
 		return session;
 	}
-	
-	FindGuestSession( guest_key ) {
-		console.log( 'FIND' );
-	}
-	
-/*	CreateSession( connection ) {
-		if ( typeof( this.SessionPool[ connection.Id ] ) !== 'undefined' )
-			throw new Error( 'SessionPool collision at #' + connection.Id );
-
-		this.SessionPool[ connection.Id ] = new this.Session( this, connection );
-		this.SessionPool[ connection.Id ].OnCreate();
-	}*/
 	
 	DestroySession( session ) {
 		if ( typeof( this.SessionPool[ session.Id ] ) === 'undefined' )
