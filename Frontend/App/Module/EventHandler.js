@@ -6,7 +6,12 @@ window.App.Extend({
 			
 			return reply({
 				is_guest: true,
+				guest_id: window.App.State.GetCookie( 'guest_id' ),
 			});
+		},
+		
+		set_guest_id: function( data ) {
+			window.App.State.SetCookie( 'guest_id', data.guest_id );
 		},
 		
 	},

@@ -3,15 +3,18 @@ var Events = {};
 
 class Connection extends require( '../../_Base' ) {
 	
-	constructor( http, id, ws ) {
+	constructor( http, id, ws, req ) {
 		super( module.filename );
 		
 		this.Http = http;
 		this.Id = id;
 		this.Ws = ws;
+		this.Req = req;
+		this.RemoteAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 		this.SessionManager = this.Http.E.M.SessionManager;
 		this.Authorized = false;
 		this.Events = {};
+		this.Session = null;
 		
 		ws.on( 'message', ( message ) => {
 			this.OnMessage( message );
@@ -22,38 +25,47 @@ class Connection extends require( '../../_Base' ) {
 		this.OnConnect();
 	}
 	
-	Send( action, data ) {
-		return new Promise( ( next, fail ) => {
-			
+	Send( action, data, on_response ) {
+		
+		var event = {
+			data: {
+				action: action,
+				data: data ? data : {},
+			},
+		};
+		
+		if ( on_response ) {
 			var event_id;
 			do {
 				event_id = Md5( Math.random() );
 			} while ( typeof( Events[ event_id ] ) !== 'undefined' );
-			
-			var event = {
-				data: {
-					id: event_id,
-					action: action,
-					data: data ? data : {},
-				},
-				callback: next,
-			};
+			event.data.id = event_id;
 			Events[ event_id ] = event;
 			this.Events[ event_id ] = event;
-			
-			this.Ws.send( JSON.stringify( event.data ));
-			
-		});
+			event.callback = on_response;
+		}
+		
+		this.Ws.send( JSON.stringify( event.data ));
+		
 	}
 	
 	OnConnect() {
 		console.log( 'Connected: #' + this.Id );
-		//this.SessionManager.CreateSession( this );
-		this.Send( 'auth' )
-			.then( ( data ) => {
-				console.log( 'RESP', data );
-			})
-		;
+		if ( this.Session )
+			throw new Error( 'Connection session already set', this.Id );
+		
+		this.Send( 'auth', {}, ( data ) => {
+			console.log( 'RESP', data );
+			var session;
+			if ( data.is_guest ) {
+				session = this.SessionManager.GetGuestSession( this, data.guest_id );
+			}
+			else {
+				
+			}
+			this.Session = session;
+			session.AddConnection( this );
+		});
 	}
 	
 	OnDisconnect() {
@@ -64,6 +76,9 @@ class Connection extends require( '../../_Base' ) {
 			delete this.Events[ k ];
 			delete Events[ k ];
 		}
+		
+		if ( this.Session )
+			this.Session.RemoveConnection( this );
 		
 		//this.SessionManager.DestroySession( this );
 		this.Http.RemoveConnection( this.Id );

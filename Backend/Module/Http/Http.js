@@ -66,7 +66,7 @@ class Http extends require( '../_Module' ) {
 				
 			});
 			
-			this.WsServer.on( 'connection', ( ws ) => {
+			this.WsServer.on( 'connection', ( ws, req ) => {
 				
 				var ws_id = ++this.NextConnectionId;
 				if ( typeof( this.ConnectionPool[ ws_id ] ) !== 'undefined' ) {
@@ -74,7 +74,7 @@ class Http extends require( '../_Module' ) {
 					throw new Error( 'ConnectionPool collision at #' + ws_id );
 				}
 				
-				this.ConnectionPool[ ws_id ] = new this.Connection( this, ws_id, ws );
+				this.ConnectionPool[ ws_id ] = new this.Connection( this, ws_id, ws, req );
 				
 			});
 			

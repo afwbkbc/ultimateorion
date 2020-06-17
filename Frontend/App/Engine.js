@@ -3,6 +3,7 @@ window.App = {
 	config: {
 		modules: [
 			'Loader',
+			'State',
 			'EventHandler',
 			'Connection',
 		],

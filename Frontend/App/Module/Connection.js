@@ -45,9 +45,9 @@ window.App.Extend({
 		
 		this.ws.onmessage = function( message ) {
 			var data = JSON.parse( message.data );
-			if ( !data.id || !data.action || !data.data )
+			if ( !data.action || !data.data )
 				return window.App.Error( 'invalid/corrupted event', data );
-			if ( typeof( that.events[ data.id ] ) !== 'undefined' )
+			if ( data.id && typeof( that.events[ data.id ] ) !== 'undefined' )
 				return window.App.Error( 'event id collision', id );
 			
 			var event = CreateEvent( data, that );
