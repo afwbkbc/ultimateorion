@@ -61,10 +61,10 @@ class _ElementBase extends require( '../_Base' ) {
 	}
 
 	UnrenderRecursive( target ) {
-		if ( this.Unrender )
-			this.Unrender( target );
 		for ( var k in this.Elements )
 			this.Elements[ k ].UnrenderRecursive( target );
+		if ( this.Unrender )
+			this.Unrender( target );
 	}
 
 	Show() {

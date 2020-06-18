@@ -55,7 +55,7 @@ class TestViewport extends require( '../Viewport' ) {
 		// after a while hide corner square
 		setTimeout( () => {
 			corner_square.Hide();
-		}, 5000 );
+		}, 10000 );
 	}
 	
 }
