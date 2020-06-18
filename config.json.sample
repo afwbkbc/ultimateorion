@@ -4,5 +4,8 @@
 	},
 	"Http": {
 		"HttpPort": "5000"
+	},
+	"SessionManager": {
+		"GuestTimeout": "60000"
 	}
 }

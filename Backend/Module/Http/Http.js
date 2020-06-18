@@ -61,7 +61,7 @@ class Http extends require( '../_Module' ) {
 				var ext = this.H.Fs.GetExtension( filepath );
 				switch ( ext ) {
 					case '.html':
-						contenttype = 'text/html';
+						contenttype = 'text/html; charset=utf-8';
 						break;
 					case '.css':
 						contenttype = 'text/css';

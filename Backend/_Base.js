@@ -49,9 +49,9 @@ class _Base {
 		
 		this.H = helpers; // helpers
 		this.NS = this.H.Fs.PathToNamespace( fname );
-		this.ModuleName = this.constructor.name;
+		this.Classname = this.constructor.name;
 		this.Error = error_handler;
-		this.Config = this.H.Config.GetConfig( this.ModuleName );
+		this.Config = this.H.Config.GetConfig( this.Classname );
 	}
 
 }

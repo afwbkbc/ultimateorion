@@ -10,7 +10,6 @@ var CreateEvent = function( event_data, connection ) {
 	return event;
 }
 
-
 window.App.Extend({
 
 	config: {
@@ -26,6 +25,7 @@ window.App.Extend({
 	Init: function( next ) {
 		var that = this;
 		
+		this.IsConnected = false;
 		this.Connect();
 		
 		next();
@@ -58,29 +58,54 @@ window.App.Extend({
 		this.ws.onclose = function() {
 			that.OnDisconnect.apply( that );
 		};
+		
 	},
 	
 	OnConnect: function() {
 		//console.log( 'CONNECT', this );
+		this.IsConnected = true;
+		
+		window.App.Loader.Stop();
+		
 	},
 	
 	OnDisconnect: function() {
+		this.IsConnected = false;
+		
 		var that = this;
 		
-		//console.log( 'DISCONNECT' );
+		// stop waiting for events
 		for ( var k in this.events )
 			delete this.events[ k ];
 		this.events = {};
+		
+		// clear viewport
+		window.App.Viewport.Clear();
+		
+		window.App.Loader.Start();
+		
+		// try to reconnect
 		setTimeout( function() {
 			that.Connect();
 		}, this.config.ws.reconnect_interval );
+	},
+	
+	LogEvent: function( prefix, id, action, data ) {
+		if ([
+			'render',
+			'unrender',
+			'renderchange',
+		].indexOf( action ) >= 0 )
+			return; // skip spammy events
+		
+		console.log( prefix, id, action, data );
 	},
 	
 	Reply: function( id, data ) {
 		if ( typeof( this.events[ id ] ) === 'undefined' )
 			return window.App.Error( 'event id does not exist', id );
 		
-		console.log( '<<', id, data );
+		this.LogEvent( '<<', id, null, data );
 		
 		this.ws.send( JSON.stringify({
 			id: id,
@@ -91,7 +116,8 @@ window.App.Extend({
 	OnEvent: function( event ) {
 		var that = this;
 		
-		console.log( '>>', event.id, event.action, event.data );
+		this.LogEvent( '>>', event.id, event.action, event.data );
+		
 		window.App.EventHandler.Handle( event );
 	},
 	

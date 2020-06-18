@@ -2,10 +2,13 @@ window.App = {
 	
 	config: {
 		modules: [
+			'HomeBackground',
 			'Loader',
-			'State',
-			'EventHandler',
+			'Session',
+			'Window',
 			'Connection',
+			'Viewport',
+			'EventHandler',
 		],
 	},
 		

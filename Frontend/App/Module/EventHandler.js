@@ -3,17 +3,21 @@ window.App.Extend({
 	events: {
 		
 		auth: function( data, reply ) {
-			
-			return reply({
-				is_guest: true,
-				guest_id: window.App.State.GetCookie( 'guest_id' ),
-			});
+			return reply( window.App.Session.GetAuthData() );
 		},
 		
 		set_guest_id: function( data ) {
-			window.App.State.SetCookie( 'guest_id', data.guest_id );
+			window.App.Session.SetGuestId( data.guest_id );
 		},
-		
+		render: function( data ) {
+			window.App.Viewport.AddElement( data );
+		},
+		unrender: function( data ) {
+			window.App.Viewport.RemoveElement( data );
+		},
+		renderchange: function( data ) {
+			window.App.Viewport.ChangeElement( data );
+		},
 	},
 	
 	Init: function( next ) {

@@ -1,7 +1,7 @@
 class Fs extends require( './_Helper' ) {
 	
 	constructor() {
-		super();
+		super( module.filename );
 		
 		this.Fs = require( 'fs' );
 		this.Path = require( 'path' );
