@@ -19,4 +19,15 @@ window.App.Extend({
 		document.cookie = key + '=' + value + '; expires=Thu, 01 Jan 1970 00:00:01 GMT';
 	},
 	
+	GetAuthData: function() {
+		return {
+			is_guest: true,
+			guest_id: this.GetCookie( 'guest_id' ),
+		};
+	},
+	
+	SetGuestId: function( guest_id ) {
+		window.App.Session.SetCookie( 'guest_id', guest_id );
+	},
+	
 });

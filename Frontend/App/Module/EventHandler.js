@@ -3,17 +3,15 @@ window.App.Extend({
 	events: {
 		
 		auth: function( data, reply ) {
-			
-			return reply({
-				is_guest: true,
-				guest_id: window.App.State.GetCookie( 'guest_id' ),
-			});
+			return reply( window.App.Session.GetAuthData() );
 		},
 		
 		set_guest_id: function( data ) {
-			window.App.State.SetCookie( 'guest_id', data.guest_id );
+			window.App.Session.SetGuestId( data.guest_id );
 		},
-		
+		render: function( data ) {
+			window.App.Viewport.RenderElement( data );
+		},
 	},
 	
 	Init: function( next ) {

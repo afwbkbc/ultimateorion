@@ -61,6 +61,8 @@ window.App.Extend({
 		
 		// scroll animation
 		this.loops.scroll = setInterval( function() {
+			if ( !window.App.Window.IsFocused )
+				return;
 			var position = window.getComputedStyle( that.el.background ).getPropertyValue( 'background-position' ).replace( /px/g, '' );
 			var splitpos = position.indexOf( ' ' );
 			var left = +position.substring( 0, splitpos );
@@ -85,8 +87,11 @@ window.App.Extend({
 			clearInterval( this.loops[ k ] );
 		this.loops = {};
 		
-		that.el.background.style.opacity = 0;
-		that.el.icon.style.opacity = 0;
+		this.el.icon.style.opacity = 0;
+		this.el.background.style.opacity = 0;
+		
+		this.el.background.style.opacity = 0;
+		this.el.icon.style.opacity = 0;
 		
 		this.running = false;
 	}

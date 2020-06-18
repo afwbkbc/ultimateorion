@@ -62,15 +62,23 @@ window.App.Extend({
 	
 	OnConnect: function() {
 		//console.log( 'CONNECT', this );
+		window.App.Loader.Stop();
 	},
 	
 	OnDisconnect: function() {
 		var that = this;
 		
-		//console.log( 'DISCONNECT' );
+		// stop waiting for events
 		for ( var k in this.events )
 			delete this.events[ k ];
 		this.events = {};
+		
+		// clear viewport
+		window.App.Viewport.Clear();
+		
+		window.App.Loader.Start();
+		
+		// try to reconnect
 		setTimeout( function() {
 			that.Connect();
 		}, this.config.ws.reconnect_interval );

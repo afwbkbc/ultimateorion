@@ -35,7 +35,6 @@ class Element extends require( '../../_Base' ) {
 	
 	RenderToSession( session ) {
 		session.Send( 'render', this.MakeRenderPayload() );
-		
 	}
 }
 
