@@ -2,7 +2,7 @@ class Loader extends require( './_Helper' ) {
 	
 	constructor() {
 		super( module.filename );
-		//console.log( 'Fs loaded' );
+
 	}
 	
 	LoadClasses( namespace ) {

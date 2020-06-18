@@ -10,23 +10,23 @@ html, body {
 	overflow: hidden;
 }
 
-#loader, #loader-icon {
+#homebackground {
 	position: fixed;
 	top: 0;
 	left: 0;
 	bottom: 0;
 	right: 0;
-}
-
-#loader {
 	background: url( '/Assets/MenuBackground.jpg' ) repeat black;
 	opacity: 0;
 }
 
 #loader-icon {
-	background: url( '/Assets/Loader.gif' ) no-repeat center;
+	position: fixed;
+	top: 0;
+	right: 0;
 	opacity: 0;
-	display: none; /* tmp disabled */
+	max-height: 13%;
+	max-width: 10%;
 }
 
 #viewport {

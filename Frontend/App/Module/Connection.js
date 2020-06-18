@@ -65,6 +65,8 @@ window.App.Extend({
 		//console.log( 'CONNECT', this );
 		this.IsConnected = true;
 		
+		window.App.Loader.Stop();
+		
 	},
 	
 	OnDisconnect: function() {
