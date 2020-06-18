@@ -17,7 +17,7 @@ class _ElementBase extends require( '../_Base' ) {
 	}
 	
 	/*
-	 * anchors: [ inner_anchor_point, outer_anchor_point ], possible types: "LT, CT, RT, LC, CC, RC, LB, CB, RB"
+	 * anchors: [ outer_anchor_point, inner_anchor_point ], possible types: "LT, CT, RT, LC, CC, RC, LB, CB, RB"
 	 * offsets: [ left_offset, top_offset ]
 	 */
 	
@@ -35,7 +35,7 @@ class _ElementBase extends require( '../_Base' ) {
 			offsets: offsets,
 		});
 		this.Elements[ id ] = element;
-		element.RenderToSession( this.GetSession() );
+		element.Render( this.GetSession() );
 		return element;
 	}
 	
@@ -53,13 +53,34 @@ class _ElementBase extends require( '../_Base' ) {
 			this.OnDestroy();
 	}
 	
-	RenderToConnectionRecursive( connection ) {
-		if ( this.RenderToConnection )
-			this.RenderToConnection( connection );
+	RenderRecursive( target ) {
+		if ( this.Render )
+			this.Render( target );
 		for ( var k in this.Elements )
-			this.Elements[ k ].RenderToConnectionRecursive( connection );
+			this.Elements[ k ].RenderRecursive( target );
 	}
 
+	UnrenderRecursive( target ) {
+		if ( this.Unrender )
+			this.Unrender( target );
+		for ( var k in this.Elements )
+			this.Elements[ k ].UnrenderRecursive( target );
+	}
+
+	Show() {
+		if ( !this.IsVisible ) {
+			this.IsVisible = true;
+			this.RenderRecursive( this.Viewport.Session );
+		}
+	}
+	
+	Hide() {
+		if ( this.IsVisible ) {
+			this.IsVisible = false;
+			this.UnrenderRecursive( this.Viewport.Session );
+		}
+	}
+	
 }
 
 module.exports = _ElementBase;

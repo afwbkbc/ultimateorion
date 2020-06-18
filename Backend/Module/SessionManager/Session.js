@@ -60,7 +60,7 @@ class Session extends require( '../../_Base' ) {
 				guest_id: this.GuestId,
 			});
 		}
-		this.Viewport.RenderToConnectionRecursive( connection );
+		this.Viewport.RenderRecursive( connection );
 	}
 	
 	OnDisconnect( connection ) {

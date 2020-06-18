@@ -151,7 +151,20 @@ window.App.Extend({
 		var element = {
 			data: data,
 		};
-		this.PositionElement( element, [ 0, 0, this.Canvas.width, this.Canvas.height ] );
+		var bounds = [ 0, 0, this.Canvas.width, this.Canvas.height ];
+		if ( element.data.parent_id ) {
+			var parent = this.Elements[ element.data.parent_id ];
+			if ( parent ) {
+				bounds = this.GetElementBounds( parent );
+				bounds[ 0 ] += parent.coords[ 0 ];
+				bounds[ 1 ] += parent.coords[ 1 ];
+				bounds[ 2 ] += parent.coords[ 0 ];
+				bounds[ 3 ] += parent.coords[ 1 ];
+			}
+			else
+				console.log( 'WARNING', 'parent element not found', element );
+		}
+		this.PositionElement( element, bounds );
 		this.Elements[ data.id ] = element;
 		this.IsStateChanged = true;
 	},

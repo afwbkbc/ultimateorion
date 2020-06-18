@@ -8,6 +8,7 @@ class TestBlock extends require( '../_Element' ) {
 			Height: 480,
 			Color: 'white',
 		});
+				
 	}
 	
 }
