@@ -1,0 +1,12 @@
+#RewriteEngine On
+#RewriteCond %{HTTPS} off
+#RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+
+DirectoryIndex disabled
+RewriteEngine On
+RewriteCond %{HTTP_HOST} ^www.ultimateorion.com [NC]
+RewriteRule ^(.*)$ https://ultimateorion.com/$1 [L,R=302]
+RewriteRule ^$ https://ultimateorion.com:16666/ [P,L]
+RewriteRule ^(.*)$ https://ultimateorion.com:16666/$1 [P,L]
+

@@ -3,7 +3,7 @@ class Http extends require( '../_Module' ) {
 	constructor() {
 		super( module.filename );
 		
-		this.Http = require( 'http' );
+		this.Http = require( 'https' );
 		this.Ws = require( 'ws' );
 		this.Connection = require( './Connection' );
 		
@@ -15,11 +15,24 @@ class Http extends require( '../_Module' ) {
 	Init() {
 		return new Promise( ( next, fail ) => {
 			
-			this.Server = this.Http.createServer();
+			this.Server = this.Http.createServer({
+				ca: this.H.Fs.ReadFile( this.H.Fs.GetRootPath() + '/SSL/ca.pem' ),
+				cert: this.H.Fs.ReadFile( this.H.Fs.GetRootPath() + '/SSL/cert.pem' ),
+				key: this.H.Fs.ReadFile( this.H.Fs.GetRootPath() + '/SSL/key.pem' ),
+			});
 			this.WsServer = new this.Ws.Server({
 				server: this.Server,
+//				ssl: true,
+//				secure: true,
+//                                ca: this.H.Fs.ReadFile( this.H.Fs.GetRootPath() + '/SSL/ca.pem' ),
+//                                cert: this.H.Fs.ReadFile( this.H.Fs.GetRootPath() + '/SSL/cert.pem' ),
+//                                key: this.H.Fs.ReadFile( this.H.Fs.GetRootPath() + '/SSL/key.pem' ),
 			});
 			
+			this.Server.on( 'error', ( a, b, c ) => {
+				console.log( 'HTTPS ERROR', a, b, c );
+			});
+
 			this.Server.on( 'request', ( req, res ) => {
 				
 				var filepath, status, contenttype;
