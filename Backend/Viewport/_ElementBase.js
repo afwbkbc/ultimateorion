@@ -37,6 +37,8 @@ class _ElementBase extends require( '../_Base' ) {
 			offsets: offsets,
 		});
 		this.Elements[ id ] = element;
+		if ( element.Prepare )
+			element.Prepare();
 		element.Render( this.GetSession() );
 		return element;
 	}

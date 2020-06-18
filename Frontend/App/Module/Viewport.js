@@ -6,21 +6,36 @@ var Elements = {
 			ctx.fillStyle = a.Color;
 			ctx.fillRect( element.coords[ 0 ], element.coords[ 1 ], a.Width, a.Height );
 		},
-		GetBounds: function( ctx, element ) {
-			var a = element.data.attributes;
-			return [ 0, 0, a.Width, a.Height ];
-		},
 	},
 		
 	'UI/Label': {
 		Render: function( ctx, element ) {
+			var a = element.data.attributes;
+			var c = element.coords;
 			ctx.font = "60px Verdana";
-			ctx.textAlign = 'center';
+			ctx.textAlign = 'left';
+			ctx.textBaseline = 'top';
 			ctx.fillStyle = 'red';
-			ctx.fillText("Hello World", 1000, 500);
+			ctx.fillText( a.Text, c[0], c[1] );
 		},
 		GetBounds: function( ctx, element ) {
-			return [ 50, 50 ];
+			ctx.font = "60px Verdana";
+			ctx.textAlign = 'left';
+			ctx.textBaseline = 'top';
+			ctx.fillStyle = 'red';
+			var m = ctx.measureText( element.data.attributes.Text );
+			return [ 0, 0, m.width, m.actualBoundingBoxAscent + m.actualBoundingBoxDescent ];
+		},
+	},
+	
+	'Layout/Panel': {
+		Render: function( ctx, element ) {
+			var a = element.data.attributes;
+			var c = element.coords;
+			ctx.strokeStyle = 'aqua';
+			ctx.strokeRect( c[0], c[1], a.Width, a.Height );
+			ctx.fillStyle = 'rgb( 0, 0, 0, 0.7 )';
+			ctx.fillRect( c[0] + 1, c[1] + 1, a.Width - 2, a.Height - 2 );
 		},
 	},
 
@@ -29,11 +44,19 @@ var Elements = {
 window.App.Extend({
 
 	RenderElement: function( element ) {
-		Elements[ element.data.element ].Render( this.Ctx, element );
+		if ( Elements[ element.data.element ] && Elements[ element.data.element ].Render )
+			Elements[ element.data.element ].Render( this.Ctx, element );
 	},
 	
 	GetElementBounds: function( element ) {
-		return Elements[ element.data.element ].GetBounds( this.Ctx, element );
+		if ( Elements[ element.data.element ] && Elements[ element.data.element ].GetBounds )
+			return Elements[ element.data.element ].GetBounds( this.Ctx, element );
+		else if ( this.IsBlockElement( element.data ) ) {
+			var a = element.data.attributes;
+			return [ 0, 0, a.Width, a.Height ];
+		}
+		else
+			return [ 0, 0, 0, 0 ];
 	},
 	
 	Init: function( next ) {
@@ -148,13 +171,20 @@ window.App.Extend({
 		element.coords = [ source_point[ 0 ] - dest_point[ 0 ] + a.offsets[ 0 ], source_point[ 1 ] - dest_point[ 1 ] + a.offsets[ 1 ] ];
 	},
 	
+	IsBlockElement: function( data ) {
+		return (
+			( typeof( data.attributes.Width ) !== 'undefined' ) &&
+			( typeof( data.attributes.Height ) !== 'undefined' )
+		);
+	},
+	
 	AddElement: function( data ) {
 		if ( this.Elements[ data.id ] ) {
 			console.log( 'WARNING', 'duplicate element to be inserted', data );
 			return;
 		}
-		if ( !Elements[ data.element ] ) {
-			console.log( 'WARNING', 'unsuported element "' + data.element + '"' );
+		if ( !Elements[ data.element ] && !this.IsBlockElement( data ) ) {
+			console.log( 'WARNING', 'unsupported non-block element "' + data.element + '"' );
 			return;
 		}
 		var element = {

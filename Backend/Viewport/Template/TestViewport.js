@@ -69,6 +69,13 @@ class TestViewport extends require( '../Viewport' ) {
 				direction = -1;
 			el.SetOffsets( [ left, offsets[ 1 ] ] );
 		}, 20 );
+		
+		// test some custom elements
+		var window = this.AddElement( 'Layout/Window', [ 'LC', 'LC' ], [ 50, 0 ], {
+			Title: 'Test Window',
+			Width: 800,
+			Height: 500,
+		});
 	}
 	
 }
