@@ -2,14 +2,19 @@ const Md5 = require( 'md5' );
 
 class Viewport extends require( '../_Base' ) {
 
-	constructor( session ) {
-		super( module.filename );
+	constructor( filename, session ) {
+		super( filename );
 		
 		this.Session = session;
 		this.Elements = {};
 	}
 	
-	CreateElement( namespace, x, y, a, attributes ) {
+	/*
+	 * anchors: [ inner_attachment, parent_attachment ], possible types: "TL, TC, TR, CL, CC, CR, BL, BC, BR"
+	 * offsets: [ top_offset, left_offset ]
+	 */
+	
+	AddElement( namespace, anchors, offsets, attributes ) {
 		var id;
 		do {
 			id = Md5( Math.random() );
@@ -19,15 +24,15 @@ class Viewport extends require( '../_Base' ) {
 		if ( attributes )
 			element.SetAttributes( attributes );
 		element.SetAttributes({
-			X: x,
-			Y: y,
+			anchors: anchors,
+			offsets: offsets,
 		});
 		this.Elements[ id ] = element;
 		element.RenderToSession( this.Session );
 		return element;
 	}
 	
-	DestroyElement( element ) {
+	RemoveElement( element ) {
 		if ( typeof( this.Elements[ element.id ] ) === 'undefined' )
 			throw new Error( 'Element id not found', element.id );
 		if ( typeof( element.OnDestroy() ) === 'function' )

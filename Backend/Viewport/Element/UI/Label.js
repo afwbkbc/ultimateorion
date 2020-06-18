@@ -4,9 +4,7 @@ class Label extends require( '../_Element' ) {
 		super( module.filename );
 		
 		this.SetAttributes({
-			Text: 'Test Text',
-			FontName: 'Verdana',
-			FontSize: 20,
+			
 		});
 	}
 	

@@ -6,10 +6,9 @@ class Element extends require( '../../_Base' ) {
 		this.Attributes = {};
 		this.IsVisible = true;
 		
-		
 		// set defaults
 		this.SetAttributes({
-			CS: 'CC', // constraints, by default center everything
+			Style: 'default',
 		});
 	}
 	

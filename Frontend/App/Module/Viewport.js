@@ -1,12 +1,39 @@
+var Elements = {
+		
+	'Test/TestBlock': {
+		Render: function( ctx, element ) {
+			var a = element.data.attributes;
+			ctx.fillStyle = a.Color;
+			ctx.fillRect( element.coords[ 1 ], element.coords[ 0 ], a.Width, a.Height );
+		},
+		GetBounds: function( ctx, element ) {
+			var a = element.data.attributes;
+			return [ 0, 0, a.Height, a.Width ];
+		},
+	},
+		
+	'UI/Label': {
+		Render: function( ctx, element ) {
+			ctx.font = "60px Verdana";
+			ctx.textAlign = 'center';
+			ctx.fillStyle = 'red';
+			ctx.fillText("Hello World", 1000, 500);
+		},
+		GetBounds: function( ctx, element ) {
+			return [ 50, 50 ];
+		},
+	},
+
+};
+
 window.App.Extend({
 
 	RenderElement: function( element ) {
-		//console.log( 'RENDER', element );
-		
-		this.Ctx.font = "60px Verdana";
-		this.Ctx.textAlign = 'center';
-		this.Ctx.fillStyle = 'red';
-		this.Ctx.fillText("Hello World", 1000, 500);
+		Elements[ element.data.element ].Render( this.Ctx, element );
+	},
+	
+	GetElementBounds: function( element ) {
+		return Elements[ element.data.element ].GetBounds( this.Ctx, element );
 	},
 	
 	Init: function( next ) {
@@ -48,9 +75,11 @@ window.App.Extend({
 		var desired_fps = 60;
 		
 		// main loop
+		this.IsStateChanged = true;
+		
 		var fps_ms = 1000/desired_fps;
 		this.RenderInterval = setInterval( function() {
-			if ( window.App.Window.IsFocused && window.App.Connection.IsConnected ) {
+			if ( window.App.Window.IsFocused && window.App.Connection.IsConnected && that.IsStateChanged ) {
 				that.Render();
 				if ( show_fps ) {
 					that.Ctx.font = "30px Verdana";
@@ -60,6 +89,7 @@ window.App.Extend({
 				
 					that.Frames++;
 				}
+				that.IsStateChanged = false;
 			}
 		}, fps_ms );
 		
@@ -67,7 +97,46 @@ window.App.Extend({
 	},
 	
 	Clear: function() {
+		for ( var k in this.Elements ) {
+			delete this.Elements[ k ];
+		}
+		this.Elements = {};
 		this.Ctx.clearRect( 0, 0, this.Canvas.width, this.Canvas.height );
+	},
+	
+	/**
+	 * area_bounds: [ top, left, bottom, right ]
+	 */
+	PositionElement: function( element, area_bounds ) {
+		
+		var a = element.data.attributes;
+		var element_bounds = this.GetElementBounds( element );
+		
+		var source_point = [ 0, 0 ]; // [ top, left ]
+		var dest_point = [ 0, 0 ]; // [ top, left ]
+		
+		switch( a.anchors[ 0 ][ 0 ] ) {
+			case 'T': source_point[ 0 ] = area_bounds[ 0 ]; break;
+			case 'C': source_point[ 0 ] = area_bounds[ 0 ] + ( area_bounds[ 2 ] - area_bounds[ 0 ] ) / 2; break;
+			case 'B': source_point[ 0 ] = area_bounds[ 2 ]; break;
+		};
+		switch( a.anchors[ 0 ][ 1 ] ) {
+			case 'L': source_point[ 1 ] = area_bounds[ 1 ]; break;
+			case 'C': source_point[ 1 ] = area_bounds[ 1 ] + ( area_bounds[ 3 ] - area_bounds[ 1 ] ) / 2; break;
+			case 'R': source_point[ 1 ] = area_bounds[ 3 ]; break;
+		};
+		switch( a.anchors[ 1 ][ 0 ] ) {
+			case 'T': dest_point[ 0 ] = element_bounds[ 0 ]; break;
+			case 'C': dest_point[ 0 ] = element_bounds[ 0 ] + ( element_bounds[ 2 ] - element_bounds[ 0 ] ) / 2; break;
+			case 'B': dest_point[ 0 ] = element_bounds[ 2 ]; break;
+		};
+		switch( a.anchors[ 1 ][ 1 ] ) {
+			case 'L': dest_point[ 1 ] = element_bounds[ 1 ]; break;
+			case 'C': dest_point[ 1 ] = element_bounds[ 1 ] + ( element_bounds[ 3 ] - element_bounds[ 1 ] ) / 2; break;
+			case 'R': dest_point[ 1 ] = element_bounds[ 3 ]; break;
+		};
+		
+		element.coords = [ source_point[ 0 ] - dest_point[ 0 ] + a.offsets[ 0 ], source_point[ 1 ] - dest_point[ 1 ] + a.offsets[ 1 ] ];
 	},
 	
 	AddElement: function( data ) {
@@ -75,7 +144,16 @@ window.App.Extend({
 			console.log( 'WARNING', 'duplicate element to be inserted', data );
 			return;
 		}
-		this.Elements[ data.id ] = data;
+		if ( !Elements[ data.element ] ) {
+			console.log( 'WARNING', 'unsuported element "' + data.element + '"' );
+			return;
+		}
+		var element = {
+			data: data,
+		};
+		this.PositionElement( element, [ 0, 0, this.Canvas.height, this.Canvas.width ] );
+		this.Elements[ data.id ] = element;
+		this.IsStateChanged = true;
 	},
 	
 	RemoveElement: function( data ) {
@@ -84,10 +162,11 @@ window.App.Extend({
 			return;
 		}
 		delete this.Elements[ data.id ];
+		this.IsStateChanged = true;
 	},
 	
 	Render: function() {
-		this.Clear();
+		this.Ctx.clearRect( 0, 0, this.Canvas.width, this.Canvas.height );
 		for ( var k in this.Elements )
 			this.RenderElement( this.Elements[ k ] );
 	},
