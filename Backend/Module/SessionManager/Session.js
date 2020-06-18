@@ -37,8 +37,8 @@ class Session extends require( '../../_Base' ) {
 	OnCreate() {
 		console.log( 'session create', this.Id );
 		
-		//this.Viewport = new ( this.H.Loader.Require( 'Viewport/Template/GuestMenu' ) )( this );
 		this.Viewport = new ( this.H.Loader.Require( 'Viewport/Template/TestViewport' ) )( this );
+		//this.Viewport = new ( this.H.Loader.Require( 'Viewport/Viewport' ) )( this );
 	}
 	
 	OnDestroy() {
@@ -60,7 +60,7 @@ class Session extends require( '../../_Base' ) {
 				guest_id: this.GuestId,
 			});
 		}
-		this.Viewport.RenderToConnection( connection );
+		this.Viewport.RenderToConnectionRecursive( connection );
 	}
 	
 	OnDisconnect( connection ) {

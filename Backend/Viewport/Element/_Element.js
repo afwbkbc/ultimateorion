@@ -1,4 +1,4 @@
-class Element extends require( '../../_Base' ) {
+class _Element extends require( '../_ElementBase' ) {
 	
 	constructor( filename ) {
 		super( filename );
@@ -12,10 +12,19 @@ class Element extends require( '../../_Base' ) {
 		});
 	}
 	
-	Attach( viewport, id, element_type ) {
-		this.Viewport = viewport;
+	Attach( parent, id, element_type ) {
+		this.Parent = parent;
 		this.Id = id;
 		this.ElementType = element_type;
+		this.Viewport = this.GetViewport();
+	}
+	
+	GetViewport() {
+		if ( !this.Parent )
+			return this;
+		if ( !this.Parent.Parent )
+			return this.Parent;
+		return this.Parent.GetViewport();
 	}
 	
 	SetAttributes( attributes ) {
@@ -67,4 +76,4 @@ class Element extends require( '../../_Base' ) {
 	}
 }
 
-module.exports = Element;
+module.exports = _Element;
