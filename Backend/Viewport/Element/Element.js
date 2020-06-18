@@ -1,4 +1,4 @@
-class _Element extends require( '../_ElementBase' ) {
+class Element extends require( '../_ElementBase' ) {
 	
 	constructor( filename ) {
 		super( filename );
@@ -73,4 +73,4 @@ class _Element extends require( '../_ElementBase' ) {
 	
 }
 
-module.exports = _Element;
+module.exports = Element;

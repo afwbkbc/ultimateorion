@@ -1,4 +1,4 @@
-class TestBlock extends require( '../_Element' ) {
+class TestBlock extends require( '../Element' ) {
 
 	constructor() {
 		super( module.filename );

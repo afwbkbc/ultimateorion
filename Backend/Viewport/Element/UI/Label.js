@@ -1,4 +1,4 @@
-class Label extends require( '../_Element' ) {
+class Label extends require( '../Element' ) {
 	
 	constructor() {
 		super( module.filename );
