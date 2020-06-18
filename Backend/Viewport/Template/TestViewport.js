@@ -45,7 +45,7 @@ class TestViewport extends require( '../Viewport' ) {
 		});
 		
 		// slowly blink small center square ( with child square inside )
-		setInterval( () => {
+		this.Threads.Run( () => {
 			if ( center_square_square.IsVisible )
 				center_square_square.Hide();
 			else
@@ -53,16 +53,16 @@ class TestViewport extends require( '../Viewport' ) {
 		}, 1000 );
 		
 		// after a while hide corner square
-		setTimeout( () => {
+		this.Threads.RunOnce( () => {
 			corner_square.Hide();
 		}, 10000 );
 
 		var direction = -1;		
 		// move red square left and right
-		setInterval( () => {
+		this.Threads.Run( () => {
 			var el = elements[ 4 ];
 			var offsets = el.GetOffsets();
-			var left = offsets[ 0 ] + 10*direction;
+			var left = offsets[ 0 ] + 10 * direction;
 			if ( left <= -1820 )
 				direction = 1;
 			else if ( left >= 0 )

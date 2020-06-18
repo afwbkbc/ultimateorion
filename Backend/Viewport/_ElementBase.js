@@ -6,6 +6,8 @@ class _ElementBase extends require( '../_Base' ) {
 		super( filename );
 
 		this.Elements = {};
+		this.Threads = this.H.Threads.CreatePool();
+		
 	}
 	
 	GetSession() {
@@ -40,15 +42,16 @@ class _ElementBase extends require( '../_Base' ) {
 	}
 	
 	RemoveElement( element ) {
-		if ( typeof( this.Elements[ element.id ] ) === 'undefined' )
-			throw new Error( 'Element id not found', element.id );
+		if ( typeof( this.Elements[ element.Id ] ) === 'undefined' )
+			throw new Error( 'Element id #' + element.Id + ' not found' );
 		element.OnDestroyRecursive();
-		delete this.Elements[ element.id ];
+		delete this.Elements[ element.Id ];
 	}
 	
 	OnDestroyRecursive() {
 		for ( var k in this.Elements )
 			this.RemoveElement( this.Elements[ k ] );
+		this.Threads.Kill();
 		if ( this.OnDestroy )
 			this.OnDestroy();
 	}

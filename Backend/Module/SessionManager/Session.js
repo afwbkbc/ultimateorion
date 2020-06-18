@@ -35,18 +35,19 @@ class Session extends require( '../../_Base' ) {
 	}
 	
 	OnCreate() {
-		console.log( 'session create', this.Id );
+		console.log( '+SESSION #' + this.Id );
 		
 		this.Viewport = new ( this.H.Loader.Require( 'Viewport/Template/TestViewport' ) )( this );
 		//this.Viewport = new ( this.H.Loader.Require( 'Viewport/Viewport' ) )( this );
 	}
 	
 	OnDestroy() {
-		console.log( 'session destroy', this.Id );
+		console.log( '-SESSION #' + this.Id );
 		
 		if ( this.SessionTimeout )
 			clearTimeout( this.SessionTimeout );
 		
+		this.Viewport.Destroy();
 		delete this.Viewport;
 	}
 	
@@ -68,9 +69,9 @@ class Session extends require( '../../_Base' ) {
 			// no connections left, guest session will timeout
 			if ( this.SessionTimeout )
 				throw new Error( 'SessionTimeout already active', this.Id );
-			console.log( 'timeout start', this.SessionManager.Config.GuestTimeout );
+			
 			this.SessionTimeout = setTimeout( () => {
-				console.log( 'SESSION TIMEOUT' );
+				
 				this.SessionTimeout = null;
 				this.SessionManager.DestroySession( this );
 			}, this.SessionManager.Config.GuestTimeout );

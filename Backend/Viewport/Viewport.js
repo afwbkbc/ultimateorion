@@ -6,6 +6,10 @@ class Viewport extends require( './_ElementBase' ) {
 		this.Session = session;
 	}
 	
+	Destroy() {
+		this.OnDestroyRecursive();
+	}
+	
 }
 
 module.exports = Viewport;

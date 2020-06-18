@@ -1,7 +1,7 @@
 class Loader extends require( './_Helper' ) {
 	
 	constructor() {
-		super();
+		super( module.filename );
 		//console.log( 'Fs loaded' );
 	}
 	
