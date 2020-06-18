@@ -4,11 +4,11 @@ var Elements = {
 		Render: function( ctx, element ) {
 			var a = element.data.attributes;
 			ctx.fillStyle = a.Color;
-			ctx.fillRect( element.coords[ 1 ], element.coords[ 0 ], a.Width, a.Height );
+			ctx.fillRect( element.coords[ 0 ], element.coords[ 1 ], a.Width, a.Height );
 		},
 		GetBounds: function( ctx, element ) {
 			var a = element.data.attributes;
-			return [ 0, 0, a.Height, a.Width ];
+			return [ 0, 0, a.Width, a.Height ];
 		},
 	},
 		
@@ -87,10 +87,10 @@ window.App.Extend({
 					that.Ctx.fillStyle = 'white';
 					that.Ctx.fillText( 'FPS: ' + that.LastFrames, 100, 100 );
 				
-					that.Frames++;
 				}
 				that.IsStateChanged = false;
 			}
+			that.Frames++;
 		}, fps_ms );
 		
 		return next();
@@ -105,35 +105,35 @@ window.App.Extend({
 	},
 	
 	/**
-	 * area_bounds: [ top, left, bottom, right ]
+	 * area_bounds: [ left, top, right, bottom ]
 	 */
 	PositionElement: function( element, area_bounds ) {
 		
 		var a = element.data.attributes;
 		var element_bounds = this.GetElementBounds( element );
 		
-		var source_point = [ 0, 0 ]; // [ top, left ]
-		var dest_point = [ 0, 0 ]; // [ top, left ]
+		var source_point = [ 0, 0 ]; // [ left, top ]
+		var dest_point = [ 0, 0 ]; // [ left, top ]
 		
 		switch( a.anchors[ 0 ][ 0 ] ) {
-			case 'T': source_point[ 0 ] = area_bounds[ 0 ]; break;
+			case 'L': source_point[ 0 ] = area_bounds[ 0 ]; break;
 			case 'C': source_point[ 0 ] = area_bounds[ 0 ] + ( area_bounds[ 2 ] - area_bounds[ 0 ] ) / 2; break;
-			case 'B': source_point[ 0 ] = area_bounds[ 2 ]; break;
+			case 'R': source_point[ 0 ] = area_bounds[ 2 ]; break;
 		};
 		switch( a.anchors[ 0 ][ 1 ] ) {
-			case 'L': source_point[ 1 ] = area_bounds[ 1 ]; break;
+			case 'T': source_point[ 1 ] = area_bounds[ 1 ]; break;
 			case 'C': source_point[ 1 ] = area_bounds[ 1 ] + ( area_bounds[ 3 ] - area_bounds[ 1 ] ) / 2; break;
-			case 'R': source_point[ 1 ] = area_bounds[ 3 ]; break;
+			case 'B': source_point[ 1 ] = area_bounds[ 3 ]; break;
 		};
 		switch( a.anchors[ 1 ][ 0 ] ) {
-			case 'T': dest_point[ 0 ] = element_bounds[ 0 ]; break;
+			case 'L': dest_point[ 0 ] = element_bounds[ 0 ]; break;
 			case 'C': dest_point[ 0 ] = element_bounds[ 0 ] + ( element_bounds[ 2 ] - element_bounds[ 0 ] ) / 2; break;
-			case 'B': dest_point[ 0 ] = element_bounds[ 2 ]; break;
+			case 'R': dest_point[ 0 ] = element_bounds[ 2 ]; break;
 		};
 		switch( a.anchors[ 1 ][ 1 ] ) {
-			case 'L': dest_point[ 1 ] = element_bounds[ 1 ]; break;
+			case 'T': dest_point[ 1 ] = element_bounds[ 1 ]; break;
 			case 'C': dest_point[ 1 ] = element_bounds[ 1 ] + ( element_bounds[ 3 ] - element_bounds[ 1 ] ) / 2; break;
-			case 'R': dest_point[ 1 ] = element_bounds[ 3 ]; break;
+			case 'B': dest_point[ 1 ] = element_bounds[ 3 ]; break;
 		};
 		
 		element.coords = [ source_point[ 0 ] - dest_point[ 0 ] + a.offsets[ 0 ], source_point[ 1 ] - dest_point[ 1 ] + a.offsets[ 1 ] ];
@@ -151,7 +151,7 @@ window.App.Extend({
 		var element = {
 			data: data,
 		};
-		this.PositionElement( element, [ 0, 0, this.Canvas.height, this.Canvas.width ] );
+		this.PositionElement( element, [ 0, 0, this.Canvas.width, this.Canvas.height ] );
 		this.Elements[ data.id ] = element;
 		this.IsStateChanged = true;
 	},

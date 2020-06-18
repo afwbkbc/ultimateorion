@@ -10,8 +10,8 @@ class Viewport extends require( '../_Base' ) {
 	}
 	
 	/*
-	 * anchors: [ inner_attachment, parent_attachment ], possible types: "TL, TC, TR, CL, CC, CR, BL, BC, BR"
-	 * offsets: [ top_offset, left_offset ]
+	 * anchors: [ inner_anchor_point, outer_anchor_point ], possible types: "LT, CT, RT, LC, CC, RC, LB, CB, RB"
+	 * offsets: [ left_offset, top_offset ]
 	 */
 	
 	AddElement( namespace, anchors, offsets, attributes ) {
