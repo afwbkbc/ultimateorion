@@ -41,6 +41,8 @@ window.App.Extend({
 		this.Ctx = this.Canvas.getContext( '2d' );
 		this.Elements = {};
 		
+		this.TrackStats = true;
+		
 		// maintain aspect ratio
 		var aspect_ratio = this.Canvas.width / this.Canvas.height;
 		var that = this;
@@ -60,19 +62,20 @@ window.App.Extend({
 		fix_aspect_ratio();
 		window.onresize = fix_aspect_ratio;
 
-		// fps counter
-		var show_fps = true;
-		
-		if ( show_fps ) {
+		if ( this.TrackStats ) {
 			this.Frames = 0;
 			this.LastFrames = 0;
+			this.Redraws = 0;
+			this.LastRedraws = 0;
 			this.FpsInterval = setInterval( function() {
 				that.LastFrames = that.Frames;
 				that.Frames = 0;
+				that.LastRedraws = that.Redraws;
+				that.Redraws = 0;
 			}, 1000 );
 		}
 		
-		var desired_fps = 60;
+		var desired_fps = 120;
 		
 		// main loop
 		this.IsStateChanged = true;
@@ -81,14 +84,16 @@ window.App.Extend({
 		this.RenderInterval = setInterval( function() {
 			if ( window.App.Window.IsFocused && window.App.Connection.IsConnected && that.IsStateChanged ) {
 				that.Render();
-				if ( show_fps ) {
+				if ( that.TrackStats ) {
 					that.Ctx.font = "30px Verdana";
 					that.Ctx.textAlign = 'top left';
 					that.Ctx.fillStyle = 'white';
 					that.Ctx.fillText( 'FPS: ' + that.LastFrames, 100, 100 );
+					that.Ctx.fillText( 'Redraws/s: ' + that.LastRedraws, 100, 130 );
 				
 				}
 				that.IsStateChanged = false;
+				that.Redraws++;
 			}
 			that.Frames++;
 		}, fps_ms );
@@ -102,6 +107,10 @@ window.App.Extend({
 		}
 		this.Elements = {};
 		this.Ctx.clearRect( 0, 0, this.Canvas.width, this.Canvas.height );
+	},
+	
+	Redraw: function() {
+		this.IsStateChanged = true;
 	},
 	
 	/**
@@ -166,7 +175,7 @@ window.App.Extend({
 		}
 		this.PositionElement( element, bounds );
 		this.Elements[ data.id ] = element;
-		this.IsStateChanged = true;
+		this.Redraw();
 	},
 	
 	RemoveElement: function( data ) {
@@ -175,7 +184,7 @@ window.App.Extend({
 			return;
 		}
 		delete this.Elements[ data.id ];
-		this.IsStateChanged = true;
+		this.Redraw();
 	},
 	
 	Render: function() {
