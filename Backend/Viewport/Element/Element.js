@@ -3,7 +3,10 @@ class Element extends require( '../_ElementBase' ) {
 	constructor( filename ) {
 		super( filename );
 
-		this.Attributes = {};
+		this.Attributes = {
+			offsets: [ 0, 0 ],
+			anchors: [ 'CC', 'CC' ],
+		};
 		this.IsVisible = true;
 		this.IsRendered = {};
 		
@@ -71,6 +74,31 @@ class Element extends require( '../_ElementBase' ) {
 		this.IsRendered = false;
 	}
 	
+	RenderChange( target, changes ) {
+		target.Send( 'renderchange', {
+			id: this.Id,
+			changes: changes,
+		});
+	}
+	
+	GetOffsets() {
+		return this.Attributes.offsets;
+	}
+	
+	SetOffsets( offsets ) {
+		if ( offsets[ 0 ] != this.Attributes.offsets[ 0 ] || offsets[ 1 ] != this.Attributes.offsets[ 1 ] ) {
+			this.Attributes.offsets = offsets;
+			this.RenderChange( this.GetSession(), {
+				offsets: offsets,
+			});
+		}
+	}
+	
+	Redraw() {
+		var session = this.GetSession();
+		this.Unrender( session );
+		this.Render( session );
+	}
 }
 
 module.exports = Element;

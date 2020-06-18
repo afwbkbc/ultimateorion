@@ -187,6 +187,29 @@ window.App.Extend({
 		this.Redraw();
 	},
 	
+	ChangeElement: function( data ) {
+		var el = this.Elements[ data.id ];
+		if ( !el ) {
+			console.log( 'WARNING', 'element to be changed does not exist', data );
+			return;
+		}
+		for ( var change in data.changes ) {
+			var value = data.changes[ change ];
+			switch ( change ) {
+				case 'offsets':
+					var offsets = el.data.attributes.offsets;
+					var diff = [ offsets[ 0 ] - value[ 0 ], offsets[ 1 ] - value[ 1 ] ];
+					el.data.attributes.offsets = value;
+					el.coords[ 0 ] -= diff[ 0 ];
+					el.coords[ 1 ] -= diff[ 1 ];
+					this.Redraw();
+					break;
+				default:
+					console.log( 'WARNING', 'unsupported element change "' + change + '"' );
+			}
+		}
+	},
+	
 	Render: function() {
 		this.Ctx.clearRect( 0, 0, this.Canvas.width, this.Canvas.height );
 		for ( var k in this.Elements )

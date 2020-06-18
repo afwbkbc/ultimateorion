@@ -56,6 +56,19 @@ class TestViewport extends require( '../Viewport' ) {
 		setTimeout( () => {
 			corner_square.Hide();
 		}, 10000 );
+
+		var direction = -1;		
+		// move red square left and right
+		setInterval( () => {
+			var el = elements[ 4 ];
+			var offsets = el.GetOffsets();
+			var left = offsets[ 0 ] + 10*direction;
+			if ( left <= -1820 )
+				direction = 1;
+			else if ( left >= 0 )
+				direction = -1;
+			el.SetOffsets( [ left, offsets[ 1 ] ] );
+		}, 20 );
 	}
 	
 }

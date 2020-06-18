@@ -88,11 +88,22 @@ window.App.Extend({
 		}, this.config.ws.reconnect_interval );
 	},
 	
+	LogEvent: function( prefix, id, action, data ) {
+		if ([
+			'render',
+			'unrender',
+			'renderchange',
+		].indexOf( action ) >= 0 )
+			return; // skip spammy events
+		
+		console.log( prefix, id, action, data );
+	},
+	
 	Reply: function( id, data ) {
 		if ( typeof( this.events[ id ] ) === 'undefined' )
 			return window.App.Error( 'event id does not exist', id );
 		
-		console.log( '<<', id, data );
+		this.LogEvent( '<<', id, null, data );
 		
 		this.ws.send( JSON.stringify({
 			id: id,
@@ -103,7 +114,8 @@ window.App.Extend({
 	OnEvent: function( event ) {
 		var that = this;
 		
-		console.log( '>>', event.id, event.action, event.data );
+		this.LogEvent( '>>', event.id, event.action, event.data );
+		
 		window.App.EventHandler.Handle( event );
 	},
 	

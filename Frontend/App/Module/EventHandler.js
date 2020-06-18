@@ -15,6 +15,9 @@ window.App.Extend({
 		unrender: function( data ) {
 			window.App.Viewport.RemoveElement( data );
 		},
+		renderchange: function( data ) {
+			window.App.Viewport.ChangeElement( data );
+		},
 	},
 	
 	Init: function( next ) {
