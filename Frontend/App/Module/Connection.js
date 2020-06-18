@@ -10,7 +10,6 @@ var CreateEvent = function( event_data, connection ) {
 	return event;
 }
 
-
 window.App.Extend({
 
 	config: {
@@ -26,6 +25,7 @@ window.App.Extend({
 	Init: function( next ) {
 		var that = this;
 		
+		this.IsConnected = false;
 		this.Connect();
 		
 		next();
@@ -58,14 +58,18 @@ window.App.Extend({
 		this.ws.onclose = function() {
 			that.OnDisconnect.apply( that );
 		};
+		
 	},
 	
 	OnConnect: function() {
 		//console.log( 'CONNECT', this );
-		window.App.Loader.Stop();
+		this.IsConnected = true;
+		
 	},
 	
 	OnDisconnect: function() {
+		this.IsConnected = false;
+		
 		var that = this;
 		
 		// stop waiting for events

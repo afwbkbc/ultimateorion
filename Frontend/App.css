@@ -26,6 +26,7 @@ html, body {
 #loader-icon {
 	background: url( '/Assets/Loader.gif' ) no-repeat center;
 	opacity: 0;
+	display: none; /* tmp disabled */
 }
 
 #viewport {

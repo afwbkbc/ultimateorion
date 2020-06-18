@@ -5,9 +5,9 @@ window.App = {
 			'Loader',
 			'Session',
 			'Window',
+			'Connection',
 			'Viewport',
 			'EventHandler',
-			'Connection',
 		],
 	},
 		

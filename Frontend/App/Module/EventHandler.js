@@ -10,7 +10,10 @@ window.App.Extend({
 			window.App.Session.SetGuestId( data.guest_id );
 		},
 		render: function( data ) {
-			window.App.Viewport.RenderElement( data );
+			window.App.Viewport.AddElement( data );
+		},
+		unrender: function( data ) {
+			window.App.Viewport.RemoveElement( data );
 		},
 	},
 	

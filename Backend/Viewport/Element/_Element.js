@@ -4,10 +4,12 @@ class Element extends require( '../../_Base' ) {
 		super( filename );
 
 		this.Attributes = {};
+		this.IsVisible = true;
+		
 		
 		// set defaults
 		this.SetAttributes({
-			Anchor: 'center',
+			CS: 'CC', // constraints, by default center everything
 		});
 	}
 	
@@ -29,12 +31,40 @@ class Element extends require( '../../_Base' ) {
 		};
 	}
 	
+	MakeUnrenderPayload() {
+		return {
+			id: this.Id,
+		};
+	}
+	
 	RenderToConnection( connection ) {
 		connection.Send( 'render', this.MakeRenderPayload() );
 	}
 	
+	UnrenderToConnection( connection ) {
+		connection.Send( 'unrender', this.MakeUnrenderPayload() );
+	}
+	
 	RenderToSession( session ) {
 		session.Send( 'render', this.MakeRenderPayload() );
+	}
+	
+	UnrenderToSession( session ) {
+		session.Send( 'unrender', this.MakeUnrenderPayload() );
+	}
+	
+	Show() {
+		if ( !this.IsVisible ) {
+			this.IsVisible = true;
+			this.RenderToSession( this.Viewport.Session );
+		}
+	}
+	
+	Hide() {
+		if ( this.IsVisible ) {
+			this.IsVisible = false;
+			this.UnrenderToSession( this.Viewport.Session );
+		}
 	}
 }
 
