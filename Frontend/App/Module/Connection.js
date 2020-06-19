@@ -14,21 +14,16 @@ window.App.Extend({
 
 	config: {
 		ws: {
-			url: ( document.location.hostname == 'localhost' ? 'ws' : 'wss' ) + '://' + document.location.host,
 			reconnect_interval: 1000,
 		},
 	},
 	
 	ws: null,
+	IsConnected: false,
 	events: {},
 	
-	Init: function( next ) {
-		var that = this;
-		
-		this.IsConnected = false;
+	Run: function() {
 		this.Connect();
-		
-		next();
 	},
 	
 	Connect: function() {
@@ -37,7 +32,7 @@ window.App.Extend({
 		if ( this.ws )
 			delete this.ws;
 		
-		this.ws = new WebSocket( this.config.ws.url );
+		this.ws = new WebSocket( ( window.App.Config.UseSSL ? 'wss' : 'ws' ) + '://' + document.location.host );
 		
 		this.ws.onopen = function() {
 			that.OnConnect.apply( that );
@@ -63,10 +58,10 @@ window.App.Extend({
 	
 	OnConnect: function() {
 		//console.log( 'CONNECT', this );
-		this.IsConnected = true;
 		
 		window.App.Loader.Stop();
 		
+		this.IsConnected = true;
 	},
 	
 	OnDisconnect: function() {
@@ -82,6 +77,7 @@ window.App.Extend({
 		// clear viewport
 		window.App.Viewport.Clear();
 		
+		// show 'loading' animation until connected
 		window.App.Loader.Start();
 		
 		// try to reconnect

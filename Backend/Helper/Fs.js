@@ -10,7 +10,7 @@ class Fs extends require( './_Helper' ) {
 	
 	ReadFile( path ) {
 		if ( typeof( this.Cache[ path ] ) === 'undefined' || this.Config.Debug ) // no cache for debug mode
-			this.Cache[ path ] = this.Fs.readFileSync( path, 'utf-8' );
+			this.Cache[ path ] = this.Fs.readFileSync( path );
 		return this.Cache[ path ];
 	}
 	

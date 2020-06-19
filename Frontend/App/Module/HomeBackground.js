@@ -17,12 +17,18 @@ window.App.Extend({
 		},
 	},
 	
+	loops: {},
+	
 	Init: function( next ) {
 		this.el = {
 			background: document.getElementById( 'homebackground' ),
 		};
-		this.loops = {};
 		
+		next();
+		
+	},
+	
+	Run() {
 		var that = this;
 		
 		// setup starting coordinates
@@ -58,8 +64,6 @@ window.App.Extend({
 			
 			that.el.background.style[ 'background-position' ] = left + 'px ' + top + 'px';
 		}, this.config.background.scroll.interval );
-		
-		next();
 		
 	},
 	

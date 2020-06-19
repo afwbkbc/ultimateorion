@@ -30,7 +30,7 @@ class SessionManager extends require( '../_Module' ) {
 			do {
 				guest_id = this.Md5( Math.random() );
 			} while ( typeof( this.GuestSessions[ guest_id ] ) !== 'undefined' );
-			session.SetGuestId( guest_id );
+			session.SetGuestId( connection, guest_id );
 			this.GuestSessions[ guest_id ] = session;
 			session.OnCreate();
 		}

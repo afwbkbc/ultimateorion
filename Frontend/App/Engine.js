@@ -2,6 +2,7 @@ window.App = {
 	
 	config: {
 		modules: [
+			'Config',
 			'HomeBackground',
 			'Loader',
 			'Session',
@@ -12,9 +13,45 @@ window.App = {
 		],
 	},
 		
-	Init: function() {
+	LoadModules: function( next ) {
+		this.modules_to_load = Object.keys( this.config.modules ).length;
+		this.on_all_modules_loaded = next;
 		for ( var k in this.config.modules )
 			this.LoadModule( this.config.modules[ k ] );
+	},
+	
+	Init: function( next ) {
+		var toinit = Object.keys( this.config.modules ).length;
+		
+		var that = this;
+		var onmoduleloaded = function() {
+			toinit--;
+			if ( toinit < 0 ) {
+				console.log( 'unexpected module init' );
+				return;
+			}
+			if ( !toinit ) {
+				console.log( 'all modules initialized' );
+				next();
+			}
+		}
+		
+		for ( var k in this.config.modules ) {
+			var m = this[ this.config.modules[ k ] ];
+			if ( m.Init )
+				m.Init( onmoduleloaded );
+			else
+				onmoduleloaded();
+		}
+	},
+	
+	Run: function() {
+		for ( var k in this.config.modules ) {
+			var m = this[ this.config.modules[ k ] ];
+			if ( m.Run )
+				m.Run();
+		}
+		console.log( 'modules started' );
 	},
 	
 	Error: function( message, data ) {
@@ -25,26 +62,20 @@ window.App = {
 	},
 	
 	Extend: function( module ) {
+		this.modules_to_load--;
+		if ( this.modules_to_load < 0 ) {
+			console.log( 'WARNING', 'unexpected Extend() call', module );
+			return;
+		}
 		var that = this;
 		var name = document.currentScript.getAttribute( 'data-path' );
-		var iscollision = function() {
-			if ( typeof( that[ name ] ) !== 'undefined' ) {
-				that.Error( 'module name collision ( "' + name + '")' );
-				return true;
-			}
+		
+		that[ name ] = module;
+		
+		if ( !this.modules_to_load ) {
+			if ( this.on_all_modules_loaded )
+				this.on_all_modules_loaded();
 		}
-		if ( iscollision() )
-			return;
-		var finalfunc = function() {
-			if ( iscollision() ) // check again in case of some race condition
-				return;
-			that[ name ] = module;
-		}
-		if ( typeof( module.Init ) === 'function' ) {
-			module.Init( finalfunc );
-		}
-		else
-			finalfunc();
 	},
 	
 	LoadModule: function( path ) {
@@ -56,4 +87,9 @@ window.App = {
 	
 };
 
-window.App.Init();
+var app = window.App;
+app.LoadModules( function() {
+	app.Init( function() {
+		app.Run();
+	});
+});
