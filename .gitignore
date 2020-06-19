@@ -3,4 +3,7 @@
 node_modules
 config.json
 .htaccess
+SSL/ca.pem
+SSL/cert.pem
+SSL/key.pem
 
