@@ -13,7 +13,7 @@ class Connection extends require( '../../_Base' ) {
 		this.RemoteAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 		this.SessionManager = this.Http.E.M.SessionManager;
 		this.Authorized = false;
-		this.Events = {};
+		this.EventsBF = {};
 		this.Session = null;
 		
 		ws.on( 'message', ( message ) => {
@@ -34,19 +34,32 @@ class Connection extends require( '../../_Base' ) {
 			},
 		};
 		
-		if ( on_response ) {
+		if ( on_response ) { // mark event as BF mode to get response from it
 			var event_id;
 			do {
 				event_id = Md5( Math.random() );
 			} while ( typeof( Events[ event_id ] ) !== 'undefined' );
 			event.data.id = event_id;
+			event.data.mode = 'BF';
 			Events[ event_id ] = event;
-			this.Events[ event_id ] = event;
+			this.EventsBF[ event_id ] = event;
 			event.callback = on_response;
+		}
+		else {
+			event.data.mode = 'S'; // just send as standalone async event
 		}
 		
 		this.Ws.send( JSON.stringify( event.data ));
 		
+	}
+	
+	Reply( id, data ) {
+		//console.log( 'REPLY', id, data );
+		this.Ws.send( JSON.stringify({
+			id: id,
+			data: data,
+			mode: 'FB',
+		}));
 	}
 	
 	OnConnect() {
@@ -55,7 +68,7 @@ class Connection extends require( '../../_Base' ) {
 			throw new Error( 'Connection session already set', this.Id );
 		
 		this.Send( 'auth', {}, ( data ) => {
-			console.log( 'RESP', data );
+			//console.log( 'RESP', data );
 			var session;
 			if ( data.is_guest ) {
 				session = this.SessionManager.GetGuestSession( this, data.guest_id );
@@ -71,16 +84,15 @@ class Connection extends require( '../../_Base' ) {
 	OnDisconnect() {
 		console.log( 'Disconnected: #' + this.Id );
 		
-		// don't wait for any events
-		for ( var k in this.Events ) {
-			delete this.Events[ k ];
+		// don't wait for any events now
+		for ( var k in this.EventsBF ) {
+			delete this.EventsBF[ k ];
 			delete Events[ k ];
 		}
 		
 		if ( this.Session )
 			this.Session.RemoveConnection( this );
 		
-		//this.SessionManager.DestroySession( this );
 		this.Http.RemoveConnection( this.Id );
 	}
 	
@@ -93,28 +105,60 @@ class Connection extends require( '../../_Base' ) {
 			console.log( 'non-json message, dropping' );
 			return;
 		}
-		if ( !data.id || !data.data ) {
-			console.log( 'invalid/malformed message, dropping', data );
-			return;
-		}
 		
-		if ( !data.action ) {
-			// reply to event
-			if ( typeof( this.Events[ data.id ] ) === 'undefined' ) {
-				console.log( 'invalid event reply id, dropping' );
+		if ( data.type == 'BF' ) {
+			if ( !data.id || !data.data ) {
+				console.log( 'invalid/malformed message, dropping', data );
 				return;
 			}
 			
-			this.Events[ data.id ].callback( data.data );
+			if ( !data.action ) {
+				// reply to event
+				if ( typeof( this.EventsBF[ data.id ] ) === 'undefined' ) {
+					console.log( 'invalid event reply id, dropping' );
+					return;
+				}
+				
+				this.EventsBF[ data.id ].callback( data.data );
+				
+				delete this.EventsBF[ data.id ];
+				delete Events[ data.id ];
+			}
+		}
+		else if ( data.type == 'FB' ) {
+			var event = Object.assign( data, {
+				replied: false,
+				connection: this,
+				Reply: function( data ) {
+					this.connection.Reply( this.data.id, data );
+					this.replied = true;
+				},
+				Finalize: function() {
+					if ( !this.replied )
+						this.connection.Reply( this.data.id, {} );
+				}
+			});
 			
-			delete this.Events[ data.id ];
-			delete Events[ data.id ];
+			this.DispatchEvent( event );
 		}
 		else {
-			// new event
+			console.log( 'invalid/unsupported event type "' + data.type + '"', data );
 		}
 		
 		//console.log( 'ONMESSAGE', data );
+	}
+	
+	DispatchEvent( event ) {
+		event.data.data.Reply = event.Reply;
+		switch ( event.data.action ) {
+			case 'viewport_event':
+				this.Session.Viewport.HandleEvent( event.data.data );
+				break;
+			default:
+				console.log( 'dropping invalid/unsupported event "' + event.data.action + '"', event.data );
+				return;
+		}
+		event.Finalize();
 	}
 	
 }

@@ -3,6 +3,7 @@ window.App = {
 	config: {
 		modules: [
 			'Config',
+			'Tools',
 			'HomeBackground',
 			'Loader',
 			'Session',

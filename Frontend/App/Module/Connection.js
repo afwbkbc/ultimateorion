@@ -20,7 +20,8 @@ window.App.Extend({
 	
 	ws: null,
 	IsConnected: false,
-	events: {},
+	events_bf: {},
+	events_fb: {},
 	
 	Run: function() {
 		this.Connect();
@@ -40,14 +41,29 @@ window.App.Extend({
 		
 		this.ws.onmessage = function( message ) {
 			var data = JSON.parse( message.data );
-			if ( !data.action || !data.data )
-				return window.App.Error( 'invalid/corrupted event', data );
-			if ( data.id && typeof( that.events[ data.id ] ) !== 'undefined' )
-				return window.App.Error( 'event id collision', id );
-			
-			var event = CreateEvent( data, that );
-			that.events[ event.id ] = event;
-			that.OnEvent.apply( that, [ event ] );
+			if ( data.mode == 'FB' ) {
+				// response from backend
+				var event = that.events_fb[ data.id ];
+				if ( !event ) {
+					console.log( 'WARNING', 'event "' + data.id + '" does not exist', data );
+					return;
+				}
+				if ( event.callback )
+					event.callback( data.data );
+				delete that.events_fb[ data.id ];
+			}
+			else {
+				if ( !data.action || !data.data ) {
+					//console.log( data );
+					return window.App.Error( 'invalid/corrupted event', data );
+				}
+				if ( data.id && typeof( that.events_bf[ data.id ] ) !== 'undefined' )
+					return window.App.Error( 'event id collision', id );
+				
+				var event = CreateEvent( data, that );
+				that.events_bf[ event.id ] = event;
+				that.OnEvent.apply( that, [ event ] );
+			}
 		};
 
 		this.ws.onclose = function() {
@@ -70,9 +86,9 @@ window.App.Extend({
 		var that = this;
 		
 		// stop waiting for events
-		for ( var k in this.events )
-			delete this.events[ k ];
-		this.events = {};
+		for ( var k in this.events_bf )
+			delete this.events_bf[ k ];
+		this.events_bf = {};
 		
 		// clear viewport
 		window.App.Viewport.Clear();
@@ -98,21 +114,39 @@ window.App.Extend({
 	},
 	
 	// TODO: event tracking?
-	Send: function( data ) {
+	Send: function( data, on_response ) {
 		this.LogEvent( '<<', data );
-		this.ws.send( JSON.stringify({
+		var event = {
 			data: data,
-		}));
+		};
+		if ( on_response ) {
+			event.type = 'FB'; // response from backend needed
+			var event_id;
+			do {
+				event_id = window.App.Tools.GetRandomHash();
+			} while ( typeof( this.events_fb[ event_id ] ) !== 'undefined' );
+			event.data.id = event_id;
+			event.data.mode = 'FB';
+			this.events_fb[ event_id ] = event;
+			event.callback = on_response;
+		}
+		else {
+			event.type = 'S'; // just standalone async event
+		}
+		this.ws.send( JSON.stringify( event ) );
 	},
 	
 	Reply: function( id, data ) {
-		if ( typeof( this.events[ id ] ) === 'undefined' )
+		if ( typeof( this.events_bf[ id ] ) === 'undefined' )
 			return window.App.Error( 'event id does not exist', id );
 		
 		this.LogEvent( '<<', id, null, data );
 		
+		delete this.events_bf[ id ];
+		
 		this.ws.send( JSON.stringify({
 			id: id,
+			type: 'BF',
 			data: data,
 		}));
 	},
@@ -122,7 +156,15 @@ window.App.Extend({
 		
 		this.LogEvent( '>>', event.id, event.action, event.data );
 		
-		window.App.EventHandler.Handle( event );
+		if ( event.type == 'FB' ) {
+			// response from backend
+			//console.log( 'RESPONSE' );
+		}
+		else {
+			// new standalone event
+			window.App.EventHandler.Handle( event );
+		}
+		
 	},
 	
 });

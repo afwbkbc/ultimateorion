@@ -1,5 +1,3 @@
-const Md5 = require( 'md5' );
-
 class _ElementBase extends require( '../_Base' ) {
 	
 	constructor( filename ) {
@@ -24,19 +22,16 @@ class _ElementBase extends require( '../_Base' ) {
 	 */
 	
 	AddElement( namespace, anchors, offsets, attributes ) {
-		var id;
-		do {
-			id = Md5( Math.random() );
-		} while ( typeof( this.Elements ) === 'undefined' );
 		var element = new ( this.H.Loader.Require( 'Viewport/Element/' + namespace ) )();
-		element.Attach( this, id, namespace );
+		this.Viewport.RegisterElement( element );
+		element.Attach( this, namespace );
 		if ( attributes )
 			element.SetAttributes( attributes );
 		element.SetAttributes({
 			anchors: anchors,
 			offsets: offsets,
 		});
-		this.Elements[ id ] = element;
+		this.Elements[ element.Id ] = element;
 		if ( element.Prepare )
 			element.Prepare();
 		element.Render( this.GetSession() );
@@ -44,6 +39,7 @@ class _ElementBase extends require( '../_Base' ) {
 	}
 	
 	RemoveElement( element ) {
+		//console.log( this.Elements );
 		if ( typeof( this.Elements[ element.Id ] ) === 'undefined' )
 			throw new Error( 'Element id #' + element.Id + ' not found' );
 		element.OnDestroyRecursive();
@@ -54,6 +50,10 @@ class _ElementBase extends require( '../_Base' ) {
 		for ( var k in this.Elements )
 			this.RemoveElement( this.Elements[ k ] );
 		this.Threads.Kill();
+		if ( this.Viewport != this )
+			this.Viewport.UnregisterElement( this );
+		if ( this.Unrender )
+			this.Unrender( this.Viewport.Session );
 		if ( this.OnDestroy )
 			this.OnDestroy();
 	}

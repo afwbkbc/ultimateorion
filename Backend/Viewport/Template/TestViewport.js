@@ -83,6 +83,11 @@ class TestViewport extends require( '../Viewport' ) {
 			Width: 400,
 			Height: 100,
 		});
+		
+		var that = this;
+		test_button.On( 'click', function( event ) {
+			that.RemoveElement( window );
+		});
 	}
 	
 }
