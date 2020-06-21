@@ -1,56 +1,22 @@
-var Elements = {
-		
-	'Test/TestBlock': {
-		Render: function( ctx, element ) {
-			var a = element.data.attributes;
-			ctx.fillStyle = a.Color;
-			ctx.fillRect( element.coords[ 0 ], element.coords[ 1 ], a.Width, a.Height );
-		},
-	},
-		
-	'UI/Label': {
-		Render: function( ctx, element ) {
-			var a = element.data.attributes;
-			var c = element.coords;
-			ctx.font = "60px Verdana";
-			ctx.textAlign = 'left';
-			ctx.textBaseline = 'top';
-			ctx.fillStyle = 'red';
-			ctx.fillText( a.Text, c[0], c[1] );
-		},
-		GetBounds: function( ctx, element ) {
-			ctx.font = "60px Verdana";
-			ctx.textAlign = 'left';
-			ctx.textBaseline = 'top';
-			ctx.fillStyle = 'red';
-			var m = ctx.measureText( element.data.attributes.Text );
-			return [ 0, 0, m.width, m.actualBoundingBoxAscent + m.actualBoundingBoxDescent ];
-		},
-	},
-	
-	'Layout/Panel': {
-		Render: function( ctx, element ) {
-			var a = element.data.attributes;
-			var c = element.coords;
-			ctx.strokeStyle = 'aqua';
-			ctx.strokeRect( c[0], c[1], a.Width, a.Height );
-			ctx.fillStyle = 'rgb( 0, 0, 0, 0.7 )';
-			ctx.fillRect( c[0] + 1, c[1] + 1, a.Width - 2, a.Height - 2 );
-		},
-	},
-
-};
-
 window.App.Extend({
 
+	config: {
+		modules: [
+			'Layout/Panel',
+			'UI/Label',
+			'Test/TestBlock',
+			'UI/Button',
+		],
+	},
+			
 	RenderElement: function( element ) {
-		if ( Elements[ element.data.element ] && Elements[ element.data.element ].Render )
-			Elements[ element.data.element ].Render( this.Ctx, element );
+		if ( this[ element.data.element ] && this[ element.data.element ].Render )
+			this[ element.data.element ].Render( this.Ctx, element );
 	},
 	
 	GetElementBounds: function( element ) {
-		if ( Elements[ element.data.element ] && Elements[ element.data.element ].GetBounds )
-			return Elements[ element.data.element ].GetBounds( this.Ctx, element );
+		if ( this[ element.data.element ] && this[ element.data.element ].GetBounds )
+			return this[ element.data.element ].GetBounds( this.Ctx, element );
 		else if ( this.IsBlockElement( element.data ) ) {
 			var a = element.data.attributes;
 			return [ 0, 0, a.Width, a.Height ];
@@ -64,7 +30,7 @@ window.App.Extend({
 		this.Ctx = this.Canvas.getContext( '2d' );
 		this.Elements = {};
 		
-		this.FpsLimit = 120;
+		this.FpsLimit = 60;
 		this.TrackStats = true;
 		
 		// maintain aspect ratio
@@ -194,10 +160,16 @@ window.App.Extend({
 			console.log( 'WARNING', 'duplicate element to be inserted', data );
 			return;
 		}
-		if ( !Elements[ data.element ] && !this.IsBlockElement( data ) ) {
+		if ( this[ data.element ] ) {
+			if ( this[ data.element ].OnClick ) {
+				console.log( 'clickable' );
+			}
+		}
+		else if ( !this.IsBlockElement( data ) ) {
 			console.log( 'WARNING', 'unsupported non-block element "' + data.element + '"' );
 			return;
 		}
+		
 		var element = {
 			data: data,
 		};

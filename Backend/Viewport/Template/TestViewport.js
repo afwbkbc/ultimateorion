@@ -76,6 +76,13 @@ class TestViewport extends require( '../Viewport' ) {
 			Width: 800,
 			Height: 500,
 		});
+		
+		// test button
+		var test_button = window.Body.AddElement( 'UI/Button', [ 'CC', 'CC' ], [ 0, 0 ], {
+			Label: 'Click me',
+			Width: 400,
+			Height: 100,
+		});
 	}
 	
 }
