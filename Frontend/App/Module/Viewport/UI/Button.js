@@ -1,7 +1,13 @@
 window.App.Viewport.Extend({
 	
 	OnClick: function( ctx, element ) {
-		console.log( 'click' );
+		window.App.Connection.Send({
+			action: 'viewport_event',
+			data: {
+				event: 'click',
+				element: element.data.id,
+			},
+		});
 	},
 
 });

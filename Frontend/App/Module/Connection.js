@@ -97,6 +97,14 @@ window.App.Extend({
 		console.log( prefix, id, action, data );
 	},
 	
+	// TODO: event tracking?
+	Send: function( data ) {
+		this.LogEvent( '<<', data );
+		this.ws.send( JSON.stringify({
+			data: data,
+		}));
+	},
+	
 	Reply: function( id, data ) {
 		if ( typeof( this.events[ id ] ) === 'undefined' )
 			return window.App.Error( 'event id does not exist', id );
