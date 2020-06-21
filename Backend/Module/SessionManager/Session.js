@@ -27,11 +27,14 @@ class Session extends require( '../../_Base' ) {
 		this.OnDisconnect( connection );
 	}
 	
-	SetGuestId( guest_id ) {
+	SetGuestId( connection, guest_id ) {
 		if ( this.GuestId )
 			throw new Error( 'GuestId already set', this.Id );
 		console.log( '+GUESTID', this.Id, guest_id );
 		this.GuestId = guest_id;
+		connection.Send( 'set_guest_id', {
+			guest_id: this.GuestId,
+		});
 	}
 	
 	OnCreate() {
@@ -55,11 +58,6 @@ class Session extends require( '../../_Base' ) {
 		if ( this.SessionTimeout ) {
 			clearTimeout( this.SessionTimeout );
 			this.SessionTimeout = null;
-		}
-		if ( this.GuestId ) {
-			connection.Send( 'set_guest_id', {
-				guest_id: this.GuestId,
-			});
 		}
 		this.Viewport.RenderRecursive( connection );
 	}

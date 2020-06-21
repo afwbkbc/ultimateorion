@@ -1,8 +1,8 @@
 window.App.Extend({
 
+	Callbacks: {},
+	
 	Init: function( next ) {
-		
-		this.Callbacks = {};
 		
 		// handle tab focus/blur
 		this.IsFocused = document.hasFocus();

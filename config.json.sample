@@ -3,7 +3,8 @@
 		"Debug": "true"
 	},
 	"Http": {
-		"HttpPort": "5000"
+		"Port": "5000",
+		"UseSSL": "false"
 	},
 	"SessionManager": {
 		"GuestTimeout": "60000"

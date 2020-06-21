@@ -20,11 +20,6 @@ window.App.Extend({
 		},
 	},
 	
-	Init: function( next ) {
-		
-		next();
-	},
-	
 	Handle: function( event ) {
 		var that = this;
 		

@@ -64,6 +64,7 @@ window.App.Extend({
 		this.Ctx = this.Canvas.getContext( '2d' );
 		this.Elements = {};
 		
+		this.FpsLimit = 120;
 		this.TrackStats = true;
 		
 		// maintain aspect ratio
@@ -90,29 +91,41 @@ window.App.Extend({
 			this.LastFrames = 0;
 			this.Redraws = 0;
 			this.LastRedraws = 0;
+			this.RenderCalls = 0;
+			this.LastRenderCalls = 0;
+		}
+		
+		this.IsStateChanged = true;
+		
+		return next();
+	},
+	
+	Run: function() {
+		var that = this;
+		
+		if ( this.TrackStats ) {
 			this.FpsInterval = setInterval( function() {
 				that.LastFrames = that.Frames;
 				that.Frames = 0;
 				that.LastRedraws = that.Redraws;
 				that.Redraws = 0;
+				that.LastRenderCalls = that.RenderCalls;
+				that.RenderCalls = 0;
 			}, 1000 );
 		}
 		
-		var desired_fps = 120;
-		
 		// main loop
-		this.IsStateChanged = true;
-		
-		var fps_ms = 1000/desired_fps;
-		this.RenderInterval = setInterval( function() {
+		var fps_ms = Math.floor( 1000 / this.FpsLimit );
+		this.RenderLoop = setInterval( function() {
 			if ( window.App.Window.IsFocused && window.App.Connection.IsConnected && that.IsStateChanged ) {
 				that.Render();
-				if ( that.TrackStats ) {
+				if ( that.TrackStats && that.LastFrames > 0 ) {
 					that.Ctx.font = "30px Verdana";
 					that.Ctx.textAlign = 'top left';
 					that.Ctx.fillStyle = 'white';
-					that.Ctx.fillText( 'FPS: ' + that.LastFrames, 100, 100 );
+					that.Ctx.fillText( 'FPS: ' + that.LastFrames + ' / ~' + that.FpsLimit, 100, 100 );
 					that.Ctx.fillText( 'Redraws/s: ' + that.LastRedraws, 100, 130 );
+					that.Ctx.fillText( 'Rendercalls/s: ' + that.LastRenderCalls, 100, 160 );
 				
 				}
 				that.IsStateChanged = false;
@@ -120,8 +133,6 @@ window.App.Extend({
 			}
 			that.Frames++;
 		}, fps_ms );
-		
-		return next();
 	},
 	
 	Clear: function() {
@@ -206,6 +217,8 @@ window.App.Extend({
 		this.PositionElement( element, bounds );
 		this.Elements[ data.id ] = element;
 		this.Redraw();
+		if ( this.TrackStats )
+			this.RenderCalls++;
 	},
 	
 	RemoveElement: function( data ) {
@@ -215,6 +228,8 @@ window.App.Extend({
 		}
 		delete this.Elements[ data.id ];
 		this.Redraw();
+		if ( this.TrackStats )
+			this.RenderCalls++;
 	},
 	
 	ChangeElement: function( data ) {
@@ -238,6 +253,8 @@ window.App.Extend({
 					console.log( 'WARNING', 'unsupported element change "' + change + '"' );
 			}
 		}
+		if ( this.TrackStats )
+			this.RenderCalls++;
 	},
 	
 	Render: function() {

@@ -4,6 +4,7 @@ class Http extends require( '../_Module' ) {
 		super( module.filename );
 		
 		this.Http = require( 'http' );
+		this.Https = require( 'https' );
 		this.Ws = require( 'ws' );
 		this.Connection = require( './Connection' );
 		
@@ -15,15 +16,40 @@ class Http extends require( '../_Module' ) {
 	Init() {
 		return new Promise( ( next, fail ) => {
 			
-			this.Server = this.Http.createServer();
+			this.ConfigJson = JSON.stringify({
+				UseSSL: this.Config.UseSSL,
+			});
+			
+			if ( this.Config.UseSSL )
+				this.Server = this.Https.createServer({
+					ca: this.H.Fs.ReadFile( this.H.Fs.GetRootPath() + '/SSL/ca.pem' ),
+					cert: this.H.Fs.ReadFile( this.H.Fs.GetRootPath() + '/SSL/cert.pem' ),
+					key: this.H.Fs.ReadFile( this.H.Fs.GetRootPath() + '/SSL/key.pem' ),
+				});
+			else
+				this.Server = this.Http.createServer();
+			
 			this.WsServer = new this.Ws.Server({
 				server: this.Server,
 			});
 			
+			this.Server.on( 'error', ( a, b, c ) => {
+				console.log( 'HTTPS ERROR', a, b, c );
+			});
+
 			this.Server.on( 'request', ( req, res ) => {
+				
+				//console.log( req );
+				//process.exit( 1 );
 				
 				var filepath, status, contenttype;
 				switch ( req.url ) {
+					case '/config.json' :
+						// special case - send frontend config
+						res.setHeader( 'Content-Type', 'application/json' );
+						res.writeHead( 200 );
+						res.end( this.ConfigJson );
+						return;
 					case '/index.html' :
 					case '/error.html' :
 						filepath = '/error.html';
@@ -78,7 +104,7 @@ class Http extends require( '../_Module' ) {
 				
 			});
 			
-			this.Server.listen( this.Config.HttpPort );
+			this.Server.listen( this.Config.Port );
 			
 			return next();
 		});

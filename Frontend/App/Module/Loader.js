@@ -11,9 +11,11 @@ window.App.Extend({
 			icon: document.getElementById( 'loader-icon' ),
 		};
 		
-		this.Start(); // start loader early to show fancy stuff until remaining modules load
-		
 		next();
+	},
+	
+	Run: function() {
+		this.Start(); // start loader early to show fancy stuff until remaining modules load
 	},
 	
 	Start: function() {
