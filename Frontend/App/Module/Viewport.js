@@ -201,6 +201,7 @@ window.App.Extend({
 			data: data,
 		};
 		var bounds = [ 0, 0, this.Canvas.width, this.Canvas.height ];
+		
 		if ( element.data.parent_id ) {
 			var parent = this.Elements[ element.data.parent_id ];
 			if ( parent ) {

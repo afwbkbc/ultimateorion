@@ -32,9 +32,9 @@ class _ElementBase extends require( '../_Base' ) {
 			offsets: offsets,
 		});
 		this.Elements[ element.Id ] = element;
+		element.Render( this.GetSession() );
 		if ( element.Prepare )
 			element.Prepare();
-		element.Render( this.GetSession() );
 		return element;
 	}
 	

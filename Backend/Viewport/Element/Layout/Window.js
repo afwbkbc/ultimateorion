@@ -25,17 +25,15 @@ class Window extends require( '../BlockElement' ) {
 		}
 		
 		if ( this.Attributes.WithCloseButton ) {
-			this.CloseButton = this.AddElement( 'Layout/Panel', [ 'RT', 'RT' ], [ 0, 0 ], {
+			this.CloseButton = this.AddElement( 'UI/Button', [ 'RT', 'RT' ], [ 0, 0 ], {
 				Style: 'window-closebutton',
 				Width: this.Attributes.TitlebarHeight,
 				Height: this.Attributes.TitlebarHeight,
+				Label: 'X',
 			});
-			{
-				this.CloseButtonText = this.CloseButton.AddElement( 'UI/Label', [ 'CC', 'CC' ], [ 0, 0 ], {
-					Style: 'window-closebutton',
-					Text: 'X',
-				});
-			}
+			this.CloseButton.On( 'click', () => {
+				this.Parent.RemoveElement( this );
+			});
 		}
 			
 		this.Body = this.AddElement( 'Layout/Panel', [ 'LB', 'LB' ], [ 0, 0 ], {
