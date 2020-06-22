@@ -31,6 +31,7 @@ window.App.Extend({
 		this.Canvas = document.getElementById( 'viewport' );
 		this.Ctx = this.Canvas.getContext( '2d' );
 		this.Elements = {};
+		this.Layers = [];
 		this.Clickzones = {};
 		this.NextClickzoneId = 0;
 		
@@ -138,6 +139,7 @@ window.App.Extend({
 		for ( var k in this.Elements )
 			this.RemoveElement( this.Elements[ k ].data );
 		this.Elements = {};
+		this.Layers = [];
 		this.Ctx.clearRect( 0, 0, this.Canvas.width, this.Canvas.height );
 	},
 	
@@ -199,7 +201,9 @@ window.App.Extend({
 		
 		var element = {
 			data: data,
+			layer: data.attributes.ZIndex ? data.attributes.ZIndex : 0,
 		};
+		
 		var bounds = [ 0, 0, this.Canvas.width, this.Canvas.height ];
 		
 		if ( element.data.parent_id ) {
@@ -210,6 +214,7 @@ window.App.Extend({
 				bounds[ 1 ] += parent.coords[ 1 ];
 				bounds[ 2 ] += parent.coords[ 0 ];
 				bounds[ 3 ] += parent.coords[ 1 ];
+				element.layer += parent.layer;
 			}
 			else
 				console.log( 'WARNING', 'parent element not found', element );
@@ -220,6 +225,9 @@ window.App.Extend({
 				this.AddClickzone( element );
 		}
 		this.Elements[ data.id ] = element;
+		while ( this.Layers.length <= element.layer )
+			this.Layers.push( {} );
+		this.Layers[ element.layer ][ data.id ] = element;
 		this.Redraw();
 		if ( this.TrackStats )
 			this.RenderCalls++;
@@ -234,6 +242,7 @@ window.App.Extend({
 		if ( element.clickzone )
 			this.RemoveClickzone( element );
 		delete this.Elements[ data.id ];
+		delete this.Layers[ element.layer ][ data.id ];
 		this.Redraw();
 		if ( this.TrackStats )
 			this.RenderCalls++;
@@ -266,8 +275,11 @@ window.App.Extend({
 	
 	Render: function() {
 		this.Ctx.clearRect( 0, 0, this.Canvas.width, this.Canvas.height );
-		for ( var k in this.Elements )
-			this.RenderElement( this.Elements[ k ] );
+		/*for ( var k in this.Elements )
+			this.RenderElement( this.Elements[ k ] );*/
+		for ( var l in this.Layers )
+			for ( var k in this.Layers[ l ] )
+				this.RenderElement( this.Layers[ l ][ k ] );
 	},
 	
 	AddClickzone: function( element ) {

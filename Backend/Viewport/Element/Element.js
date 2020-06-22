@@ -102,7 +102,7 @@
 	Trigger( event, data ) {
 		if ( this.Events[ event ] )
 			for ( var k in this.Events[ event ] )
-				this.Events[ event ][ k ].apply( this, [ data ] );
+				this.Events[ event ][ k ].apply( this, [ data ? data : {} ] );
 	}
 }
 

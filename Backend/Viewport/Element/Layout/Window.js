@@ -33,6 +33,7 @@ class Window extends require( '../BlockElement' ) {
 			});
 			this.CloseButton.On( 'click', () => {
 				this.Parent.RemoveElement( this );
+				this.Trigger( 'close' );
 			});
 		}
 			

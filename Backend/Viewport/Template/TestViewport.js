@@ -84,13 +84,18 @@ class TestViewport extends require( '../Viewport' ) {
 			Height: 100,
 		});
 		
-		var that = this;
-		test_button.On( 'click', function( event ) {
-			that.AddElement( 'Layout/Window', [ 'CC', 'CC' ], [ 0, 0 ], {
-				Title: 'Clicked!',
-				Width: 500,
-				Height: 300,
-			})
+		test_button.On( 'click', () => {
+			if ( !this.ClickedWindow ) {
+				this.ClickedWindow = this.AddElement( 'Layout/Window', [ 'CC', 'CC' ], [ 0, 0 ], {
+					Title: 'Clicked!',
+					Width: 500,
+					Height: 300,
+					ZIndex: 5,
+				});
+				this.ClickedWindow.On( 'close', () => {
+					delete this.ClickedWindow;
+				});
+			}
 		});
 	}
 	
