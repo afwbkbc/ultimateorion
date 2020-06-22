@@ -1,75 +1,47 @@
-var Elements = {
-		
-	'Test/TestBlock': {
-		Render: function( ctx, element ) {
-			var a = element.data.attributes;
-			ctx.fillStyle = a.Color;
-			ctx.fillRect( element.coords[ 0 ], element.coords[ 1 ], a.Width, a.Height );
-		},
-	},
-		
-	'UI/Label': {
-		Render: function( ctx, element ) {
-			var a = element.data.attributes;
-			var c = element.coords;
-			ctx.font = "60px Verdana";
-			ctx.textAlign = 'left';
-			ctx.textBaseline = 'top';
-			ctx.fillStyle = 'red';
-			ctx.fillText( a.Text, c[0], c[1] );
-		},
-		GetBounds: function( ctx, element ) {
-			ctx.font = "60px Verdana";
-			ctx.textAlign = 'left';
-			ctx.textBaseline = 'top';
-			ctx.fillStyle = 'red';
-			var m = ctx.measureText( element.data.attributes.Text );
-			return [ 0, 0, m.width, m.actualBoundingBoxAscent + m.actualBoundingBoxDescent ];
-		},
-	},
-	
-	'Layout/Panel': {
-		Render: function( ctx, element ) {
-			var a = element.data.attributes;
-			var c = element.coords;
-			ctx.strokeStyle = 'aqua';
-			ctx.strokeRect( c[0], c[1], a.Width, a.Height );
-			ctx.fillStyle = 'rgb( 0, 0, 0, 0.7 )';
-			ctx.fillRect( c[0] + 1, c[1] + 1, a.Width - 2, a.Height - 2 );
-		},
-	},
-
-};
-
 window.App.Extend({
 
+	config: {
+		modules: [
+			'Layout/Panel',
+			'UI/Label',
+			'Test/TestBlock',
+			'UI/Button',
+		],
+	},
+			
 	RenderElement: function( element ) {
-		if ( Elements[ element.data.element ] && Elements[ element.data.element ].Render )
-			Elements[ element.data.element ].Render( this.Ctx, element );
+		if ( this[ element.data.element ] && this[ element.data.element ].Render )
+			this[ element.data.element ].Render( this.Ctx, element );
 	},
 	
 	GetElementBounds: function( element ) {
-		if ( Elements[ element.data.element ] && Elements[ element.data.element ].GetBounds )
-			return Elements[ element.data.element ].GetBounds( this.Ctx, element );
+		if ( this[ element.data.element ] && this[ element.data.element ].GetBounds )
+			return this[ element.data.element ].GetBounds( this.Ctx, element );
 		else if ( this.IsBlockElement( element.data ) ) {
 			var a = element.data.attributes;
 			return [ 0, 0, a.Width, a.Height ];
 		}
-		else
+		else {
+			console.log( 'WARNING', 'no bounds for element', element );
 			return [ 0, 0, 0, 0 ];
+		}
 	},
 	
 	Init: function( next ) {
 		this.Canvas = document.getElementById( 'viewport' );
 		this.Ctx = this.Canvas.getContext( '2d' );
 		this.Elements = {};
+		this.Layers = [];
+		this.Clickzones = {};
+		this.NextClickzoneId = 0;
 		
-		this.FpsLimit = 120;
+		this.FpsLimit = 60;
 		this.TrackStats = true;
+		
+		var that = this;
 		
 		// maintain aspect ratio
 		var aspect_ratio = this.Canvas.width / this.Canvas.height;
-		var that = this;
 		var fix_aspect_ratio = function() {
 			var current_aspect_ratio = window.innerWidth / window.innerHeight;
 			if ( current_aspect_ratio > aspect_ratio ) {
@@ -83,8 +55,19 @@ window.App.Extend({
 			that.Canvas.style.left = ( window.innerWidth - that.Canvas.style.width.replace( 'px', '' ) ) / 2 + 'px';
 			that.Canvas.style.top = ( window.innerHeight - that.Canvas.style.height.replace( 'px', '' ) ) / 2 + 'px';
 		};
-		fix_aspect_ratio();
-		window.onresize = fix_aspect_ratio;
+
+		// inner->outer coord transform modifiers
+		var recalculate_io_transform_modifiers = function() {
+			that.XCoordMod = that.Canvas.width / that.Canvas.style.width.replace( 'px', '' );
+			that.YCoordMod = that.Canvas.height / that.Canvas.style.height.replace( 'px', '' );
+		}
+		
+		var onresize = function() {
+			fix_aspect_ratio();
+			recalculate_io_transform_modifiers();
+		}
+		window.onresize = onresize;
+		onresize();
 
 		if ( this.TrackStats ) {
 			this.Frames = 0;
@@ -96,6 +79,23 @@ window.App.Extend({
 		}
 		
 		this.IsStateChanged = true;
+		
+		// mouse events
+		this.Canvas.onmousedown = function( e ) {
+			var c = [ e.layerX * that.XCoordMod, e.layerY * that.YCoordMod ];
+			// TODO: optimize
+			for ( var k = that.NextClickzoneId ; k >= 0 ; k-- ) {
+				var clickzone = that.Clickzones[ k ];
+				if ( clickzone && clickzone.onclick ) {
+					var a = clickzone.area;
+					if ( c[ 0 ] >= a[ 0 ] && c[ 1 ] >= a[ 1 ] && c[ 0 ] <= a[ 2 ] && c[ 1 ] <= a[ 3 ] ) {
+						clickzone.onclick( that.Ctx, clickzone.element );
+						break;
+					}
+				}
+			}
+			return false;
+		}
 		
 		return next();
 	},
@@ -136,10 +136,10 @@ window.App.Extend({
 	},
 	
 	Clear: function() {
-		for ( var k in this.Elements ) {
-			delete this.Elements[ k ];
-		}
+		for ( var k in this.Elements )
+			this.RemoveElement( this.Elements[ k ].data );
 		this.Elements = {};
+		this.Layers = [];
 		this.Ctx.clearRect( 0, 0, this.Canvas.width, this.Canvas.height );
 	},
 	
@@ -194,14 +194,18 @@ window.App.Extend({
 			console.log( 'WARNING', 'duplicate element to be inserted', data );
 			return;
 		}
-		if ( !Elements[ data.element ] && !this.IsBlockElement( data ) ) {
+		if ( ( !this[ data.element ] || !this[ data.element ].GetBounds ) && !this.IsBlockElement( data ) ) {
 			console.log( 'WARNING', 'unsupported non-block element "' + data.element + '"' );
 			return;
 		}
+		
 		var element = {
 			data: data,
+			layer: data.attributes.ZIndex ? data.attributes.ZIndex : 0,
 		};
+		
 		var bounds = [ 0, 0, this.Canvas.width, this.Canvas.height ];
+		
 		if ( element.data.parent_id ) {
 			var parent = this.Elements[ element.data.parent_id ];
 			if ( parent ) {
@@ -210,23 +214,35 @@ window.App.Extend({
 				bounds[ 1 ] += parent.coords[ 1 ];
 				bounds[ 2 ] += parent.coords[ 0 ];
 				bounds[ 3 ] += parent.coords[ 1 ];
+				element.layer += parent.layer;
 			}
 			else
 				console.log( 'WARNING', 'parent element not found', element );
 		}
 		this.PositionElement( element, bounds );
+		if ( this[ data.element ] ) {
+			if ( this[ data.element ].OnClick )
+				this.AddClickzone( element );
+		}
 		this.Elements[ data.id ] = element;
+		while ( this.Layers.length <= element.layer )
+			this.Layers.push( {} );
+		this.Layers[ element.layer ][ data.id ] = element;
 		this.Redraw();
 		if ( this.TrackStats )
 			this.RenderCalls++;
 	},
 	
 	RemoveElement: function( data ) {
-		if ( !this.Elements[ data.id ] ) {
+		var element = this.Elements[ data.id ];
+		if ( !element ) {
 			console.log( 'WARNING', 'element to be removed does not exist', data );
 			return;
 		}
+		if ( element.clickzone )
+			this.RemoveClickzone( element );
 		delete this.Elements[ data.id ];
+		delete this.Layers[ element.layer ][ data.id ];
 		this.Redraw();
 		if ( this.TrackStats )
 			this.RenderCalls++;
@@ -259,8 +275,30 @@ window.App.Extend({
 	
 	Render: function() {
 		this.Ctx.clearRect( 0, 0, this.Canvas.width, this.Canvas.height );
-		for ( var k in this.Elements )
-			this.RenderElement( this.Elements[ k ] );
+		/*for ( var k in this.Elements )
+			this.RenderElement( this.Elements[ k ] );*/
+		for ( var l in this.Layers )
+			for ( var k in this.Layers[ l ] )
+				this.RenderElement( this.Layers[ l ][ k ] );
+	},
+	
+	AddClickzone: function( element ) {
+		var clickzone_id = ++this.NextClickzoneId;
+		var defs = this[ element.data.element ];
+		var b = this.GetElementBounds( element );
+		var c = element.coords;
+		element.clickzone = {
+			id: clickzone_id,
+			area: [ c[ 0 ] + b[ 0 ], c[ 1 ] + b[ 1 ], c[ 0 ] + b[ 2 ], c[ 1 ] + b[ 3 ] ],
+			element: element,
+			onclick: defs.OnClick ? defs.OnClick : null,
+		};
+		this.Clickzones[ clickzone_id ] = element.clickzone;
+	},
+	
+	RemoveClickzone: function( element ) {
+		delete this.Clickzones[ element.clickzone.id ];
+		delete element.clickzone;
 	},
 	
 });

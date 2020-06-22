@@ -1,4 +1,4 @@
-class Element extends require( '../_ElementBase' ) {
+	class Element extends require( '../_ElementBase' ) {
 	
 	constructor( filename ) {
 		super( filename );
@@ -10,25 +10,18 @@ class Element extends require( '../_ElementBase' ) {
 		this.IsVisible = true;
 		this.IsRendered = {};
 		
+		this.Events = {};
+		
 		// set defaults
 		this.SetAttributes({
 			Style: 'default',
 		});
 	}
 	
-	Attach( parent, id, element_type ) {
+	Attach( parent, element_type ) {
 		this.Parent = parent;
-		this.Id = id;
 		this.ElementType = element_type;
-		this.Viewport = this.GetViewport();
-	}
-	
-	GetViewport() {
-		if ( !this.Parent )
-			return this;
-		if ( !this.Parent.Parent )
-			return this.Parent;
-		return this.Parent.GetViewport();
+		this.Viewport = this.Parent.Viewport;
 	}
 	
 	SetAttributes( attributes ) {
@@ -98,6 +91,18 @@ class Element extends require( '../_ElementBase' ) {
 		var session = this.GetSession();
 		this.Unrender( session );
 		this.Render( session );
+	}
+	
+	On( event, callback ) {
+		if ( !this.Events[ event ] )
+			this.Events[ event ] = [];
+		this.Events[ event ].push( callback );
+	}
+	
+	Trigger( event, data ) {
+		if ( this.Events[ event ] )
+			for ( var k in this.Events[ event ] )
+				this.Events[ event ][ k ].apply( this, [ data ? data : {} ] );
 	}
 }
 
