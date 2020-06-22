@@ -78,24 +78,31 @@ class TestViewport extends require( '../Viewport' ) {
 		});
 		
 		// test button
-		var test_button = window.Body.AddElement( 'UI/Button', [ 'CC', 'CC' ], [ 0, 0 ], {
+		var test_button = window.Body.AddElement( 'UI/Button', [ 'CB', 'CB' ], [ 0, -70 ], {
 			Label: 'Click me',
 			Width: 400,
 			Height: 100,
 		});
-		
 		test_button.On( 'click', () => {
-			if ( !this.ClickedWindow ) {
-				this.ClickedWindow = this.AddElement( 'Layout/Window', [ 'CC', 'CC' ], [ 0, 0 ], {
-					Title: 'Clicked!',
+			if ( !this.ResultWindow ) {
+				// show result
+				this.ResultWindow = this.AddElement( 'Layout/Window', [ 'CC', 'CC' ], [ 0, 0 ], {
+					Title: 'Result',
 					Width: 500,
 					Height: 300,
 					ZIndex: 5,
 				});
-				this.ClickedWindow.On( 'close', () => {
-					delete this.ClickedWindow;
+				this.ResultWindow.On( 'close', () => {
+					delete this.ResultWindow;
 				});
 			}
+		});
+		
+		// test input
+		var test_input = window.Body.AddElement( 'UI/Input', [ 'CT', 'CT' ], [ 0, 70 ], {
+			Value: 'Input me',
+			Width: 500,
+			Height: 100,
 		});
 	}
 	
