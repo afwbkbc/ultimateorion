@@ -22,7 +22,6 @@ class Http extends require( '../_Module' ) {
 			
 			if ( this.Config.UseSSL )
 				this.Server = this.Https.createServer({
-					ca: this.H.Fs.ReadFile( this.H.Fs.GetRootPath() + '/SSL/ca.pem' ),
 					cert: this.H.Fs.ReadFile( this.H.Fs.GetRootPath() + '/SSL/cert.pem' ),
 					key: this.H.Fs.ReadFile( this.H.Fs.GetRootPath() + '/SSL/key.pem' ),
 				});
