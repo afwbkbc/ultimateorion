@@ -56,6 +56,7 @@ window.App.Extend({
 			if ( !omit_event ) {
 				console.log( 'NOT IMPLEMENTED', 'EnableElement event' );
 			}
+			this.UpdateCursor();
 		}
 	},
 	
@@ -67,6 +68,7 @@ window.App.Extend({
 			if ( !omit_event ) {
 				console.log( 'NOT IMPLEMENTED', 'DisableElement event' );
 			}
+			this.UpdateCursor();
 		}
 	},
 	
@@ -86,6 +88,22 @@ window.App.Extend({
 			console.log( 'WARNING', 'no bounds for element', element );
 			return [ 0, 0, 0, 0 ];
 		}
+	},
+	
+	TranslateCoords: function( e ) { // from event coords to canvas coords
+		return [ e.layerX * this.XCoordMod, e.layerY * this.YCoordMod ];
+	},
+	
+	UpdateCursor: function( e ) {
+		if ( e )
+			this.LastMouseMoveEvent = e;
+		else
+			e = this.LastMouseMoveEvent;
+		var clickzone = this.GetClickzone( this.TranslateCoords( e ) );
+		if ( clickzone )
+			this.Canvas.style.cursor = 'pointer';
+		else
+			this.Canvas.style.cursor = 'default';
 	},
 	
 	Init: function( next ) {
@@ -143,32 +161,43 @@ window.App.Extend({
 		this.IsStateChanged = true;
 		
 		// mouse events
+		
 		this.Canvas.onmousedown = function( e ) {
-			var c = [ e.layerX * that.XCoordMod, e.layerY * that.YCoordMod ];
-			// TODO: optimize
-			for ( var k = that.NextClickzoneId ; k >= 0 ; k-- ) {
-				var clickzone = that.Clickzones[ k ];
-				if ( clickzone ) {
-					var a = clickzone.area;
-					if ( c[ 0 ] >= a[ 0 ] && c[ 1 ] >= a[ 1 ] && c[ 0 ] <= a[ 2 ] && c[ 1 ] <= a[ 3 ] ) {
-						if ( clickzone.element.enabled ) {
-							if ( clickzone.OnClick )
-								clickzone.OnClick( that.Ctx, clickzone.element );
-							if ( clickzone.OnFocus )
-								that.FocusElement( clickzone.element );
-							else if ( that.FocusedElement )
-								that.BlurElement( that.FocusedElement );
-						}
-						break;
-					}
-				}
+			var clickzone = that.GetClickzone( that.TranslateCoords( e ) );
+			if ( clickzone ) {
+				if ( clickzone.OnClick )
+					clickzone.OnClick( that.Ctx, clickzone.element );
+				if ( clickzone.OnFocus )
+					that.FocusElement( clickzone.element );
+				else if ( that.FocusedElement )
+					that.BlurElement( that.FocusedElement );
 			}
-			if ( k < 0 && that.FocusedElement )
-				that.BlurElement( that.FocusedElement );
+			else {
+				if ( that.FocusedElement )
+					that.BlurElement( that.FocusedElement );
+			}
 			return false;
 		}
 		
+		this.Canvas.onmousemove = function( e ) {
+			that.UpdateCursor( e );
+		}
+		
 		return next();
+	},
+	
+	GetClickzone: function( coords ) {
+		for ( var k = this.NextClickzoneId ; k >= 0 ; k-- ) {
+			var clickzone = this.Clickzones[ k ];
+			if ( clickzone ) {
+				var a = clickzone.area;
+				if ( coords[ 0 ] >= a[ 0 ] && coords[ 1 ] >= a[ 1 ] && coords[ 0 ] <= a[ 2 ] && coords[ 1 ] <= a[ 3 ] ) {
+					if ( clickzone.element.enabled )
+						return clickzone;
+				}
+			}
+		}
+		return null;
 	},
 	
 	Run: function() {
