@@ -164,16 +164,14 @@ window.App.Extend({
 		
 		this.Canvas.onmousedown = function( e ) {
 			var clickzone = that.GetClickzone( that.TranslateCoords( e ) );
+			if ( that.FocusedElement && ( !clickzone || ( that.FocusedElement.data.id != clickzone.element.id ) ) )
+				that.BlurElement( that.FocusedElement );
 			if ( clickzone ) {
 				if ( clickzone.OnClick )
 					clickzone.OnClick( that.Ctx, clickzone.element );
 				if ( clickzone.OnFocus )
 					that.FocusElement( clickzone.element );
 				else if ( that.FocusedElement )
-					that.BlurElement( that.FocusedElement );
-			}
-			else {
-				if ( that.FocusedElement )
 					that.BlurElement( that.FocusedElement );
 			}
 			return false;
