@@ -22,7 +22,6 @@ window.App.Extend({
 	FocusElement: function( element, omit_event ) {
 		if ( element.focused )
 			return; // already focused
-		console.log( 'el focus' );
 		var data = element.data;
 		if ( this.FocusedElement )
 			this.BlurElement( this.FocusedElement );
@@ -40,7 +39,6 @@ window.App.Extend({
 	BlurElement: function( element, omit_event ) {
 		if ( !element.focused )
 			return;
-		console.log( 'el blur' );
 		var data = element.data;
 		if ( this[ data.element ] && this[ data.element ].OnBlur )
 			this[ data.element ].OnBlur( this.Ctx, element );
@@ -157,12 +155,14 @@ window.App.Extend({
 				if ( clickzone ) {
 					var a = clickzone.area;
 					if ( c[ 0 ] >= a[ 0 ] && c[ 1 ] >= a[ 1 ] && c[ 0 ] <= a[ 2 ] && c[ 1 ] <= a[ 3 ] ) {
-						if ( clickzone.OnClick )
-							clickzone.OnClick( that.Ctx, clickzone.element );
-						if ( clickzone.OnFocus )
-							that.FocusElement( clickzone.element );
-						else if ( that.FocusedElement )
-							that.BlurElement( that.FocusedElement );
+						if ( clickzone.element.enabled ) {
+							if ( clickzone.OnClick )
+								clickzone.OnClick( that.Ctx, clickzone.element );
+							if ( clickzone.OnFocus )
+								that.FocusElement( clickzone.element );
+							else if ( that.FocusedElement )
+								that.BlurElement( that.FocusedElement );
+						}
 						break;
 					}
 				}
@@ -346,8 +346,6 @@ window.App.Extend({
 		}
 		for ( var change in data.changes ) {
 			var value = data.changes[ change ];
-			if ( change != 'offsets' )
-				console.log( 'CHANGE', change, value );
 			switch ( change ) {
 				case 'offsets':
 					var offsets = el.data.attributes.offsets;
