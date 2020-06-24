@@ -6,9 +6,76 @@ window.App.Extend({
 			'UI/Label',
 			'Test/TestBlock',
 			'UI/Button',
+			'UI/Input',
 		],
 	},
-			
+	
+	clickzone_events: [ 'OnClick', 'OnFocus' ],
+
+	SendEvent: function( data ) {
+		window.App.Connection.Send({
+			action: 'viewport_event',
+			data: data ? data : {},
+		});
+	},
+	
+	FocusElement: function( element, omit_event ) {
+		if ( element.focused )
+			return; // already focused
+		console.log( 'el focus' );
+		var data = element.data;
+		if ( this.FocusedElement )
+			this.BlurElement( this.FocusedElement );
+		element.focused = true;
+		this.FocusedElement = element;
+		if ( !omit_event )
+			this.SendEvent({
+				element: element.data.id,
+				event: 'focus',
+			});
+		if ( this[ data.element ] && this[ data.element ].OnFocus )
+			this[ data.element ].OnFocus( this.Ctx, element );
+	},
+	
+	BlurElement: function( element, omit_event ) {
+		if ( !element.focused )
+			return;
+		console.log( 'el blur' );
+		var data = element.data;
+		if ( this[ data.element ] && this[ data.element ].OnBlur )
+			this[ data.element ].OnBlur( this.Ctx, element );
+		element.focused = false;
+		if ( this.FocusedElement.data.id == element.data.id )
+			this.FocusedElement = null;
+		if ( !omit_event )
+			this.SendEvent({
+				element: element.data.id,
+				event: 'blur',
+			});
+	},
+	
+	EnableElement: function( element, omit_event ) {
+		if ( !element.enabled ) {
+			console.log( 'el enable' );
+			element.enabled = true;
+			if ( !omit_event ) {
+				console.log( 'NOT IMPLEMENTED', 'EnableElement event' );
+			}
+		}
+	},
+	
+	DisableElement: function( element, omit_event ) {
+		if ( element.enabled ) {
+			console.log( 'el disable' );
+			if ( element.focused )
+				this.BlurElement( element, omit_event );
+			element.enabled = false;
+			if ( !omit_event ) {
+				console.log( 'NOT IMPLEMENTED', 'DisableElement event' );
+			}
+		}
+	},
+	
 	RenderElement: function( element ) {
 		if ( this[ element.data.element ] && this[ element.data.element ].Render )
 			this[ element.data.element ].Render( this.Ctx, element );
@@ -34,6 +101,7 @@ window.App.Extend({
 		this.Layers = [];
 		this.Clickzones = {};
 		this.NextClickzoneId = 0;
+		this.FocusedElement = null;
 		
 		this.FpsLimit = 60;
 		this.TrackStats = true;
@@ -86,14 +154,21 @@ window.App.Extend({
 			// TODO: optimize
 			for ( var k = that.NextClickzoneId ; k >= 0 ; k-- ) {
 				var clickzone = that.Clickzones[ k ];
-				if ( clickzone && clickzone.onclick ) {
+				if ( clickzone ) {
 					var a = clickzone.area;
 					if ( c[ 0 ] >= a[ 0 ] && c[ 1 ] >= a[ 1 ] && c[ 0 ] <= a[ 2 ] && c[ 1 ] <= a[ 3 ] ) {
-						clickzone.onclick( that.Ctx, clickzone.element );
+						if ( clickzone.OnClick )
+							clickzone.OnClick( that.Ctx, clickzone.element );
+						if ( clickzone.OnFocus )
+							that.FocusElement( clickzone.element );
+						else if ( that.FocusedElement )
+							that.BlurElement( that.FocusedElement );
 						break;
 					}
 				}
 			}
+			if ( k < 0 && that.FocusedElement )
+				that.BlurElement( that.FocusedElement );
 			return false;
 		}
 		
@@ -140,6 +215,7 @@ window.App.Extend({
 			this.RemoveElement( this.Elements[ k ].data );
 		this.Elements = {};
 		this.Layers = [];
+		this.FocusedElement = null;
 		this.Ctx.clearRect( 0, 0, this.Canvas.width, this.Canvas.height );
 	},
 	
@@ -215,19 +291,31 @@ window.App.Extend({
 				bounds[ 2 ] += parent.coords[ 0 ];
 				bounds[ 3 ] += parent.coords[ 1 ];
 				element.layer += parent.layer;
+				if ( !parent.children )
+					parent.children = {};
+				parent.children[ element.data.id ] = element;
+				if ( this[ parent.data.element ] && this[ parent.data.element ].OnAddChild )
+					this[ parent.data.element ].OnAddChild( this.Ctx, parent, element );
 			}
 			else
 				console.log( 'WARNING', 'parent element not found', element );
 		}
 		this.PositionElement( element, bounds );
 		if ( this[ data.element ] ) {
-			if ( this[ data.element ].OnClick )
-				this.AddClickzone( element );
+			this.AddClickzoneIfNeeded( element );
+			if ( this[ data.element ].Prepare )
+				this[ data.element ].Prepare( this.Ctx, element );
 		}
 		this.Elements[ data.id ] = element;
 		while ( this.Layers.length <= element.layer )
 			this.Layers.push( {} );
 		this.Layers[ element.layer ][ data.id ] = element;
+		element.enabled = element.data.enabled;
+		if ( !element.enabled ) {
+			element.focused = false;
+		}
+		if ( element.data.focused )
+			this.FocusElement( element, true );
 		this.Redraw();
 		if ( this.TrackStats )
 			this.RenderCalls++;
@@ -241,6 +329,8 @@ window.App.Extend({
 		}
 		if ( element.clickzone )
 			this.RemoveClickzone( element );
+		if ( this.FocusedElement == element.data.id )
+			this.FocusedElement = null;
 		delete this.Elements[ data.id ];
 		delete this.Layers[ element.layer ][ data.id ];
 		this.Redraw();
@@ -256,6 +346,8 @@ window.App.Extend({
 		}
 		for ( var change in data.changes ) {
 			var value = data.changes[ change ];
+			if ( change != 'offsets' )
+				console.log( 'CHANGE', change, value );
 			switch ( change ) {
 				case 'offsets':
 					var offsets = el.data.attributes.offsets;
@@ -264,6 +356,18 @@ window.App.Extend({
 					el.coords[ 0 ] -= diff[ 0 ];
 					el.coords[ 1 ] -= diff[ 1 ];
 					this.Redraw();
+					break;
+				case 'enabled':
+					if ( value )
+						this.EnableElement( el, true );
+					else
+						this.DisableElement( el, true );
+					break;
+				case 'focused':
+					if ( value )
+						this.FocusElement( el, true );
+					else
+						this.BlurElement( el, true );
 					break;
 				default:
 					console.log( 'WARNING', 'unsupported element change "' + change + '"' );
@@ -275,14 +379,22 @@ window.App.Extend({
 	
 	Render: function() {
 		this.Ctx.clearRect( 0, 0, this.Canvas.width, this.Canvas.height );
-		/*for ( var k in this.Elements )
-			this.RenderElement( this.Elements[ k ] );*/
 		for ( var l in this.Layers )
 			for ( var k in this.Layers[ l ] )
 				this.RenderElement( this.Layers[ l ][ k ] );
 	},
 	
-	AddClickzone: function( element ) {
+	AddClickzoneIfNeeded: function( element ) {
+		var is_needed = false;
+		for ( var k in this.clickzone_events ) {
+			var event = this.clickzone_events[ k ];
+			if ( this[ element.data.element ] && this[ element.data.element][ event ] ) {
+				is_needed = true;
+				break;
+			}
+		}
+		if ( !is_needed )
+			return;
 		var clickzone_id = ++this.NextClickzoneId;
 		var defs = this[ element.data.element ];
 		var b = this.GetElementBounds( element );
@@ -291,8 +403,13 @@ window.App.Extend({
 			id: clickzone_id,
 			area: [ c[ 0 ] + b[ 0 ], c[ 1 ] + b[ 1 ], c[ 0 ] + b[ 2 ], c[ 1 ] + b[ 3 ] ],
 			element: element,
-			onclick: defs.OnClick ? defs.OnClick : null,
 		};
+		for ( var k in this.clickzone_events ) {
+			var event = this.clickzone_events[ k ];
+			if ( this[ element.data.element ] && this[ element.data.element][ event ] ) {
+				element.clickzone[ event ] = this[ element.data.element][ event ];
+			}
+		}
 		this.Clickzones[ clickzone_id ] = element.clickzone;
 	},
 	
