@@ -8,8 +8,9 @@
 			anchors: [ 'CC', 'CC' ],
 		};
 		this.IsVisible = true;
+		this.IsFocused = false;
+		this.IsEnabled = true;
 		this.IsRendered = {};
-		
 		this.Events = {};
 		
 		// set defaults
@@ -51,6 +52,8 @@
 			id: this.Id,
 			element: this.ElementType,
 			attributes: this.Attributes,
+			focused: this.IsFocused,
+			enabled: this.IsEnabled,
 		};
 		if ( this.Parent && this.Parent.Id )
 			payload.parent_id = this.Parent.Id;
@@ -103,6 +106,45 @@
 		if ( this.Events[ event ] )
 			for ( var k in this.Events[ event ] )
 				this.Events[ event ][ k ].apply( this, [ data ? data : {} ] );
+	}
+	
+	Focus() {
+		if ( !this.IsFocused ) {
+			this.IsFocused = true;
+			this.RenderChange( this.GetSession(), {
+				focused: true,
+			});
+		}
+	}
+	
+	Blur() {
+		if ( this.IsFocused ) {
+			this.IsFocused = false;
+			this.RenderChange( this.GetSession(), {
+				focused: false,
+			});
+		}
+	}
+	
+	Enable() {
+		if ( !this.IsEnabled ) {
+			this.IsEnabled = true;
+			this.RenderChange( this.GetSession(), {
+				enabled: true,
+			});
+		}
+	}
+	
+	Disable() {
+		if ( this.IsEnabled ) {
+			this.IsEnabled = false;
+			if ( this.IsFocused ) {
+				this.IsFocused = false;
+			}
+			this.RenderChange( this.GetSession(), {
+				enabled: false,
+			});
+		}
 	}
 }
 

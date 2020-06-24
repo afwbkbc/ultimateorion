@@ -141,6 +141,12 @@ class Connection extends require( '../../_Base' ) {
 			
 			this.DispatchEvent( event );
 		}
+		else if ( data.type == 'S' ) {
+			var event = Object.assign( data, {
+				
+			});
+			this.DispatchEvent( event );
+		}
 		else {
 			console.log( 'invalid/unsupported event type "' + data.type + '"', data );
 		}
@@ -158,7 +164,8 @@ class Connection extends require( '../../_Base' ) {
 				console.log( 'dropping invalid/unsupported event "' + event.data.action + '"', event.data );
 				return;
 		}
-		event.Finalize();
+		if ( event.Finalize )
+			event.Finalize();
 	}
 	
 }

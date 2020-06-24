@@ -18,6 +18,12 @@ class Input extends require( '../Element' ) {
 			Style: 'input-label',
 			Text: this.Attributes.Value,
 		});
+		this.On( 'focus', () => {
+			console.log( 'FOCUS' );
+		});
+		this.On( 'blur', () => {
+			console.log( 'BLUR' );
+		});
 	}
 	
 }

@@ -94,15 +94,25 @@ class TestViewport extends require( '../Viewport' ) {
 				});
 				this.ResultWindow.On( 'close', () => {
 					delete this.ResultWindow;
+					if ( this.TestInput ) { // reenable and focus input
+						this.TestInput.Enable();
+						this.TestInput.Focus();
+					}
 				});
 			}
 		});
 		
 		// test input
-		var test_input = window.Body.AddElement( 'UI/Input', [ 'CT', 'CT' ], [ 0, 70 ], {
+		this.TestInput = window.Body.AddElement( 'UI/Input', [ 'CT', 'CT' ], [ 0, 70 ], {
 			Value: 'Input me',
 			Width: 500,
 			Height: 100,
+		});
+		// focus it
+		this.TestInput.Focus();
+		// disable while resultwindow shown
+		test_button.On( 'click', () => {
+			this.TestInput.Disable();
 		});
 	}
 	
