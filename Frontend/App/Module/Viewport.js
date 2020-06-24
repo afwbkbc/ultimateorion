@@ -10,8 +10,6 @@ window.App.Extend({
 		],
 	},
 	
-	clickzone_events: [ 'OnClick', 'OnFocus' ],
-
 	SendEvent: function( data ) {
 		window.App.Connection.Send({
 			action: 'viewport_event',
@@ -54,7 +52,6 @@ window.App.Extend({
 	
 	EnableElement: function( element, omit_event ) {
 		if ( !element.enabled ) {
-			console.log( 'el enable' );
 			element.enabled = true;
 			if ( !omit_event ) {
 				console.log( 'NOT IMPLEMENTED', 'EnableElement event' );
@@ -64,7 +61,6 @@ window.App.Extend({
 	
 	DisableElement: function( element, omit_event ) {
 		if ( element.enabled ) {
-			console.log( 'el disable' );
 			if ( element.focused )
 				this.BlurElement( element, omit_event );
 			element.enabled = false;
@@ -302,6 +298,7 @@ window.App.Extend({
 		}
 		this.PositionElement( element, bounds );
 		if ( this[ data.element ] ) {
+			element.behavior = this[ data.element ].behavior ? this[ data.element ].behavior : {};
 			this.AddClickzoneIfNeeded( element );
 			if ( this[ data.element ].Prepare )
 				this[ data.element ].Prepare( this.Ctx, element );
@@ -383,15 +380,7 @@ window.App.Extend({
 	},
 	
 	AddClickzoneIfNeeded: function( element ) {
-		var is_needed = false;
-		for ( var k in this.clickzone_events ) {
-			var event = this.clickzone_events[ k ];
-			if ( this[ element.data.element ] && this[ element.data.element][ event ] ) {
-				is_needed = true;
-				break;
-			}
-		}
-		if ( !is_needed )
+		if ( !element.behavior.clickable )
 			return;
 		var clickzone_id = ++this.NextClickzoneId;
 		var defs = this[ element.data.element ];
@@ -402,12 +391,10 @@ window.App.Extend({
 			area: [ c[ 0 ] + b[ 0 ], c[ 1 ] + b[ 1 ], c[ 0 ] + b[ 2 ], c[ 1 ] + b[ 3 ] ],
 			element: element,
 		};
-		for ( var k in this.clickzone_events ) {
-			var event = this.clickzone_events[ k ];
-			if ( this[ element.data.element ] && this[ element.data.element][ event ] ) {
-				element.clickzone[ event ] = this[ element.data.element][ event ];
-			}
-		}
+		if ( element.behavior.clickable )
+			element.clickzone.OnClick = this[ element.data.element].OnClick;
+		if ( element.behavior.focusable )
+			element.clickzone.OnFocus = this[ element.data.element].OnFocus;
 		this.Clickzones[ clickzone_id ] = element.clickzone;
 	},
 	

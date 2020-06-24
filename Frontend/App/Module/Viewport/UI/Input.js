@@ -1,5 +1,11 @@
 window.App.Viewport.Extend({
 
+	behavior: {
+		clickable: true,
+		focusable: true,
+		typeable: true,
+	},
+	
 	Prepare: function( ctx, element ) {
 		element.blinkinterval = null;
 		element.label = null;
