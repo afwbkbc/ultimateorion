@@ -1,4 +1,8 @@
 window.App.Viewport.Extend({
+
+	behavior: {
+		clickable: true,
+	},
 	
 	OnClick: function( ctx, element ) {
 		if ( element.is_clicked )

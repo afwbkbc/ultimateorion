@@ -1,5 +1,11 @@
 window.App.Viewport.Extend({
 
+	behavior: {
+		clickable: true,
+		focusable: true,
+		typeable: true,
+	},
+	
 	Prepare: function( ctx, element ) {
 		element.blinkinterval = null;
 		element.label = null;
@@ -8,7 +14,8 @@ window.App.Viewport.Extend({
 	OnAddChild: function( ctx, element, child ) {
 		if ( child.data.element == 'UI/Label' ) {
 			element.label = child;
-			this.UpdateLabel( ctx, element );
+			if ( element.focused )
+				this.UpdateLabel( ctx, element );
 		}
 	},
 	
@@ -20,7 +27,7 @@ window.App.Viewport.Extend({
 			element.blinkinterval = setInterval( function() {
 				element.blinkcursorvisible = !element.blinkcursorvisible;
 				that.UpdateLabel( ctx, element );
-			}, 500 );
+			}, 300 );
 		}
 	},
 

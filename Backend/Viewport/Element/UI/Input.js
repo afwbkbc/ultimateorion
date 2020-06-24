@@ -14,15 +14,9 @@ class Input extends require( '../Element' ) {
 			Width: this.Attributes.Width,
 			Height: this.Attributes.Height,
 		});
-		this.Label = this.AddElement( 'UI/Label', [ 'CC', 'CC' ], [ 0, 0 ], {
+		this.Label = this.AddElement( 'UI/Label', [ 'LC', 'LC' ], [ 26, 0 ], {
 			Style: 'input-label',
 			Text: this.Attributes.Value,
-		});
-		this.On( 'focus', () => {
-			console.log( 'FOCUS' );
-		});
-		this.On( 'blur', () => {
-			console.log( 'BLUR' );
 		});
 	}
 	

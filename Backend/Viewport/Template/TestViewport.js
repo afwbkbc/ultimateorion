@@ -98,8 +98,10 @@ class TestViewport extends require( '../Viewport' ) {
 						this.TestInput.Enable();
 						this.TestInput.Focus();
 					}
+					test_button.Enable();
 				});
 			}
+			test_button.Disable();
 		});
 		
 		// test input

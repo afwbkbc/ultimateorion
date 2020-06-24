@@ -17,6 +17,13 @@
 		this.SetAttributes({
 			Style: 'default',
 		});
+
+		this.On( 'focus', () => {
+			this.IsFocused = true;
+		});
+		this.On( 'blur', () => {
+			this.IsFocused = false;
+		});
 	}
 	
 	Attach( parent, element_type ) {
@@ -110,7 +117,7 @@
 	
 	Focus() {
 		if ( !this.IsFocused ) {
-			this.IsFocused = true;
+			this.Viewport.FocusElement( this );
 			this.RenderChange( this.GetSession(), {
 				focused: true,
 			});
@@ -119,10 +126,10 @@
 	
 	Blur() {
 		if ( this.IsFocused ) {
-			this.IsFocused = false;
 			this.RenderChange( this.GetSession(), {
 				focused: false,
 			});
+			this.Viewport.BlurElement( this );
 		}
 	}
 	

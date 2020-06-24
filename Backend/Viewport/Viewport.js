@@ -8,6 +8,7 @@ class Viewport extends require( './_ElementBase' ) {
 		this.Session = session;
 		this.Viewport = this; // will be copied to all children
 		this.AllElements = {}; // all children included
+		this.FocusedElement = null;
 	}
 	
 	Destroy() {
@@ -21,7 +22,6 @@ class Viewport extends require( './_ElementBase' ) {
 		} while ( typeof( this.AllElements[ id ] ) !== 'undefined' );
 		this.AllElements[ id ] = element;
 		element.Id = id;
-		//console.log( 'REGISTER', element.Id );
 	}
 	
 	UnregisterElement( element ) {
@@ -29,6 +29,22 @@ class Viewport extends require( './_ElementBase' ) {
 			throw new Error( 'element to be unregistered ( "' + element.Id + '" ) not found' );
 		//console.log( 'UNREGISTER', element.Id );
 		delete this.AllElements[ element.Id ];
+	}
+	
+	FocusElement( element ) {
+		if ( !element.IsFocused ) {
+			if( this.FocusedElement )
+				this.BlurElement( element );
+			element.IsFocused = true;
+		}
+	}
+	
+	BlurElement( element ) {
+		if ( element.IsFocused ) {
+			element.IsFocused = false;
+			if ( this.FocusedElement && this.FocusedElement.Id == element.Id )
+				this.FocusedElement = null;
+		}
 	}
 	
 	GetElementById( id ) {
@@ -39,7 +55,19 @@ class Viewport extends require( './_ElementBase' ) {
 	
 	HandleEvent( event ) {
 		var element = this.GetElementById( event.element );
-		element.Trigger( event.event, event );
+		
+		switch ( event.event ) {
+			case 'focus': {
+				this.FocusElement( element );
+				break;
+			}
+			case 'blur': {
+				this.BlurElement( element );
+				break;
+			}
+		}
+		
+		element.Trigger( event.event, event ); // element-specific handlers
 	}
 	
 }
