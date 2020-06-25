@@ -226,7 +226,7 @@ window.App.Extend({
 		this.RenderLoop = setInterval( function() {
 			if ( window.App.Window.IsFocused && window.App.Connection.IsConnected && that.IsStateChanged ) {
 				that.Render();
-				if ( that.TrackStats && that.LastFrames > 0 ) {
+				if ( that.TrackStats ) {
 					that.Ctx.font = "30px Verdana";
 					that.Ctx.textAlign = 'top left';
 					that.Ctx.fillStyle = 'white';

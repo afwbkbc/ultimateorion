@@ -40,8 +40,8 @@ class Session extends require( '../../_Base' ) {
 	OnCreate() {
 		console.log( '+SESSION #' + this.Id );
 		
-		this.Viewport = new ( this.H.Loader.Require( 'Viewport/Template/TestViewport' ) )( this );
-		//this.Viewport = new ( this.H.Loader.Require( 'Viewport/Viewport' ) )( this );
+		//this.Viewport = new ( this.H.Loader.Require( 'Viewport/Template/TestViewport' ) )( this );
+		this.Viewport = new ( this.H.Loader.Require( 'Viewport/Template/MainMenuGuest' ) )( this );
 	}
 	
 	OnDestroy() {

@@ -5,7 +5,6 @@ window.App.Extend({
 		auth: function( data, reply ) {
 			return reply( window.App.Session.GetAuthData() );
 		},
-		
 		set_guest_id: function( data ) {
 			window.App.Session.SetGuestId( data.guest_id );
 		},
@@ -17,6 +16,11 @@ window.App.Extend({
 		},
 		renderchange: function( data ) {
 			window.App.Viewport.ChangeElement( data );
+		},
+		client_quit: function( data ) {
+			window.App.Session.Clear();
+			window.App.Viewport.Clear();
+			document.body.innerHTML = '';
 		},
 	},
 	

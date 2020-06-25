@@ -14,7 +14,9 @@ window.App.Viewport.Extend({
 				event: 'click',
 				element: element.data.id,
 			},
-		}, function( data ) {
+		}, function( event ) {
+			if ( event.action )
+				window.App.EventHandler.Handle( event );
 			delete element.is_clicked;
 		});
 	},

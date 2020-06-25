@@ -4,8 +4,13 @@ class LoginForm extends require( '../Element' ) {
 		super( module.filename );
 		
 		this.SetAttributes({
-			
+			Width: 300,
+			Height: 250,
 		});
+	}
+	
+	Prepare() {
+		
 	}
 	
 }

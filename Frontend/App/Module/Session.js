@@ -38,4 +38,7 @@ window.App.Extend({
 		}
 	},
 	
+	Clear: function() {
+		this.RemoveCookie( 'guest_id' );
+	},
 });

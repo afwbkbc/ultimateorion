@@ -113,6 +113,7 @@
 		if ( !this.Events[ event ] )
 			this.Events[ event ] = [];
 		this.Events[ event ].push( callback );
+		return this;
 	}
 	
 	Trigger( event, data ) {

@@ -129,15 +129,15 @@ class Connection extends require( '../../_Base' ) {
 			var event = Object.assign( data, {
 				replied: false,
 				connection: this,
-				Reply: function( data ) {
-					this.connection.Reply( this.data.id, data );
-					this.replied = true;
-				},
-				Finalize: function() {
-					if ( !this.replied )
-						this.connection.Reply( this.data.id, {} );
-				}
 			});
+			event.Reply = ( data ) => {
+				event.connection.Reply( event.data.id, data );
+				event.replied = true;
+			};
+			event.Finalize = () => {
+				if ( !event.replied )
+					event.connection.Reply( event.data.id, {} );
+			};
 			
 			this.DispatchEvent( event );
 		}
