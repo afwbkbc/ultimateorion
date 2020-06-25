@@ -3,7 +3,7 @@ window.App.Viewport.Extend({
 	Render: function( ctx, element ) {
 			var a = element.data.attributes;
 			var c = element.coords;
-			ctx.font = "60px Verdana";
+			ctx.font = "60px Monospace";
 			ctx.textAlign = 'left';
 			ctx.textBaseline = 'top';
 			ctx.fillStyle = 'silver';
@@ -11,7 +11,7 @@ window.App.Viewport.Extend({
 	},
 	
 	GetBounds: function( ctx, element ) {
-		ctx.font = "60px Verdana";
+		ctx.font = "60px Monospace";
 		var m = ctx.measureText( element.data.attributes.Text );
 		return [ 0, 0, m.width, m.actualBoundingBoxAscent + m.actualBoundingBoxDescent ];
 	},

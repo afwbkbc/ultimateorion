@@ -40,6 +40,28 @@ window.App.Viewport.Extend({
 		this.UpdateLabel( ctx, element );
 	},
 	
+	OnKeyPress: function( ctx, element, e ) {
+		var a = element.data.attributes;
+		if ( e.key == 'Backspace' ) {
+			if ( !a.Value.length )
+				return;
+			a.Value = a.Value.substring( 0, a.Value.length - 1 );
+		}
+		else if ( e.key.length == 1 ) {// character
+			if ( a.Value.length >= a.MaxLength )
+				return;
+			a.Value += e.key;
+		}
+		else
+			return;
+		this.UpdateLabel( ctx, element );
+		window.App.Viewport.SendEvent({
+			element: element.data.id,
+			event: 'input',
+			value: a.Value,
+		});
+	},
+	
 	UpdateLabel: function( ctx, element ) {
 		if ( element.label ) {
 			element.label.data.attributes.Text = element.data.attributes.Value + ( element.blinkcursorvisible ? '▍' : ' ' );
