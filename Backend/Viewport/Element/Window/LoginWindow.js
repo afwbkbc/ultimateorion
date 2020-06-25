@@ -7,7 +7,7 @@ class LoginWindow extends require( '../Layout/Window' ) {
 			Title: 'Login',
 			Style: 'main-menu-form',
 			Width: 640,
-			Height: 560,
+			Height: 444,
 		});
 	}
 	

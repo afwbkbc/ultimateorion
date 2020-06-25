@@ -5,18 +5,18 @@ class MainMenuGuest extends require( './MainMenu' ) {
 
 		this.MainMenu = this.AddElement( 'Layout/Panel', [ 'RB', 'RB' ], [ -50, -50 ], {
 			Style: 'main-menu-block',
-			Width: 540,
-			Height: 460,
+			Width: 440,
+			Height: 340,
 		});
 		
 		this.MainMenu.AddElement( 'UI/Label', [ 'CT', 'CT' ], [ 0, 30 ], {
 			Text: 'Welcome, Guest!',
 		});
 		
-		this.MainMenu.AddElement( 'UI/Button', [ 'CT', 'CT' ], [ 0, 120 ], {
+		this.MainMenu.AddElement( 'UI/Button', [ 'CT', 'CT' ], [ 0, 96 ], {
 			Label: 'Login',
 			Width: 400,
-			Height: 80,
+			Height: 64,
 		})
 			.On( 'click', () => {
 				this.MainMenu.Disable();
@@ -31,28 +31,13 @@ class MainMenuGuest extends require( './MainMenu' ) {
 					})
 				;
 				
-				/*this.Login = this.AddElement( 'Layout/Window', [ 'CC', 'CC' ], [ 0, 0 ], {
-					Style: 'login-form',
-					Title: 'Login',
-					Width: 640,
-					Height: 560,
-				})
-					.On( 'close', () => {
-						delete this.Login;
-						this.MainMenu.Enable();
-					})
-				;
-				this.Login.Form = this.Login.Body.AddElement( 'Form/LoginForm', [ 'LT', 'LT' ], [ 0, 0 ], {
-					Width: this.Login.Attributes.Width,
-					Height: this.Login.Attributes.Height,
-				});*/
 			})
 		;
 		
-		this.MainMenu.AddElement( 'UI/Button', [ 'CT', 'CT' ], [ 0, 220 ], {
+		this.MainMenu.AddElement( 'UI/Button', [ 'CT', 'CT' ], [ 0, 176 ], {
 			Label: 'Register',
 			Width: 400,
-			Height: 80,
+			Height: 64,
 		})
 			.On( 'click', () => {
 				this.MainMenu.Disable();

@@ -7,7 +7,7 @@ class RegisterWindow extends require( '../Layout/Window' ) {
 			Title: 'Registration',
 			Style: 'main-menu-form',
 			Width: 640,
-			Height: 740,
+			Height: 584,
 		});
 	}
 	

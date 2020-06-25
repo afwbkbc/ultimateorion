@@ -7,17 +7,17 @@ class MainMenu extends require( '../Viewport' ) {
 			Style: 'main-menu-logo',
 			Text: 'UltimateOrion',
 		});
-		this.Version = this.AddElement( 'UI/Label', [ 'LT', 'LT' ], [ 670, 100 ], {
+		this.Version = this.AddElement( 'UI/Label', [ 'LT', 'LT' ], [ 570, 85 ], {
 			Style: 'main-menu-version',
 			Text: 'v.0.0.1',
 		});
 
 		this.AddMainMenuLinks = () => {
 			
-			this.MainMenu.AddElement( 'UI/Button', [ 'CT', 'CT' ], [ 0, 320 ], {
+			this.MainMenu.AddElement( 'UI/Button', [ 'CT', 'CT' ], [ 0, 254 ], {
 				Label: 'Quit',
 				Width: 400,
-				Height: 80,
+				Height: 64,
 			})
 				.On( 'click', ( event ) => {
 					event.Reply({

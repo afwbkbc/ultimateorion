@@ -63,6 +63,16 @@ class Fs extends require( './_Helper' ) {
 			.substring( 1 ) // remove leading slash
 		;
 	}	
+
+	// converts filesystem path to class name
+	PathToName( path ) {
+		return path.substring( 0, path.length - 3 )
+			.replace( this.GetRootPath(), '' )
+			.replace( /\\/g, '/' )
+			.substring( 1 ) // remove leading slash
+		;
+	}	
+
 }
 
 module.exports = Fs;

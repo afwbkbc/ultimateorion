@@ -26,9 +26,13 @@
 		});
 	}
 	
+	SetCoreClass( filename ) {
+		this.Class = this.H.Fs.PathToName( filename ).replace( 'Backend/Viewport/Element/', '' );
+	}
+	
 	Attach( parent, element_type ) {
 		this.Parent = parent;
-		this.ElementType = element_type;
+		this.ElementType = this.Class ? this.Class : element_type;
 		this.Viewport = this.Parent.Viewport;
 	}
 	

@@ -3,9 +3,11 @@ class Window extends require( '../BlockElement' ) {
 	constructor( filename ) {
 		super( filename ? filename : module.filename );
 		
+		this.SetCoreClass( module.filename );
+		
 		this.SetAttributes({
 			Title: '',
-			TitlebarHeight: 80,
+			TitlebarHeight: 64,
 			WithCloseButton: true,
 			WithFadeBackground: true,
 		});

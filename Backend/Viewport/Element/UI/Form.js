@@ -7,11 +7,11 @@ class Form extends require( '../Layout/Panel' ) {
 		this.CurrentTopOffset = 0;
 		
 		this.SetAttributes({
-			FieldHeight: 170,
+			FieldHeight: 130,
 			FieldMargin: 10,
 			FieldPadding: 10,
-			InputHeight: 80,
-			InputIndent: 100,
+			InputHeight: 64,
+			InputIndent: 80,
 		});
 	}
 
