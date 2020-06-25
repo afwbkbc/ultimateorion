@@ -115,7 +115,7 @@ window.App.Extend({
 	
 	// TODO: event tracking?
 	Send: function( data, on_response ) {
-		this.LogEvent( '<<', data );
+		//this.LogEvent( '<<', data );
 		var event = {
 			data: data,
 		};
@@ -140,7 +140,7 @@ window.App.Extend({
 		if ( typeof( this.events_bf[ id ] ) === 'undefined' )
 			return window.App.Error( 'event id does not exist', id );
 		
-		this.LogEvent( '<<', id, null, data );
+		//this.LogEvent( '<<', id, null, data );
 		
 		delete this.events_bf[ id ];
 		

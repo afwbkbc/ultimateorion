@@ -1,4 +1,4 @@
-class LoginForm extends require( '../UI/Form' ) {
+class RegisterForm extends require( '../UI/Form' ) {
 	
 	constructor() {
 		super( module.filename );
@@ -13,9 +13,12 @@ class LoginForm extends require( '../UI/Form' ) {
 		this.AddInput( 'password', 'Password', {
 			masked: true,
 		});
-		this.AddSubmit( 'Login' );
+		this.AddInput( 'confirm', 'Confirm password', {
+			masked: true,
+		});
+		this.AddSubmit( 'Create profile' );
 	}
 	
 }
 
-module.exports = LoginForm;
+module.exports = RegisterForm;

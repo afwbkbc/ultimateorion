@@ -12,7 +12,7 @@ window.App.Viewport.Extend({
 	
 	GetBounds: function( ctx, element ) {
 		ctx.font = "60px Monospace";
-		var m = ctx.measureText( element.data.attributes.Text );
+		var m = ctx.measureText( element.data.attributes.Text.trim().length ? element.data.attributes.Text : '▍' );
 		return [ 0, 0, m.width, m.actualBoundingBoxAscent + m.actualBoundingBoxDescent ];
 	},
 	

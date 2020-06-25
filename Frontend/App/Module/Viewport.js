@@ -50,6 +50,14 @@ window.App.Extend({
 			});
 	},
 	
+	IsElementEnabled: function( element ) {
+		if ( !element.enabled )
+			return false;
+		if ( element.parent )
+			return this.IsElementEnabled( element.parent );
+		return true;
+	},
+	
 	EnableElement: function( element, omit_event ) {
 		if ( !element.enabled ) {
 			element.enabled = true;
@@ -112,6 +120,7 @@ window.App.Extend({
 		this.Elements = {};
 		this.Layers = [];
 		this.Clickzones = {};
+		this.TabOrder = [];
 		this.NextClickzoneId = 0;
 		this.FocusedElement = null;
 		
@@ -179,15 +188,42 @@ window.App.Extend({
 		
 		this.Canvas.onmousemove = function( e ) {
 			that.UpdateCursor( e );
+			return false;
 		}
 		
 		window.onkeydown = function( e ) {
 			var el = that.FocusedElement;
+			
+			// special cases
+			if ( e.key == 'Tab' ) {
+				if ( that.TabOrder.length > 0 ) {
+					var tabindex;
+					if ( that.TabOrder.length == 1 )
+						tabindex = 0;
+					else if ( el ) {
+						tabindex = that.TabOrder.indexOf( el.data.id );
+						if ( tabindex < 0 )
+							tabindex = 0;
+						tabindex++;
+						if ( tabindex >= that.TabOrder.length )
+							tabindex = 0;
+					}
+					else
+						tabindex = 0;
+					
+					var elid = that.TabOrder[ tabindex ];
+					that.FocusElement( that.Elements[ elid ] );
+				}
+				return false;
+			}
+			
 			if ( !el || !el.behavior.typeable )
-				return;
+				return true;
+			
 			var defs = that[ el.data.element ];
 			if ( defs.OnKeyPress )
-				defs.OnKeyPress( that.Ctx, el, e );
+				return !defs.OnKeyPress( that.Ctx, el, e );
+			return true;
 		}
 		
 		return next();
@@ -199,7 +235,7 @@ window.App.Extend({
 			if ( clickzone ) {
 				var a = clickzone.area;
 				if ( coords[ 0 ] >= a[ 0 ] && coords[ 1 ] >= a[ 1 ] && coords[ 0 ] <= a[ 2 ] && coords[ 1 ] <= a[ 3 ] ) {
-					if ( clickzone.element.enabled )
+					if ( this.IsElementEnabled( clickzone.element ) )
 						return clickzone;
 				}
 			}
@@ -323,6 +359,7 @@ window.App.Extend({
 				bounds[ 2 ] += parent.coords[ 0 ];
 				bounds[ 3 ] += parent.coords[ 1 ];
 				element.layer += parent.layer;
+				element.parent = parent;
 				if ( !parent.children )
 					parent.children = {};
 				parent.children[ element.data.id ] = element;
@@ -336,6 +373,7 @@ window.App.Extend({
 		if ( this[ data.element ] ) {
 			element.behavior = this[ data.element ].behavior ? this[ data.element ].behavior : {};
 			this.AddClickzoneIfNeeded( element );
+			this.AddToTabOrderIfNeeded( element );
 			if ( this[ data.element ].Prepare )
 				this[ data.element ].Prepare( this.Ctx, element );
 		}
@@ -362,8 +400,16 @@ window.App.Extend({
 		}
 		if ( element.clickzone )
 			this.RemoveClickzone( element );
+		var tabindex = this.TabOrder.indexOf( element.data.id );
+		if ( tabindex >= 0 )
+			this.TabOrder.splice( tabindex, 1 );
 		if ( this.FocusedElement == element.data.id )
 			this.FocusedElement = null;
+		if ( this.parent )
+			delete this.parent.children[ data.id ];
+		if ( this.children )
+			for ( var k in this.children )
+				delete this.children[ k ].parent;
 		delete this.Elements[ data.id ];
 		delete this.Layers[ element.layer ][ data.id ];
 		this.Redraw();
@@ -432,6 +478,12 @@ window.App.Extend({
 		if ( element.behavior.focusable )
 			element.clickzone.OnFocus = this[ element.data.element].OnFocus;
 		this.Clickzones[ clickzone_id ] = element.clickzone;
+	},
+	
+	AddToTabOrderIfNeeded: function( element ) {
+		if ( !element.behavior.focusable )
+			return;
+		this.TabOrder.push( element.data.id );
 	},
 	
 	RemoveClickzone: function( element ) {
