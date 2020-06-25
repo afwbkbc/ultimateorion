@@ -36,6 +36,12 @@
 		this.Attributes = Object.assign( this.Attributes, attributes );
 	}
 	
+	SetAttribute( key, value ) {
+		var attrs = {};
+		attrs[ key ] = value;
+		this.SetAttributes( attrs );
+	}
+	
 	IsVisibleRecursive() {
 		if ( !this.IsVisible )
 			return false;

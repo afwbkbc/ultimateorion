@@ -5,6 +5,7 @@ class Input extends require( '../Element' ) {
 		
 		this.SetAttributes({
 			Value: '',
+			MaxLength: 32,
 		});
 	}
 	
@@ -17,6 +18,12 @@ class Input extends require( '../Element' ) {
 		this.Label = this.AddElement( 'UI/Label', [ 'LC', 'LC' ], [ 26, 0 ], {
 			Style: 'input-label',
 			Text: this.Attributes.Value,
+		});
+		
+		var that = this;
+		this.On( 'input', ( event ) => {
+			that.SetAttribute( 'Value', event.value );
+			that.Label.SetAttribute( 'Text', event.value );
 		});
 	}
 	

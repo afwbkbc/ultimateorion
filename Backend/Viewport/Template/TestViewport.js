@@ -83,7 +83,21 @@ class TestViewport extends require( '../Viewport' ) {
 			Width: 400,
 			Height: 100,
 		});
+		
+		// test input
+		this.TestInput = window.Body.AddElement( 'UI/Input', [ 'CT', 'CT' ], [ 0, 70 ], {
+			Value: 'Input me',
+			MaxLength: 13,
+			Width: 500,
+			Height: 100,
+		});
+		
+		// focus it
+		this.TestInput.Focus();
+		
+		// handle 'click me' button
 		test_button.On( 'click', () => {
+			this.TestInput.Disable();
 			if ( !this.ResultWindow ) {
 				// show result
 				this.ResultWindow = this.AddElement( 'Layout/Window', [ 'CC', 'CC' ], [ 0, 0 ], {
@@ -92,30 +106,19 @@ class TestViewport extends require( '../Viewport' ) {
 					Height: 300,
 					ZIndex: 5,
 				});
+				this.ResultWindow.Body.AddElement( 'UI/Label', [ 'CC', 'CC' ], [ 0, 0 ], {
+					Text: this.TestInput.Attributes.Value,
+				});
 				this.ResultWindow.On( 'close', () => {
 					delete this.ResultWindow;
-					if ( this.TestInput ) { // reenable and focus input
-						this.TestInput.Enable();
-						this.TestInput.Focus();
-					}
+					this.TestInput.Enable();
+					this.TestInput.Focus();
 					test_button.Enable();
 				});
 			}
 			test_button.Disable();
 		});
 		
-		// test input
-		this.TestInput = window.Body.AddElement( 'UI/Input', [ 'CT', 'CT' ], [ 0, 70 ], {
-			Value: 'Input me',
-			Width: 500,
-			Height: 100,
-		});
-		// focus it
-		this.TestInput.Focus();
-		// disable while resultwindow shown
-		test_button.On( 'click', () => {
-			this.TestInput.Disable();
-		});
 	}
 	
 }

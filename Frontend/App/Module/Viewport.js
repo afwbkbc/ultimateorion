@@ -181,6 +181,15 @@ window.App.Extend({
 			that.UpdateCursor( e );
 		}
 		
+		window.onkeydown = function( e ) {
+			var el = that.FocusedElement;
+			if ( !el || !el.behavior.typeable )
+				return;
+			var defs = that[ el.data.element ];
+			if ( defs.OnKeyPress )
+				defs.OnKeyPress( that.Ctx, el, e );
+		}
+		
 		return next();
 	},
 	
