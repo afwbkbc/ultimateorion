@@ -2,6 +2,7 @@ window.App.Extend({
 
 	config: {
 		modules: [
+			'Layout/Window',
 			'Layout/Panel',
 			'UI/Label',
 			'Test/TestBlock',

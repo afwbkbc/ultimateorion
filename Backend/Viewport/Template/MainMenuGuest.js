@@ -20,7 +20,18 @@ class MainMenuGuest extends require( './MainMenu' ) {
 		})
 			.On( 'click', () => {
 				this.MainMenu.Disable();
-				this.Login = this.AddElement( 'Layout/Window', [ 'CC', 'CC' ], [ 0, 0 ], {
+				
+				this.Login = this.AddElement( 'Window/LoginWindow', [ 'CC', 'CC' ], [ 0, 0 ], {})
+					.On( 'close', () => {
+						delete this.Login;
+						this.MainMenu.Enable();
+					})
+					.On( 'success', () => {
+						console.log( 'LOGIN SUCCESS!' );
+					})
+				;
+				
+				/*this.Login = this.AddElement( 'Layout/Window', [ 'CC', 'CC' ], [ 0, 0 ], {
 					Style: 'login-form',
 					Title: 'Login',
 					Width: 640,
@@ -34,7 +45,7 @@ class MainMenuGuest extends require( './MainMenu' ) {
 				this.Login.Form = this.Login.Body.AddElement( 'Form/LoginForm', [ 'LT', 'LT' ], [ 0, 0 ], {
 					Width: this.Login.Attributes.Width,
 					Height: this.Login.Attributes.Height,
-				});
+				});*/
 			})
 		;
 		
@@ -45,21 +56,16 @@ class MainMenuGuest extends require( './MainMenu' ) {
 		})
 			.On( 'click', () => {
 				this.MainMenu.Disable();
-				this.Register = this.AddElement( 'Layout/Window', [ 'CC', 'CC' ], [ 0, 0 ], {
-					Style: 'login-form',
-					Title: 'Register',
-					Width: 640,
-					Height: 740,
-				})
+				
+				this.Register = this.AddElement( 'Window/RegisterWindow', [ 'CC', 'CC' ], [ 0, 0 ], {})
 					.On( 'close', () => {
 						delete this.Register;
 						this.MainMenu.Enable();
 					})
+					.On( 'success', () => {
+						console.log( 'REGISTER SUCCESS!' );
+					})
 				;
-				this.Register.Form = this.Register.Body.AddElement( 'Form/RegisterForm', [ 'LT', 'LT' ], [ 0, 0 ], {
-					Width: this.Register.Attributes.Width,
-					Height: this.Register.Attributes.Height,
-				});
 			})
 		;
 

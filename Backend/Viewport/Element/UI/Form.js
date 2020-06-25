@@ -15,6 +15,12 @@ class Form extends require( '../Layout/Panel' ) {
 		});
 	}
 
+	FocusField( name ) {
+		var f = this.Fields[ name ];
+		if ( f )
+			f.Input.Focus();
+	}
+	
 	AddInput( name, label, attributes ) {
 		var f = {
 			Panel: this.AddElement( 'Layout/Panel', [ 'CT', 'CT' ], [ 0, this.Attributes.FieldMargin + this.CurrentTopOffset ], {
@@ -44,7 +50,18 @@ class Form extends require( '../Layout/Panel' ) {
 			Label: label,
 			Width: this.Attributes.Width - this.Attributes.FieldMargin * 2 - this.Attributes.FieldPadding * 2,
 			Height: this.Attributes.InputHeight,
-		}));
+		}))
+			.On( 'click', () => {
+				var fields = {};
+				for ( var k in this.Fields ) {
+					var f = this.Fields[ k ];
+						fields[ k ] = f.Input.Attributes.Value;
+				}
+				this.Trigger( 'submit', {
+					fields: fields,
+				});
+			})
+		;
 		
 		this.CurrentTopOffset += this.Attributes.FieldHeight + this.Attributes.FieldMargin * 2;
 	}

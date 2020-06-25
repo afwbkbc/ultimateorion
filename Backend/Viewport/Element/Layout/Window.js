@@ -1,17 +1,19 @@
 class Window extends require( '../BlockElement' ) {
 
-	constructor() {
-		super( module.filename );
+	constructor( filename ) {
+		super( filename ? filename : module.filename );
 		
 		this.SetAttributes({
 			Title: '',
 			TitlebarHeight: 80,
 			WithCloseButton: true,
+			WithFadeBackground: true,
 		});
 		
 	}
 	
 	Prepare() {
+		
 		this.Titlebar = this.AddElement( 'Layout/Panel', [ 'LT', 'LT' ], [ 0, 0 ], {
 			Style: 'window-titlebar',
 			Width: this.Attributes.Width - ( this.Attributes.WithCloseButton ? this.Attributes.TitlebarHeight : 0 ),
@@ -32,8 +34,7 @@ class Window extends require( '../BlockElement' ) {
 				Label: 'X',
 			});
 			this.CloseButton.On( 'click', () => {
-				this.Parent.RemoveElement( this );
-				this.Trigger( 'close' );
+				this.Close();
 			});
 		}
 			
@@ -43,6 +44,11 @@ class Window extends require( '../BlockElement' ) {
 			Height: this.Attributes.Height - this.Attributes.TitlebarHeight,
 		});
 		
+	}
+	
+	Close() {
+		this.Parent.RemoveElement( this );
+		this.Trigger( 'close' );
 	}
 	
 }
