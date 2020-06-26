@@ -17,18 +17,6 @@ class Sql extends require( '../_Module' ) {
 				password: this.Config.Password,
 			});
 			
-			// sync schema
-			/*this.GetSchema()
-				.then( ( schema ) => {
-					console.log( 'schema', schema );
-					
-					return next();
-				})
-				.catch( ( e ) => {
-					return fail( e );
-				})
-			;*/
-			
 			this.UpdateSchema()
 				.then( next )
 				.catch( fail )
@@ -48,7 +36,7 @@ class Sql extends require( '../_Module' ) {
 					var schemas = {};
 					var models = this.H.Fs.GetClasses( 'Backend/Model' );
 					for ( var k in models )
-						schemas[ k ] = ( new ( this.H.Loader.Require( models[ k ] ) )() ).GetSchema();
+						schemas[ k ] = this.H.Loader.Require( models[ k ] ).schema;
 					
 					var relations = []; // relations need to be made in the end so save them here first
 					
