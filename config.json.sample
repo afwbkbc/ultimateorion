@@ -8,5 +8,11 @@
 	},
 	"SessionManager": {
 		"GuestTimeout": "60000"
+	},
+	"Sql": {
+		"Host": "localhost",
+		"Database": "ultimateorion",
+		"Username": "",
+		"Password": ""
 	}
 }
