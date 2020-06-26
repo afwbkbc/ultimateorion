@@ -35,7 +35,7 @@ class Form extends require( '../Layout/Panel' ) {
 			Name: name,
 			Width: this.Attributes.Width - this.Attributes.FieldMargin * 2 - this.Attributes.FieldPadding * 2 - this.Attributes.InputIndent,
 			Height: this.Attributes.InputHeight,
-			MaxLength: 13,
+			MaxLength: 21,
 		}));
 		
 		if ( !this.CurrentTopOffset ) // first input
