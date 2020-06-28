@@ -114,6 +114,8 @@ window.App.Extend({
 			this.LastMouseMoveEvent = e;
 		else
 			e = this.LastMouseMoveEvent;
+		if ( !e )
+			return;
 		var clickzone = this.GetClickzone( this.TranslateCoords( e ) );
 		if ( clickzone )
 			this.Canvas.style.cursor = 'pointer';
@@ -416,6 +418,7 @@ window.App.Extend({
 		this.Redraw();
 		if ( this.TrackStats )
 			this.RenderCalls++;
+		this.UpdateCursor();
 	},
 	
 	RemoveElement: function( data ) {
@@ -444,6 +447,7 @@ window.App.Extend({
 		this.Redraw();
 		if ( this.TrackStats )
 			this.RenderCalls++;
+		this.UpdateCursor();
 	},
 	
 	ChangeElement: function( data ) {

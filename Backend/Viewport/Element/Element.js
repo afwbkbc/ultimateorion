@@ -113,17 +113,17 @@
 		this.Render( session );
 	}
 	
-	On( event, callback ) {
-		if ( !this.Events[ event ] )
-			this.Events[ event ] = [];
-		this.Events[ event ].push( callback );
+	On( eventtype, callback ) {
+		if ( !this.Events[ eventtype ] )
+			this.Events[ eventtype ] = [];
+		this.Events[ eventtype ].push( callback );
 		return this;
 	}
 	
-	Trigger( event, data ) {
-		if ( this.Events[ event ] )
-			for ( var k in this.Events[ event ] ) {
-				if ( this.Events[ event ][ k ].apply( this, [ data ? data : {} ] ) === false )
+	Trigger( eventtype, data, event ) {
+		if ( this.Events[ eventtype ] )
+			for ( var k in this.Events[ eventtype ] ) {
+				if ( this.Events[ eventtype ][ k ].apply( this, [ data ? data : {}, event ? event : {} ] ) === false )
 					break;
 			}
 	}

@@ -8,6 +8,12 @@ window.App.Extend({
 		set_guest_id: function( data ) {
 			window.App.Session.SetGuestId( data.guest_id );
 		},
+		set_user_token: function( data ) {
+			window.App.Session.SetUserToken( data.token );
+		},
+		clear_user_token: function( data ) {
+			window.App.Session.ClearUserToken();
+		},
 		render: function( data ) {
 			window.App.Viewport.AddElement( data );
 		},
