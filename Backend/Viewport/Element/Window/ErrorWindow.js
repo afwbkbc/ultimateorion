@@ -20,6 +20,7 @@ class ErrorWindow extends require( '../Layout/Window' ) {
 		});
 		
 		this.Body.AddElement( 'UI/Button', [ 'CB', 'CB' ], [ 0, -40 ], {
+			DefaultButton: true,
 			Width: 300,
 			Height: 70,
 			Label: 'OK',

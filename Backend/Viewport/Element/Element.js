@@ -122,8 +122,10 @@
 	
 	Trigger( event, data ) {
 		if ( this.Events[ event ] )
-			for ( var k in this.Events[ event ] )
-				this.Events[ event ][ k ].apply( this, [ data ? data : {} ] );
+			for ( var k in this.Events[ event ] ) {
+				if ( this.Events[ event ][ k ].apply( this, [ data ? data : {} ] ) === false )
+					break;
+			}
 	}
 	
 	Focus() {

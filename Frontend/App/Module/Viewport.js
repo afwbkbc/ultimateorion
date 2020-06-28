@@ -8,6 +8,7 @@ window.App.Extend({
 			'Test/TestBlock',
 			'UI/Button',
 			'UI/Input',
+			'UI/Form',
 		],
 	},
 	
@@ -21,6 +22,8 @@ window.App.Extend({
 	FocusElement: function( element, omit_event ) {
 		if ( element.focused )
 			return; // already focused
+		if ( !this.IsElementEnabled( element ) )
+			return; // can't focus disabled element
 		var data = element.data;
 		if ( this.FocusedElement )
 			this.BlurElement( this.FocusedElement );
@@ -74,6 +77,9 @@ window.App.Extend({
 			if ( element.focused )
 				this.BlurElement( element, omit_event );
 			element.enabled = false;
+			// if child was focused - blur it
+			if ( this.FocusedElement && !this.IsElementEnabled( this.FocusedElement ) )
+				this.BlurElement( this.FocusedElement );
 			if ( !omit_event ) {
 				console.log( 'NOT IMPLEMENTED', 'DisableElement event' );
 			}
@@ -124,6 +130,7 @@ window.App.Extend({
 		this.TabOrder = [];
 		this.NextClickzoneId = 0;
 		this.FocusedElement = null;
+		this.DefaultButtons = []; // stack
 		
 		this.FpsLimit = 60;
 		this.TrackStats = true;
@@ -194,6 +201,12 @@ window.App.Extend({
 		
 		window.onkeydown = function( e ) {
 			var el = that.FocusedElement;
+			if ( el && el.behavior.typeable && that.IsElementEnabled( el ) ) {
+				var defs = that[ el.data.element ];
+				if ( defs.OnKeyPress )
+					if ( defs.OnKeyPress( that.Ctx, el, e ) === false )
+						return false;
+			}
 			
 			// special cases
 			if ( e.key == 'Tab' ) {
@@ -217,13 +230,15 @@ window.App.Extend({
 				}
 				return false;
 			}
+			else if ( e.key == 'Enter' ) {
+				if ( that.DefaultButtons.length ) {
+					var el = that.Elements[ that.DefaultButtons[ that.DefaultButtons.length - 1 ] ];
+					if ( el && that[ el.data.element ].OnClick )
+						that[ el.data.element ].OnClick( that.Ctx, el );
+					return false;
+				}
+			}
 			
-			if ( !el || !el.behavior.typeable )
-				return true;
-			
-			var defs = that[ el.data.element ];
-			if ( defs.OnKeyPress )
-				return !defs.OnKeyPress( that.Ctx, el, e );
 			return true;
 		}
 		
@@ -371,10 +386,20 @@ window.App.Extend({
 				console.log( 'WARNING', 'parent element not found', element );
 		}
 		this.PositionElement( element, bounds );
+		if ( data.attributes.DefaultButton )
+			this.DefaultButtons.push( element.data.id );
 		if ( this[ data.element ] ) {
 			element.behavior = this[ data.element ].behavior ? this[ data.element ].behavior : {};
 			this.AddClickzoneIfNeeded( element );
 			this.AddToTabOrderIfNeeded( element );
+			if ( data.element == 'UI/Form' ) {
+				if ( this[ data.element ].exported_methods ) {
+					for ( var k in this[ data.element ].exported_methods ) {
+						var method_name = this[ data.element ].exported_methods;
+						element[ method_name ] = this[ data.element ][ method_name ];
+					}
+				}
+			}
 			if ( this[ data.element ].Prepare )
 				this[ data.element ].Prepare( this.Ctx, element );
 		}
@@ -404,6 +429,9 @@ window.App.Extend({
 		var tabindex = this.TabOrder.indexOf( element.data.id );
 		if ( tabindex >= 0 )
 			this.TabOrder.splice( tabindex, 1 );
+		var defaultindex = this.DefaultButtons.indexOf( element.data.id );
+		if ( defaultindex >= 0 )
+			this.DefaultButtons.splice( defaultindex, 1 );
 		if ( this.FocusedElement == element.data.id )
 			this.FocusedElement = null;
 		if ( this.parent )
@@ -491,5 +519,17 @@ window.App.Extend({
 		delete this.Clickzones[ element.clickzone.id ];
 		delete element.clickzone;
 	},
+	
+	GetClosest: function( element, target_element_type ) {
+		var parent = element.parent;
+		while ( parent ) {
+			if ( parent.data.element == target_element_type ) {
+				return parent;
+				break;
+			}
+			parent = parent.parent;
+		}
+		return null;
+	}
 	
 });

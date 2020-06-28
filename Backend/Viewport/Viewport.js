@@ -49,12 +49,14 @@ class Viewport extends require( './_ElementBase' ) {
 	
 	GetElementById( id ) {
 		if ( typeof( this.AllElements[ id ] ) === 'undefined' )
-			throw new Error( 'element "' + id + '" not found' );
+			return null;
 		return this.AllElements[ id ];
 	}
 	
 	HandleEvent( event ) {
 		var element = this.GetElementById( event.element );
+		if ( !element ) // deleted?
+			return;
 		
 		switch ( event.event ) {
 			case 'focus': {

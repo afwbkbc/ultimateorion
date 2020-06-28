@@ -42,24 +42,22 @@ window.App.Viewport.Extend({
 	OnKeyPress: function( ctx, element, e ) {
 		var a = element.data.attributes;
 		if ( e.key == 'Backspace' ) {
-			if ( !a.Value.length )
-				return false;
-			a.Value = a.Value.substring( 0, a.Value.length - 1 );
+			if ( a.Value.length )
+				a.Value = a.Value.substring( 0, a.Value.length - 1 );
 		}
 		else if ( e.key.length == 1 ) {// character
-			if ( a.Value.length >= a.MaxLength )
-				return false;
-			a.Value += e.key;
+			if ( a.Value.length < a.MaxLength )
+				a.Value += e.key;
 		}
 		else
-			return false;
+			return true;
 		this.UpdateLabel( ctx, element );
 		window.App.Viewport.SendEvent({
 			element: element.data.id,
 			event: 'input',
 			value: a.Value,
 		});
-		return true;
+		return false;
 	},
 	
 	UpdateLabel: function( ctx, element ) {
