@@ -14,5 +14,13 @@
 		"Database": "ultimateorion",
 		"Username": "",
 		"Password": ""
+	},
+	"Auth": {
+		"MinPasswordLength": 6,
+		"MaxPasswordLength": 21,
+		"MaxUsernameLength": 21
+        },
+	"Crypto": {
+		"SaltRounds": 10
 	}
 }

@@ -41,7 +41,7 @@ if ( typeof( helpers.Config ) !== 'undefined' )
 	for ( var k in helpers )
 		helpers[ k ].Config = helpers.Config.GetConfig( helpers[ k ].constructor.name );
 
-// engine needs to be accessible to everything 
+// engine should be accessible from anywhere
 var g_engine = null;
 
 class _Base {

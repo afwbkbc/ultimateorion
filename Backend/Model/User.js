@@ -1,15 +1,6 @@
-class User extends require( './_Model' ) {
+module.exports = require( './_Model' )( module.filename, {
 	
-	constructor() {
-		super( module.filename );
-		
-	}
-	
-}
-
-User.schema = {
-	Username: { type: 'string', index: 'index' },
+	Username: { type: 'string', index: 'unique' },
 	Hash: { type: 'string' },
-};
-
-module.exports = User;
+	
+});

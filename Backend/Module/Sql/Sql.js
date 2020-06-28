@@ -17,6 +17,12 @@ class Sql extends require( '../_Module' ) {
 				password: this.Config.Password,
 			});
 			
+			// load models
+			this.Models = {};
+			var models = this.H.Fs.GetClasses( 'Backend/Model' );
+			for ( var k in models )
+				this.Models[ k ] = this.H.Loader.Require( models[ k ] );
+			
 			this.UpdateSchema()
 				.then( next )
 				.catch( fail )
@@ -34,19 +40,17 @@ class Sql extends require( '../_Module' ) {
 					
 					// read schemas from all models
 					var schemas = {};
-					var models = this.H.Fs.GetClasses( 'Backend/Model' );
-					for ( var k in models ) {
-						var model = this.H.Loader.Require( models[ k ] );
-						schemas[ k ] = model.schema;
-					}
+					for ( var k in this.Models )
+						schemas[ k ] = this.Models[ k ].schema;
 					
 					var relations = []; // relations need to be made in the end so save them here first
 					
 					// generate queries
 					var queries = [];
-					for ( var table in schemas) {
+					for ( var table in this.Models ) {
 						var existing_table = existing_schema[ table.toLowerCase() ];
-						var schema = schemas[ table ];
+						var model = this.Models[ table ];
+						var schema = model.schema;
 						if ( !existing_table )
 							queries.push( 'CREATE TABLE `' + table + '` ( `ID` INT(4) NOT NULL AUTO_INCREMENT PRIMARY KEY ) CHARACTER SET utf8 COLLATE utf8_unicode_ci' );
 						for ( var column in schema ) {
