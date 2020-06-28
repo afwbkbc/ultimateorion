@@ -34,6 +34,11 @@ class Sql extends require( '../_Module' ) {
 					
 					// read schemas from all models
 					var schemas = {};
+					var models = this.H.Fs.GetClasses( 'Backend/Model' );
+					for ( var k in models ) {
+						var model = this.H.Loader.Require( models[ k ] );
+						schemas[ k ] = model.schema;
+					}
 					
 					var relations = []; // relations need to be made in the end so save them here first
 					
