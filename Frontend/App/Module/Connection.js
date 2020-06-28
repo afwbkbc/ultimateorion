@@ -27,8 +27,26 @@ window.App.Extend({
 		this.Connect();
 	},
 	
+	Reconnect: function() {
+		if ( this.IsConnected ) {
+			this.reconnect_immediately = true;
+			this.Disconnect();
+		}
+	},
+	
+	Disconnect: function() {
+		window.App.Viewport.Clear();
+		if ( this.ws )
+			this.ws.close();
+	},
+	
 	Connect: function() {
 		var that = this;
+		
+		if ( this.connect_timeout ) {
+			clearTimeout( this.connect_timeout );
+			this.connect_timeout = null;
+		}
 		
 		if ( this.ws )
 			delete this.ws;
@@ -97,9 +115,18 @@ window.App.Extend({
 		window.App.Loader.Start();
 		
 		// try to reconnect
-		setTimeout( function() {
-			that.Connect();
-		}, this.config.ws.reconnect_interval );
+		if ( this.connect_timeout )
+			clearTimeout( this.connect_timeout );
+		
+		if ( this.reconnect_immediately ) {
+			delete this.reconnect_immediately;
+			this.Connect();
+		}
+		else {
+			this.connect_timeout = setTimeout( function() {
+				that.Connect();
+			}, this.config.ws.reconnect_interval );
+		}
 	},
 	
 	LogEvent: function( prefix, id, action, data ) {

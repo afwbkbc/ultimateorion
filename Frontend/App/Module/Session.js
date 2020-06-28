@@ -14,7 +14,7 @@ window.App.Extend({
 		var cookie = key + '=' + value + '; SameSite=strict;';
 		if ( window.App.Config.UseSSL )
 			cookie += ' Secure=true;';
-		cookie += ' Path=/; Expires=Fri, 31 Dec 9999 23:59:59 GMT';
+		cookie += ' Path=/; Expires=Fri, 31 Dec 9999 23:59:59 GMT;';
 		document.cookie += cookie;
 	},
 	
@@ -24,21 +24,41 @@ window.App.Extend({
 	},
 	
 	GetAuthData: function() {
-		console.log( 'GETCOOKIE', this.GetCookie( 'guest_id' ) );
-		return {
-			is_guest: true,
-			guest_id: this.GetCookie( 'guest_id' ),
-		};
+		var user_token = this.GetCookie( 'user_token' );
+		if ( user_token )
+			return {
+				user_token: user_token,
+			};
+		else 
+			return {
+				guest_id: this.GetCookie( 'guest_id' ),
+			};
 	},
 	
 	SetGuestId: function( guest_id ) {
 		if ( this.GetCookie( 'guest_id' ) !== guest_id ) {
-			this.RemoveCookie( 'guest_id' );
+			this.Clear();
 			this.SetCookie( 'guest_id', guest_id );
+		}
+	},
+	
+	SetUserToken: function( user_token ) {
+		if ( this.GetCookie( 'user_token' ) !== user_token ) {
+			this.Clear();
+			this.SetCookie( 'user_token', user_token );
+			window.App.Connection.Reconnect();
+		}
+	},
+	
+	ClearUserToken: function() {
+		if ( this.GetCookie( 'user_token' ) ) {
+			this.Clear();
+			window.App.Connection.Reconnect();
 		}
 	},
 	
 	Clear: function() {
 		this.RemoveCookie( 'guest_id' );
+		this.RemoveCookie( 'user_token' );
 	},
 });

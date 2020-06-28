@@ -62,6 +62,7 @@ class Sql extends require( '../_Module' ) {
 								switch ( field.type ) {
 									case 'int': query += 'INT(' + ( field.size ? field.size : 4 ) + ')'; break;
 									case 'string': query += 'VARCHAR(' + ( field.size ? field.size : 64 ) + ')'; break;
+									case 'blob': query += 'BLOB'; break;
 									case 'datetime': query += 'DATETIME'; break;
 									case 'manytoone':
 										relations.push({
@@ -94,6 +95,8 @@ class Sql extends require( '../_Module' ) {
 					// add relations
 					for ( var k in relations ) {
 						var relation = relations[ k ];
+						var table = relation.table;
+						var existing_table = existing_schema[ table.toLowerCase() ];
 						switch ( relation.relation ) {
 							case 'manytoone':
 								var column = relation.target + 'ID';
@@ -186,33 +189,41 @@ class Sql extends require( '../_Module' ) {
 		});
 	}
 	
+	_QueryToWhereValues( parameters ) {
+		var where = '';
+		var values = [];
+		
+		if ( parameters.query ) {
+			for ( var k in parameters.query ) {
+				var v = parameters.query[ k ].toString();
+				if ( !where.length )
+					where += ' WHERE ';
+				else
+					where += ' AND ';
+				if ( typeof( v ) === 'string' )
+					v = [ k, '=', v ];
+				
+				var field;
+				if ( v[ 0 ].indexOf( '`' ) < 0 )
+					field = '`' + parameters.table + '`.`' + v[ 0 ] + '`';
+				else
+					field = v[ 0 ];
+				
+				where += field + ' ' + v[ 1 ] + ' ?';
+				values.push( v[ 2 ] );
+			}
+		}
+		return {
+			where: where,
+			values: values,
+		};
+	}
+	
 	// finds item(s) in database
 	Query( parameters ) {
 		return new Promise( ( next, fail ) => {
 
-			var where = '';
-			var values = [];
-			
-			if ( parameters.query ) {
-				for ( var k in parameters.query ) {
-					var v = parameters.query[ k ];
-					if ( !where.length )
-						where += ' WHERE ';
-					else
-						where += ' AND ';
-					if ( typeof( v ) === 'string' )
-						v = [ k, '=', v ];
-					
-					var field;
-					if ( v[ 0 ].indexOf( '`' ) < 0 )
-						field = '`' + parameters.table + '`.`' + v[ 0 ] + '`';
-					else
-						field = v[ 0 ];
-					
-					where += field + ' ' + v[ 1 ] + ' ?';
-					values.push( v[ 2 ] );
-				}
-			}
+			var wv = this._QueryToWhereValues( parameters );
 			
 			var join_str = '';
 			if ( parameters.joins ) {
@@ -227,12 +238,12 @@ class Sql extends require( '../_Module' ) {
 				'`' + parameters.table + '`.*' + ( parameters.extra_selects ? ', ' + parameters.extra_selects : '' ) +
 				' FROM `' + parameters.table + '`' +
 				join_str +
-				where +
+				wv.where +
 				( parameters.order ? ' ORDER BY ' + parameters.order : '' ) +
 				( parameters.limit ? ' LIMIT ' + parameters.limit : '' )
 			;
 			
-			this.Sql.query( query, values, (err, rows, fields) => {
+			this.Sql.query( query, wv.values, (err, rows, fields) => {
 				
 				  if (err)
 					  return fail( err );
@@ -313,6 +324,22 @@ class Sql extends require( '../_Module' ) {
 					data.id = result.insertId;
 				}
 				return next( data );
+			});
+			
+		});
+	}
+	
+	// deletes items from database
+	Delete( parameters ) {
+		return new Promise( ( next, fail ) => {
+			
+			var wv = this._QueryToWhereValues( parameters );
+			
+			this.Sql.query( 'DELETE FROM `' + parameters.table + '`' + wv.where, wv.values, function( err, result ) {
+				if ( err )
+					return fail( err );
+				
+				return next();
 			});
 			
 		});

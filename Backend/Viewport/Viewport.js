@@ -11,6 +11,10 @@ class Viewport extends require( './_ElementBase' ) {
 		this.FocusedElement = null;
 	}
 	
+	Serialize() {
+		//console.log( 'S', this ); // TODO
+	}
+	
 	Destroy() {
 		this.OnDestroyRecursive();
 	}
@@ -54,11 +58,12 @@ class Viewport extends require( './_ElementBase' ) {
 	}
 	
 	HandleEvent( event ) {
-		var element = this.GetElementById( event.element );
+		var data = event.data.data;
+		var element = this.GetElementById( data.element );
 		if ( !element ) // deleted?
 			return;
 		
-		switch ( event.event ) {
+		switch ( data.event ) {
 			case 'focus': {
 				this.FocusElement( element );
 				break;
@@ -69,7 +74,7 @@ class Viewport extends require( './_ElementBase' ) {
 			}
 		}
 		
-		element.Trigger( event.event, event ); // element-specific handlers
+		element.Trigger( data.event, data, event ); // element-specific handlers
 	}
 	
 }

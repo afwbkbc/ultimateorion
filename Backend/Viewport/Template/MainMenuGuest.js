@@ -26,8 +26,10 @@ class MainMenuGuest extends require( './MainMenu' ) {
 						delete this.Login;
 						this.MainMenu.Enable();
 					})
-					.On( 'success', () => {
-						console.log( 'LOGIN SUCCESS!' );
+					.On( 'success', ( data, event ) => {
+						event.connection.Send( 'set_user_token', {
+							token: data.token,
+						})
 					})
 				;
 				
@@ -47,8 +49,10 @@ class MainMenuGuest extends require( './MainMenu' ) {
 						delete this.Register;
 						this.MainMenu.Enable();
 					})
-					.On( 'success', () => {
-						console.log( 'REGISTER SUCCESS!' );
+					.On( 'success', ( data, event ) => {
+						event.connection.Send( 'set_user_token', {
+							token: data.token,
+						})
 					})
 				;
 			})

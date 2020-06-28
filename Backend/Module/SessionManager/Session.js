@@ -7,8 +7,13 @@ class Session extends require( '../../_Base' ) {
 		this.SessionManager = session_manager;
 		this.Connections = {};
 		this.SessionTimeout = null;
-		
-		this.State = 'auth';
+	}
+	
+	Serialize() {
+		var data = {
+			viewport: this.Viewport.Serialize(),
+		}
+		return JSON.stringify( data );
 	}
 	
 	AddConnection( connection ) {
@@ -38,17 +43,25 @@ class Session extends require( '../../_Base' ) {
 	}
 	
 	OnCreate() {
-		console.log( '+SESSION #' + this.Id );
+		console.log( '+SESSION #' + this.Id + ( this.User ? ' ( ' + this.User.Username + ' )' : '' ) );
 		
-		//this.Viewport = new ( this.H.Loader.Require( 'Viewport/Template/TestViewport' ) )( this );
-		this.Viewport = new ( this.H.Loader.Require( 'Viewport/Template/MainMenuGuest' ) )( this );
+		if ( this.User )
+			this.Viewport = new ( this.H.Loader.Require( 'Viewport/Template/MainMenuUser' ) )( this );
+		else
+			this.Viewport = new ( this.H.Loader.Require( 'Viewport/Template/MainMenuGuest' ) )( this );
 	}
 	
 	OnDestroy() {
-		console.log( '-SESSION #' + this.Id );
+		console.log( '-SESSION #' + this.Id + ( this.User ? ' ( ' + this.User.Username + ' )' : '' ) );
 		
 		if ( this.SessionTimeout )
 			clearTimeout( this.SessionTimeout );
+		
+		if ( this.User ) {
+			// save to DB
+			var data = this.Serialize();
+			console.log( 'DATA', data );
+		}
 		
 		this.Viewport.Destroy();
 		delete this.Viewport;

@@ -19,10 +19,21 @@ class MainMenu extends require( '../Viewport' ) {
 				Width: 400,
 				Height: 64,
 			})
-				.On( 'click', ( event ) => {
-					event.Reply({
-						action: 'client_quit',
-					});
+				.On( 'click', ( data, event ) => {
+					
+					var done = () => {
+						event.connection.Send( 'client_quit' );
+					};
+					
+					if ( event.connection.UserToken )
+						this.E.M.Auth.RemoveUserToken( event.connection.UserToken, event.connection.RemoteAddress )
+							.then( done )
+							.catch( ( e ) => {
+								throw e;
+							})
+						;
+					else
+						done();
 				});
 			;
 			

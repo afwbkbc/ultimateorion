@@ -68,16 +68,41 @@ class Connection extends require( '../../_Base' ) {
 			throw new Error( 'Connection session already set', this.Id );
 		
 		this.Send( 'auth', {}, ( data ) => {
-			//console.log( 'RESP', data );
+			
+			var done = ( session ) => {
+				this.Session = session;
+				session.AddConnection( this );
+			}
+			
+			var err = ( e ) => {
+				throw e;
+			}
+			
+			var guestsession = ( guest_id ) => {
+				this.SessionManager.GetGuestSession( this, data.guest_id )
+					.then( done )
+					.catch( err )
+				;
+			}
+			
 			var session;
-			if ( data.is_guest ) {
-				session = this.SessionManager.GetGuestSession( this, data.guest_id );
+			if ( data.user_token ) {
+				this.E.M.Auth.GetUserByToken( data.user_token, this.RemoteAddress )
+					.then( ( user ) => {
+						if ( !user )
+							return guestsession();
+						this.User = user;
+						this.UserToken = data.user_token;
+						this.SessionManager.GetUserSession( this, user )
+							.then( done )
+							.catch( err )
+						;
+					})
+					.catch( err )
+				;
 			}
-			else {
-				
-			}
-			this.Session = session;
-			session.AddConnection( this );
+			else
+				guestsession( data.guest_id );
 		});
 	}
 	
@@ -143,7 +168,7 @@ class Connection extends require( '../../_Base' ) {
 		}
 		else if ( data.type == 'S' ) {
 			var event = Object.assign( data, {
-				
+				connection: this,
 			});
 			this.DispatchEvent( event );
 		}
@@ -158,7 +183,7 @@ class Connection extends require( '../../_Base' ) {
 		event.data.data.Reply = event.Reply;
 		switch ( event.data.action ) {
 			case 'viewport_event':
-				this.Session.Viewport.HandleEvent( event.data.data );
+				this.Session.Viewport.HandleEvent( event );
 				break;
 			default:
 				console.log( 'dropping invalid/unsupported event "' + event.data.action + '"', event.data );
