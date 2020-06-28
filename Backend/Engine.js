@@ -7,6 +7,9 @@ class Engine extends require( './_Base' ) {
 	Init() {
 		return new Promise( ( next, fail ) => {
 			
+			for ( var k in this.H )
+				this.H.E = this;
+			
 			this.H.Loader.LoadClasses( this.NS + '/Module' )
 				.then( ( modules ) => {
 					

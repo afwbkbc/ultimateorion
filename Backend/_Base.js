@@ -41,6 +41,9 @@ if ( typeof( helpers.Config ) !== 'undefined' )
 	for ( var k in helpers )
 		helpers[ k ].Config = helpers.Config.GetConfig( helpers[ k ].constructor.name );
 
+// engine needs to be accessible to everything 
+var g_engine = null;
+
 class _Base {
 	
 	constructor( fname ) {
@@ -48,8 +51,14 @@ class _Base {
 			throw new Error( 'script filename must be specified, please add super( module.filename ); to constructor' );
 		
 		this.H = helpers; // helpers
+		if ( g_engine )
+			this.E = g_engine; // engine
 		this.NS = this.H.Fs.PathToNamespace( fname );
 		this.Classname = this.constructor.name;
+		
+		if ( this.Classname == 'Engine' )
+			g_engine = this;
+
 		this.Error = error_handler;
 		this.Config = this.H.Config.GetConfig( this.Classname );
 	}

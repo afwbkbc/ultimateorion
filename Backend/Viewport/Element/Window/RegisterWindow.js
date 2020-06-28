@@ -20,30 +20,28 @@ class RegisterWindow extends require( '../Layout/Window' ) {
 		})
 			.On( 'submit', ( data ) => {
 				this.Disable();
-				var fields = data.fields;
-				var error = null;
-				if ( !fields.username.length )
-					error = [ 'username', 'Please enter username!' ];
-				else if ( !fields.password.length )
-					error = [ 'password', 'Please enter password!' ];
-				else if ( !fields.confirm.length )
-					error = [ 'confirm', 'Please confirm password!' ];
-				else if ( fields.password != fields.confirm )
-					error = [ 'confirm', 'Password confirmation doesn\'t match!' ];
-				if ( error ) {
-					this.Error = this.Parent.AddElement( 'Window/ErrorWindow', [ 'CC', 'CC' ], [ 0, 0 ], {
-						ErrorText: error[ 1 ],
+				this.E.M.Auth.RegisterUser( data.fields )
+					.then( ( err ) => {
+						if ( err ) {
+							this.Error = this.Parent.AddElement( 'Window/ErrorWindow', [ 'CC', 'CC' ], [ 0, 0 ], {
+								ErrorText: err[ 1 ],
+							})
+								.On( 'close', () => {
+									this.Enable();
+									this.Form.FocusField( err[ 0 ] );
+								})
+							;
+						}
+						else {
+							this.Close();
+							this.Trigger( 'success' );
+						}
 					})
-						.On( 'close', () => {
-							this.Enable();
-							this.Form.FocusField( error[ 0 ] );
-						})
-					;
-				}
-				else {
-					this.Close();
-					this.Trigger( 'success' );
-				}
+					.catch( ( e ) => {
+						throw e;
+					})
+				;
+				
 			})
 		;
 
