@@ -82,16 +82,22 @@ class SessionManager extends require( '../_Module' ) {
 	DestroySession( session ) {
 		if ( typeof( this.SessionPool[ session.Id ] ) === 'undefined' )
 			throw new Error( 'SessionPool session #' + session.Id + ' does not exist' );
-		if ( session.Connections.length > 0 )
-			throw new Error( 'SessionPool session #' + session.Id + ' has active connections on destruction' );
-		this.SessionPool[ session.Id ].OnDestroy();
+		delete this.SessionPool[ session.Id ];
+		if ( session.User ) {
+			if ( typeof( this.UserSessions[ session.User.ID ] ) === 'undefined' )
+				throw new Error( 'SessionPool session #' + session.User.ID + ' User ID not found in UserSessions' );
+			console.log( '-USERID', session.Id, session.User.ID );
+			delete this.UserSessions[ session.User.ID ];
+		}
 		if ( session.GuestId ) {
 			if ( typeof( this.GuestSessions[ session.GuestId ] ) === 'undefined' )
 				throw new Error( 'SessionPool session #' + session.Id + ' GuestId not found in GuestSessions' );
 			console.log( '-GUESTID', session.Id, session.GuestId );
 			delete this.GuestSessions[ session.GuestId ];
 		}
-		delete this.SessionPool[ session.Id ];
+		if ( session.Connections.length > 0 )
+			throw new Error( 'SessionPool session #' + session.Id + ' has active connections on destruction' );
+		session.OnDestroy();
 	}
 	
 }
