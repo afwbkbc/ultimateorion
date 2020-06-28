@@ -13,6 +13,10 @@ class Http extends require( '../_Module' ) {
 		this.NextConnectionId = 0;
 	}
 	
+	Run() {
+		this.Server.listen( this.Config.Port );
+	}
+	
 	Init() {
 		return new Promise( ( next, fail ) => {
 			
@@ -102,8 +106,6 @@ class Http extends require( '../_Module' ) {
 				this.ConnectionPool[ ws_id ] = new this.Connection( this, ws_id, ws, req );
 				
 			});
-			
-			this.Server.listen( this.Config.Port );
 			
 			return next();
 		});
