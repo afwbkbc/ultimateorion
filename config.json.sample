@@ -13,7 +13,8 @@
 		"Host": "localhost",
 		"Database": "ultimateorion",
 		"Username": "",
-		"Password": ""
+		"Password": "",
+		"LowerCaseTableNamesWorkaround": false
 	},
 	"Auth": {
 		"MinPasswordLength": 6,

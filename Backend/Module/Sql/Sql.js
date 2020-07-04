@@ -48,7 +48,10 @@ class Sql extends require( '../_Module' ) {
 					// generate queries
 					var queries = [];
 					for ( var table in this.Models ) {
-						var existing_table = existing_schema[ table.toLowerCase() ];
+						var dbtable = table;
+						if ( this.Config.LowerCaseTableNamesWorkaround )
+							dbtable = dbtable.toLowerCase();
+						var existing_table = existing_schema[ dbtable ];
 						var model = this.Models[ table ];
 						var schema = model.schema;
 						if ( !existing_table )
@@ -96,7 +99,10 @@ class Sql extends require( '../_Module' ) {
 					for ( var k in relations ) {
 						var relation = relations[ k ];
 						var table = relation.table;
-						var existing_table = existing_schema[ table.toLowerCase() ];
+						var dbtable = table;
+						if ( this.Config.LowerCaseTableNamesWorkaround )
+							dbtable = dbtable.toLowerCase();
+						var existing_table = existing_schema[ dbtable ];
 						switch ( relation.relation ) {
 							case 'manytoone':
 								var column = relation.target + 'ID';
