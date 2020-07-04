@@ -46,10 +46,12 @@ class Window extends require( '../BlockElement' ) {
 			Height: this.Attributes.Height - this.Attributes.TitlebarHeight,
 		});
 		
+		this.On( 'close', ( data, event ) => {
+			this.Parent.RemoveElement( this );
+		});
 	}
 	
 	Close() {
-		this.Parent.RemoveElement( this );
 		this.Trigger( 'close' );
 	}
 	

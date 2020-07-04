@@ -166,6 +166,7 @@
 			});
 		}
 	}
+	
 }
 
 module.exports = Element;

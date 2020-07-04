@@ -21,7 +21,7 @@ class MainMenuGuest extends require( './MainMenu' ) {
 			.On( 'click', () => {
 				this.MainMenu.Disable();
 				
-				this.Login = this.AddElement( 'Window/LoginWindow', [ 'CC', 'CC' ], [ 0, 0 ], {})
+				this.Login = this.AddElement( 'Window/Login', [ 'CC', 'CC' ], [ 0, 0 ], {})
 					.On( 'close', () => {
 						delete this.Login;
 						this.MainMenu.Enable();
@@ -44,7 +44,7 @@ class MainMenuGuest extends require( './MainMenu' ) {
 			.On( 'click', () => {
 				this.MainMenu.Disable();
 				
-				this.Register = this.AddElement( 'Window/RegisterWindow', [ 'CC', 'CC' ], [ 0, 0 ], {})
+				this.Register = this.AddElement( 'Window/Register', [ 'CC', 'CC' ], [ 0, 0 ], {})
 					.On( 'close', () => {
 						delete this.Register;
 						this.MainMenu.Enable();

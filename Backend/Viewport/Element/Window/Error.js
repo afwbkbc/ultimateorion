@@ -1,4 +1,4 @@
-class ErrorWindow extends require( '../Layout/Window' ) {
+class Error extends require( '../Layout/Window' ) {
 
 	constructor() {
 		super( module.filename );
@@ -33,4 +33,4 @@ class ErrorWindow extends require( '../Layout/Window' ) {
 	
 }
 
-module.exports = ErrorWindow;
+module.exports = Error;

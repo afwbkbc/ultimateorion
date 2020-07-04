@@ -70,16 +70,22 @@ class Session extends require( '../_Base' ) {
 	}
 	
 	Disconnect( connection ) {
-		if ( Object.keys( this.Connections ).length == 0 && !this.UserId ) {
-			// no connections left, guest session will timeout
-			if ( this.SessionTimeout )
-				throw new Error( 'SessionTimeout already active', this.Id );
+		if ( Object.keys( this.Connections ).length == 0 ) {
 			
-			this.SessionTimeout = setTimeout( () => {
+			if ( this.User ) {
+				// TODO
+			}
+			else {
+				// no connections left, guest session will timeout
+				if ( this.SessionTimeout )
+					throw new Error( 'SessionTimeout already active', this.Id );
 				
-				this.SessionTimeout = null;
-				this.SessionManager.DestroySession( this );
-			}, this.SessionManager.Config.GuestTimeout );
+				this.SessionTimeout = setTimeout( () => {
+					this.SessionTimeout = null;
+					this.SessionManager.DestroySession( this );
+				}, this.SessionManager.Config.GuestTimeout );
+			}
+			
 		}
 	}
 	

@@ -174,8 +174,9 @@ window.App.Extend({
 		this.FocusedElement = null;
 		this.HoveredElement = null;
 		this.DefaultButtons = []; // stack
+		this.Windows = []; // stack
 		
-		this.FpsLimit = 60;
+		this.FpsLimit = 60; // TODO: per-user settings
 		this.TrackStats = true;
 		
 		var that = this;
@@ -270,6 +271,19 @@ window.App.Extend({
 					
 					var elid = that.TabOrder[ tabindex ];
 					that.FocusElement( that.Elements[ elid ] );
+				}
+				return false;
+			}
+			else if ( e.key == 'Escape' ) {
+				if ( that.Windows.length > 0 ) {
+					var el = that.Windows[ that.Windows.length - 1 ];
+					if ( !el.closing ) { // to prevent event spam
+						el.closing = true;
+						that.SendEvent({
+							element: el.data.id,
+							event: 'close',
+						});
+					}
 				}
 				return false;
 			}
@@ -457,6 +471,8 @@ window.App.Extend({
 		element.hovered = false;
 		if ( element.data.focused )
 			this.FocusElement( element, true );
+		if ( data.element == 'Layout/Window' )
+			this.Windows.push( element );
 		this.Redraw();
 		if ( this.TrackStats )
 			this.RenderCalls++;
@@ -468,6 +484,15 @@ window.App.Extend({
 		if ( !element ) {
 			console.log( 'WARNING', 'element to be removed does not exist', data );
 			return;
+		}
+		data = element.data;
+		if ( data.element == 'Layout/Window' ) {
+			for ( var i = this.Windows.length - 1 ; i >= 0 ; i-- ) {
+				if ( this.Windows[ i ].data.id == data.id ) {
+					this.Windows.splice( i, 1 );
+					break;
+				}
+			}
 		}
 		if ( element.clickzone )
 			this.RemoveClickzone( element );

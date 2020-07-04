@@ -1,4 +1,4 @@
-class RegisterWindow extends require( '../Layout/Window' ) {
+class Register extends require( '../Layout/Window' ) {
 
 	constructor() {
 		super( module.filename );
@@ -34,14 +34,10 @@ class RegisterWindow extends require( '../Layout/Window' ) {
 				this.E.M.Auth.RegisterUser( data.fields )
 					.then( ( res ) => {
 						if ( res.error ) {
-							this.Error = this.Parent.AddElement( 'Window/ErrorWindow', [ 'CC', 'CC' ], [ 0, 0 ], {
-								ErrorText: res.error[ 1 ],
-							})
-								.On( 'close', () => {
-									this.Enable();
-									this.Form.FocusField( res.error[ 0 ] );
-								})
-							;
+							this.Error = this.Form.ShowError( res.error[ 1 ], () => {
+								this.Enable();
+								this.Form.FocusField( res.error[ 0 ] );
+							});
 						}
 						else {
 							this.Close();
@@ -62,4 +58,4 @@ class RegisterWindow extends require( '../Layout/Window' ) {
 	
 }
 
-module.exports = RegisterWindow;
+module.exports = Register;

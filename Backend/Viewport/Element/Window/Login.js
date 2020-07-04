@@ -1,4 +1,4 @@
-class LoginWindow extends require( '../Layout/Window' ) {
+class Login extends require( '../Layout/Window' ) {
 
 	constructor() {
 		super( module.filename );
@@ -31,14 +31,10 @@ class LoginWindow extends require( '../Layout/Window' ) {
 				this.E.M.Auth.LoginUser( data.fields )
 					.then( ( res ) => {
 						if ( res.error ) {
-							this.Error = this.Parent.AddElement( 'Window/ErrorWindow', [ 'CC', 'CC' ], [ 0, 0 ], {
-								ErrorText: res.error[ 1 ],
-							})
-								.On( 'close', () => {
-									this.Enable();
-									this.Form.FocusField( res.error[ 0 ] );
-								})
-							;
+							this.Form.ShowError( res.error[ 1 ], () => {
+								this.Enable();
+								this.Form.FocusField( res.error[ 0 ] );
+							});
 						}
 						else {
 							this.Close();
@@ -58,4 +54,4 @@ class LoginWindow extends require( '../Layout/Window' ) {
 	
 }
 
-module.exports = LoginWindow;
+module.exports = Login;

@@ -17,7 +17,24 @@ class MainMenuUser extends require( './MainMenu' ) {
 			Label: 'Create game',
 			Width: 400,
 			Height: 64,
-		});
+		})
+			.On( 'click', ( data, event ) => {
+				this.MainMenu.Disable();
+				
+				this.CreateGame = this.AddElement( 'Window/CreateGame', [ 'CC', 'CC' ], [ 0, 0 ], {})
+					.On( 'close', () => {
+						delete this.CreateGame;
+						this.MainMenu.Enable();
+					})
+					.On( 'success', ( data, event ) => {
+						console.log( 'GAME CREATED', data );
+						/*event.connection.Send( 'set_user_token', {
+							token: data.token,
+						})*/
+					})
+				;
+			})
+		;
 		
 		this.MainMenu.AddElement( 'UI/Button', [ 'CT', 'CT' ], [ 0, 176 ], {
 			Label: 'Join game',
