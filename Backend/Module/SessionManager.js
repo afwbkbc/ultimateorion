@@ -73,6 +73,7 @@ class SessionManager extends require( './_Module' ) {
 					}
 					else
 						session.User = user; // user not kept in db so need to attach it
+					user.Session = session;
 					this.UserSessions[ user.ID ] = session;
 					return next( session );
 				})

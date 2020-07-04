@@ -40,8 +40,16 @@ class CreateGame extends require( '../Layout/Window' ) {
 					});
 				}
 				else {
-					this.Trigger( 'success', data.fields );
-					this.Close();
+					this.Viewport.Session.CreateGame( data.fields )
+						.then( () => {
+							this.Trigger( 'success', data.fields );
+							this.Close();
+						})
+						.catch( ( e ) => {
+							throw e;
+						})
+					;
+					
 				}
 			})
 		;

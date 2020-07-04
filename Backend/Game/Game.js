@@ -3,10 +3,17 @@ class Game extends require( '../_Base' ) {
 	constructor( game_manager, id, name, host ) {
 		super( module.filename );
 		
+		this.Player = require( './Player' );
+		
 		this.GameManager = game_manager;
 		this.Id = id;
 		this.Name = name;
 		this.Host = host;
+		this.Players = {};
+		
+		this.AddPlayer( host );
+		host.Session.AddToGame( this );
+		
 		//this.SessionTimeout = null;
 	}
 	
@@ -25,6 +32,32 @@ class Game extends require( '../_Base' ) {
 		
 		if ( this.OnDestroy )
 			this.OnDestroy();
+	}
+	
+	AddPlayer( user ) {
+		if ( !this.Players[ user.Id ] ) {
+			console.log( 'ADD PLAYER #' + this.Id + ' ' + user.Username );
+			var player = new this.Player( user, this );
+			this.Players[ user.Id ] = player;
+			if ( player.OnCreate )
+				player.OnCreate();
+		}
+	}
+	
+	RemovePlayer( user ) {
+		if ( this.Players[ user.Id ] ) {
+			console.log( 'REMOVE PLAYER #' + this.Id + ' ' + user.Username );
+			if ( player.OnDestroy )
+				player.OnDestroy();
+			delete this.Players[ user.Id ];
+		}
+	}
+	
+	GetPlayer( user ) {
+		var player = this.Players[ user.Id ];
+		if ( !player )
+			throw new Error( 'game #' + this.Id + ' : no player for user ' + user.Username );
+		return player;
 	}
 	
 	/*Connect( connection ) {

@@ -27,7 +27,7 @@ class MainMenuUser extends require( './MainMenu' ) {
 						this.MainMenu.Enable();
 					})
 					.On( 'success', ( data, event ) => {
-						console.log( 'GAME CREATED', data );
+						console.log( 'GAME CREATED CALLBACK' );
 						/*event.connection.Send( 'set_user_token', {
 							token: data.token,
 						})*/
