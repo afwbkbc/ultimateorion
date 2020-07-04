@@ -35,6 +35,9 @@ class _ElementBase extends require( '../_Base' ) {
 		element.Render( this.GetSession() );
 		if ( element.Prepare )
 			element.Prepare();
+		setTimeout( () => {
+			element.Trigger( 'prepare', {}, {} );
+		}, 0 ); // needs to be executed a bit later to wait for handler to be added ( needs more testing )
 		return element;
 	}
 	

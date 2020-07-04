@@ -1,12 +1,12 @@
-class SessionManager extends require( '../_Module' ) {
+class SessionManager extends require( './_Module' ) {
 	
 	constructor() {
 		super( module.filename );
 		
 		this.Md5 = require( 'md5' );
 		this.Session = {
-			Guest: require( '../../Session/GuestSession' ),
-			User: require( '../../Session/UserSession' ),
+			Guest: require( '../Session/GuestSession' ),
+			User: require( '../Session/UserSession' ),
 		}
 		
 		this.SessionPool = {};
@@ -31,7 +31,6 @@ class SessionManager extends require( '../_Module' ) {
 			throw new Error( 'SessionPool collision at #' + session_id );
 		var session = new this.Session[ type ]( this, session_id );
 		this.SessionPool[ session_id ] = session;
-		console.log( '+SESSION', session.Id );
 		return session;
 	}
 	

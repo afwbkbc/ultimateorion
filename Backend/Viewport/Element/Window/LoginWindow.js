@@ -14,10 +14,17 @@ class LoginWindow extends require( '../Layout/Window' ) {
 	Prepare() {
 		super.Prepare();
 		
-		this.Form = this.Body.AddElement( 'Form/LoginForm', [ 'LT', 'LT' ], [ 0, 0 ], {
+		this.Form = this.Body.AddElement( 'UI/Form', [ 'LT', 'LT' ], [ 0, 0 ], {
 			Width: this.Body.Attributes.Width,
 			Height: this.Body.Attributes.Height,
 		})
+			.On( 'prepare', ( data, event ) => {
+				this.Form.AddInput( 'username', 'Username' );
+				this.Form.AddInput( 'password', 'Password', {
+					masked: true,
+				});
+				this.Form.AddSubmit( 'Login' );
+			})
 			.On( 'submit', ( data, event ) => {
 				this.Disable();
 				data.fields.remote_address = event.connection.RemoteAddress;

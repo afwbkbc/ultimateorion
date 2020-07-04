@@ -14,10 +14,20 @@ class RegisterWindow extends require( '../Layout/Window' ) {
 	Prepare() {
 		super.Prepare();
 		
-		this.Form = this.Body.AddElement( 'Form/RegisterForm', [ 'LT', 'LT' ], [ 0, 0 ], {
+		this.Form = this.Body.AddElement( 'UI/Form', [ 'LT', 'LT' ], [ 0, 0 ], {
 			Width: this.Body.Attributes.Width,
 			Height: this.Body.Attributes.Height,
 		})
+			.On( 'prepare', () => {
+				this.Form.AddInput( 'username', 'Username' );
+				this.Form.AddInput( 'password', 'Password', {
+					masked: true,
+				});
+				this.Form.AddInput( 'confirm', 'Confirm password', {
+					masked: true,
+				});
+				this.Form.AddSubmit( 'Create profile' );
+			})
 			.On( 'submit', ( data, event ) => {
 				this.Disable();
 				data.fields.remote_address = event.connection.RemoteAddress;
