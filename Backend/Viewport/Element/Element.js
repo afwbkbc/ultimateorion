@@ -10,7 +10,7 @@
 		this.IsVisible = true;
 		this.IsFocused = false;
 		this.IsEnabled = true;
-		this.IsRendered = {};
+		this.IsRendered = false;
 		this.Events = {};
 		
 		// set defaults
@@ -36,8 +36,12 @@
 		this.Viewport = this.Parent.Viewport;
 	}
 	
-	SetAttributes( attributes ) {
+	SetAttributes( attributes, is_sync_needed ) {
 		this.Attributes = Object.assign( this.Attributes, attributes );
+		if ( is_sync_needed && this.IsRenderedRecursive() && this.Viewport && this.Viewport.Session )
+			this.RenderChange( this.Viewport.Session, {
+				attributes: attributes,
+			});
 	}
 	
 	SetAttribute( key, value ) {

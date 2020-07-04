@@ -12,13 +12,7 @@ class MainMenu extends require( '../Viewport' ) {
 			Text: 'v.0.0.1',
 		});
 
-		this.MainMenu = this.AddElement( 'Block/MainMenu', [ 'RB', 'RB' ], [ -50, -50 ], {
-			Style: 'main-menu-block',
-			ElementWidth: 460,
-			ElementHeight: 64,
-			ElementMargin: 20,
-		});
-		
+		/* needed?
 		this.AddMainMenuLinks = () => {
 			
 			this.MainMenu.Append( 'UI/Button', {
@@ -42,7 +36,7 @@ class MainMenu extends require( '../Viewport' ) {
 				});
 			;
 			
-		}
+		}*/
 	}
 	
 }

@@ -50,6 +50,7 @@ class Block extends require( '../BlockElement' ) {
 		var element = this.AddElement( namespace, anchors, coords, attributes );
 		
 		// resize if needed
+		var updated_attributes = {};
 		var final_width, final_height;
 		if ( exp == 'V' ) {
 			final_width = xpos + element.GetWidth() + this.Attributes.ElementMargin * 2; // hmargins from both sides
@@ -57,13 +58,15 @@ class Block extends require( '../BlockElement' ) {
 		}
 		if ( this.InnerWidth < final_width ) {
 			this.InnerWidth = final_width;
-			this.SetAttribute( 'Width', final_width );
-			this.Background.SetAttribute( 'Width', final_width );
+			updated_attributes.Width = final_width;
 		}
 		if ( this.InnerHeight < final_height ) {
 			this.InnerHeight = final_height;
-			this.SetAttribute( 'Height', final_height );
-			this.Background.SetAttribute( 'Height', final_height );
+			updated_attributes.Height = final_height;
+		}
+		if ( Object.keys( updated_attributes ).length > 0 ) {
+			this.SetAttributes( updated_attributes, true );
+			this.Background.SetAttributes( updated_attributes, true );
 		}
 		
 		return element;

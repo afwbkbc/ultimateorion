@@ -5,13 +5,14 @@ class BlockLabel extends require( '../BlockElement' ) {
 		
 		this.SetAttributes({
 			Text: '',
+			TextAnchors: [ 'CC', 'CC' ],
 			Width: 0,
 			Height: 0,
 		});
 	}
 	
 	Prepare() {
-		this.Label = this.AddElement( 'UI/Label', [ 'CC', 'CC' ], [ 0, 0 ], {
+		this.Label = this.AddElement( 'UI/Label', this.Attributes.TextAnchors, [ 0, 0 ], {
 			Text: this.Attributes.Text,
 		});
 	}

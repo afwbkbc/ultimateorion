@@ -3,72 +3,51 @@ class MainMenuUser extends require( './MainMenu' ) {
 	constructor( session ) {
 		super( module.filename, session );
 
-		this.MainMenu.Append( 'UI/BlockLabel', {
-			Text: 'Welcome, ' + this.Session.User.Username + '!',
-		});
-		
-		this.MainMenu.Append( 'UI/Button', {
-			Label: 'Create game',
-		})
-			.On( 'click', ( data, event ) => {
-				this.MainMenu.Disable();
-				
-				this.CreateGame = this.AddElement( 'Window/CreateGame', [ 'CC', 'CC' ], [ 0, 0 ], {})
-					.On( 'close', () => {
-						delete this.CreateGame;
-						this.MainMenu.Enable();
-					})
-					.On( 'success', ( data, event ) => {
-						console.log( 'GAME CREATED CALLBACK' );
-						this.UpdateGamesList();
-					})
-				;
-			})
-		;
-		
-		this.MainMenu.Append( 'UI/Button', {
-			Label: 'Join game',
-		});
-		
-		this.MainMenu.Append( 'UI/Button', {
-			Label: 'Logout',
-		})
-			.On( 'click', ( data, event ) => {
-				
-				this.E.M.Auth.RemoveUserToken( event.connection.UserToken, event.connection.RemoteAddress )
-					.then( () => {
-						event.connection.Send( 'clear_user_token', {
-							token: data.token,
-						});
-					})
-					.catch( ( e ) => {
-						throw e;
-					})
-				;
-			})
-		;
-		
-		this.AddMainMenuLinks();
+		this.MainMenu = this.AddElement( 'Block/MainMenuUser', [ 'RB', 'RB' ], [ -50, -50 ], {} );
 		
 		this.UpdateGamesList();
 		
 	}
 	
 	UpdateGamesList() {
-		if ( Object.keys( this.Session.Players ).length > 0 ) {
+		var players = this.Session.Players;
+		if ( Object.keys( players ).length > 0 ) {
 			
-			console.log( this.Session.Players );
+			//console.log( this.Session.Players );
 			if ( !this.GamesList ) {
-				this.GamesList = this.AddElement( 'Layout/Panel', [ 'LB', 'LB' ], [ 50, -50 ], {
-					Style: 'main-menu-block',
-					Width: 640,
-					Height: 220,
-				});
-				
-				this.GamesList.AddElement( 'UI/Label', [ 'CT', 'CT' ], [ 0, 30 ], {
-					Text: 'Your active games:',
-				});
-
+				this.GamesList = this.AddElement( 'Block/GamesList', [ 'LB', 'LB' ], [ 50, -50 ], {} );
+				this.GamesListItems = {};
+			}
+			
+			// remove abandoned game(s)
+			for ( var k in this.GamesListItems ) {
+				if ( !this.Session.Players[ k ] ) {
+					this.GamesList.RemoveElement( this.GamesListItems[ k ] );
+					delete this.GamesListItems[ k ];
+				}
+			}
+			
+			// add new games
+			for ( var k in players ) {
+				if ( !this.GamesListItems[ k ] ) {
+					var game = players[ k ].Game;
+					var gameblock = this.GamesList.Append( 'Layout/Panel', {
+						
+					});
+					gameblock.AddElement( 'UI/Label', [ 'LC', 'LC' ], [ 14, 0 ], {
+						Text: game.Name,
+					});
+					gameblock.AddElement( 'UI/Button', [ 'RC', 'RC' ], [ -14, 0 ], {
+						Width: 120,
+						Height: 46,
+						Label: 'Open',
+					})
+						.On( 'click', () => {
+							//console.log( 'JOIN', players[ k ].Game );
+						})
+					;
+					this.GamesListItems[ k ] = gameblock;
+				}
 			}
 			
 		}
@@ -76,6 +55,7 @@ class MainMenuUser extends require( './MainMenu' ) {
 			if ( this.GamesList ) {
 				this.RemoveElement( this.GamesList );
 				delete this.GamesList;
+				delete this.GamesListItems;
 			}
 		}
 	}

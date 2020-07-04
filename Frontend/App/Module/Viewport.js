@@ -364,10 +364,18 @@ window.App.Extend({
 		this.IsStateChanged = true;
 	},
 	
-	/**
-	 * area_bounds: [ left, top, right, bottom ]
-	 */
-	PositionElement: function( element, area_bounds ) {
+	PositionElement: function( element, is_recursive ) {
+		var bounds;
+		
+		if ( element.parent ) {
+			bounds = this.GetElementBounds( element.parent );
+			bounds[ 0 ] += element.parent.coords[ 0 ];
+			bounds[ 1 ] += element.parent.coords[ 1 ];
+			bounds[ 2 ] += element.parent.coords[ 0 ];
+			bounds[ 3 ] += element.parent.coords[ 1 ];
+		}
+		else
+			bounds = [ 0, 0, this.Canvas.width, this.Canvas.height ];
 		
 		var a = element.data.attributes;
 		var element_bounds = this.GetElementBounds( element );
@@ -376,14 +384,14 @@ window.App.Extend({
 		var dest_point = [ 0, 0 ]; // [ left, top ]
 		
 		switch( a.anchors[ 0 ][ 0 ] ) {
-			case 'L': source_point[ 0 ] = area_bounds[ 0 ]; break;
-			case 'C': source_point[ 0 ] = area_bounds[ 0 ] + ( area_bounds[ 2 ] - area_bounds[ 0 ] ) / 2; break;
-			case 'R': source_point[ 0 ] = area_bounds[ 2 ]; break;
+			case 'L': source_point[ 0 ] = bounds[ 0 ]; break;
+			case 'C': source_point[ 0 ] = bounds[ 0 ] + ( bounds[ 2 ] - bounds[ 0 ] ) / 2; break;
+			case 'R': source_point[ 0 ] = bounds[ 2 ]; break;
 		};
 		switch( a.anchors[ 0 ][ 1 ] ) {
-			case 'T': source_point[ 1 ] = area_bounds[ 1 ]; break;
-			case 'C': source_point[ 1 ] = area_bounds[ 1 ] + ( area_bounds[ 3 ] - area_bounds[ 1 ] ) / 2; break;
-			case 'B': source_point[ 1 ] = area_bounds[ 3 ]; break;
+			case 'T': source_point[ 1 ] = bounds[ 1 ]; break;
+			case 'C': source_point[ 1 ] = bounds[ 1 ] + ( bounds[ 3 ] - bounds[ 1 ] ) / 2; break;
+			case 'B': source_point[ 1 ] = bounds[ 3 ]; break;
 		};
 		switch( a.anchors[ 1 ][ 0 ] ) {
 			case 'L': dest_point[ 0 ] = element_bounds[ 0 ]; break;
@@ -397,6 +405,11 @@ window.App.Extend({
 		};
 		
 		element.coords = [ source_point[ 0 ] - dest_point[ 0 ] + a.offsets[ 0 ], source_point[ 1 ] - dest_point[ 1 ] + a.offsets[ 1 ] ];
+		
+		if ( is_recursive ) {
+			for ( var k in element.children )
+				this.PositionElement( element.children[ k ], true );
+		}
 	},
 	
 	IsBlockElement: function( data ) {
@@ -421,16 +434,9 @@ window.App.Extend({
 			layer: data.attributes.ZIndex ? data.attributes.ZIndex : 0,
 		};
 		
-		var bounds = [ 0, 0, this.Canvas.width, this.Canvas.height ];
-		
 		if ( element.data.parent_id ) {
 			var parent = this.Elements[ element.data.parent_id ];
 			if ( parent ) {
-				bounds = this.GetElementBounds( parent );
-				bounds[ 0 ] += parent.coords[ 0 ];
-				bounds[ 1 ] += parent.coords[ 1 ];
-				bounds[ 2 ] += parent.coords[ 0 ];
-				bounds[ 3 ] += parent.coords[ 1 ];
 				element.layer += parent.layer;
 				element.parent = parent;
 				if ( !parent.children )
@@ -442,7 +448,7 @@ window.App.Extend({
 			else
 				console.log( 'WARNING', 'parent element not found', element );
 		}
-		this.PositionElement( element, bounds );
+		this.PositionElement( element );
 		if ( data.attributes.DefaultButton )
 			this.DefaultButtons.push( element.data.id );
 		if ( this[ data.element ] ) {
@@ -533,6 +539,17 @@ window.App.Extend({
 					el.coords[ 0 ] -= diff[ 0 ];
 					el.coords[ 1 ] -= diff[ 1 ];
 					this.Redraw();
+					break;
+				case 'attributes':
+					var is_reposition_needed = false;
+					var a = el.data.attributes;
+					for ( var k in value ) {
+						a[ k ] = value[ k ];
+						if ( [ 'Width', 'Height' ].indexOf( k ) >= 0 )
+							is_reposition_needed = true;
+					}
+					if ( is_reposition_needed )
+						this.PositionElement( el, true );
 					break;
 				case 'enabled':
 					if ( value )
