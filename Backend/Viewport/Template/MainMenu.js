@@ -14,7 +14,7 @@ class MainMenu extends require( '../Viewport' ) {
 
 		this.AddMainMenuLinks = () => {
 			
-			this.MainMenu.AddElement( 'UI/Button', [ 'CT', 'CT' ], [ 0, 254 ], {
+			this.MainMenu.AddElement( 'UI/Button', [ 'CB', 'CB' ], [ 0, -20 ], {
 				Label: 'Quit',
 				Width: 400,
 				Height: 64,

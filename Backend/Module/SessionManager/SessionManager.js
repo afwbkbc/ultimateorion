@@ -43,7 +43,7 @@ class SessionManager extends require( '../_Module' ) {
 				} while ( typeof( this.GuestSessions[ guest_id ] ) !== 'undefined' );
 				session.SetGuestId( connection, guest_id );
 				this.GuestSessions[ guest_id ] = session;
-				session.OnCreate();
+				session.Create();
 			}
 			else
 				session = this.GuestSessions[ guest_id ];
@@ -67,7 +67,7 @@ class SessionManager extends require( '../_Module' ) {
 						// create new session
 						session = this.CreateSession();
 						session.User = user;
-						session.OnCreate();
+						session.Create();
 					}
 					else
 						session.User = user; // user not kept in db so need to attach it
@@ -97,7 +97,7 @@ class SessionManager extends require( '../_Module' ) {
 		}
 		if ( session.Connections.length > 0 )
 			throw new Error( 'SessionPool session #' + session.Id + ' has active connections on destruction' );
-		session.OnDestroy();
+		session.Destroy();
 	}
 	
 }

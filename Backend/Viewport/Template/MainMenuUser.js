@@ -6,14 +6,26 @@ class MainMenuUser extends require( './MainMenu' ) {
 		this.MainMenu = this.AddElement( 'Layout/Panel', [ 'RB', 'RB' ], [ -50, -50 ], {
 			Style: 'main-menu-block',
 			Width: 440,
-			Height: 340,
+			Height: 420,
 		});
 		
 		this.MainMenu.AddElement( 'UI/Label', [ 'CT', 'CT' ], [ 0, 30 ], {
 			Text: 'Welcome, ' + this.Session.User.Username + '!',
 		});
 		
-		this.MainMenu.AddElement( 'UI/Button', [ 'CB', 'CB' ], [ 0, -96 ], {
+		this.MainMenu.AddElement( 'UI/Button', [ 'CT', 'CT' ], [ 0, 96 ], {
+			Label: 'Create game',
+			Width: 400,
+			Height: 64,
+		});
+		
+		this.MainMenu.AddElement( 'UI/Button', [ 'CT', 'CT' ], [ 0, 176 ], {
+			Label: 'Join game',
+			Width: 400,
+			Height: 64,
+		});
+		
+		this.MainMenu.AddElement( 'UI/Button', [ 'CB', 'CB' ], [ 0, -100 ], {
 			Label: 'Logout',
 			Width: 400,
 			Height: 64,

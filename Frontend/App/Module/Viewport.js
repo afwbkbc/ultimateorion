@@ -42,9 +42,9 @@ window.App.Extend({
 		if ( !element.focused )
 			return;
 		var data = element.data;
+		element.focused = false;
 		if ( this[ data.element ] && this[ data.element ].OnBlur )
 			this[ data.element ].OnBlur( this.Ctx, element );
-		element.focused = false;
 		if ( this.FocusedElement.data.id == element.data.id )
 			this.FocusedElement = null;
 		if ( !omit_event )
@@ -52,6 +52,41 @@ window.App.Extend({
 				element: element.data.id,
 				event: 'blur',
 			});
+	},
+	
+	HoverElement: function( element/*, omit_event*/ ) {
+		if ( element.hovered )
+			return; // already hovered
+		if ( !this.IsElementEnabled( element ) )
+			return; // can't hover on disabled element
+		var data = element.data;
+		if ( this.HoveredElement )
+			this.UnhoverElement( this.HoveredElement );
+		element.hovered = true;
+		this.HoveredElement = element;
+		/*if ( !omit_event )
+			this.SendEvent({
+				element: element.data.id,
+				event: 'focus',
+			});*/
+		if ( this[ data.element ] && this[ data.element ].OnHover )
+			this[ data.element ].OnHover( this.Ctx, element );
+	},
+	
+	UnhoverElement: function( element/*, omit_event*/ ) {
+		if ( !element.hovered )
+			return;
+		var data = element.data;
+		if ( this[ data.element ] && this[ data.element ].OnUnhover )
+			this[ data.element ].OnUnhover( this.Ctx, element );
+		element.hovered = false;
+		if ( this.HoveredElement.data.id == element.data.id )
+			this.HoveredElement = null;
+		/*if ( !omit_event )
+			this.SendEvent({
+				element: element.data.id,
+				event: 'blur',
+			});*/
 	},
 	
 	IsElementEnabled: function( element ) {
@@ -68,7 +103,7 @@ window.App.Extend({
 			if ( !omit_event ) {
 				console.log( 'NOT IMPLEMENTED', 'EnableElement event' );
 			}
-			this.UpdateCursor();
+			this.HandleMouseMove();
 		}
 	},
 	
@@ -83,7 +118,7 @@ window.App.Extend({
 			if ( !omit_event ) {
 				console.log( 'NOT IMPLEMENTED', 'DisableElement event' );
 			}
-			this.UpdateCursor();
+			this.HandleMouseMove();
 		}
 	},
 	
@@ -109,7 +144,7 @@ window.App.Extend({
 		return [ e.layerX * this.XCoordMod, e.layerY * this.YCoordMod ];
 	},
 	
-	UpdateCursor: function( e ) {
+	HandleMouseMove: function( e ) {
 		if ( e )
 			this.LastMouseMoveEvent = e;
 		else
@@ -117,10 +152,15 @@ window.App.Extend({
 		if ( !e )
 			return;
 		var clickzone = this.GetClickzone( this.TranslateCoords( e ) );
-		if ( clickzone )
+		if ( clickzone ) {
 			this.Canvas.style.cursor = 'pointer';
-		else
+			this.HoverElement( clickzone.element );
+		}
+		else {
+			if ( this.HoveredElement )
+				this.UnhoverElement( this.HoveredElement );
 			this.Canvas.style.cursor = 'default';
+		}
 	},
 	
 	Init: function( next ) {
@@ -132,6 +172,7 @@ window.App.Extend({
 		this.TabOrder = [];
 		this.NextClickzoneId = 0;
 		this.FocusedElement = null;
+		this.HoveredElement = null;
 		this.DefaultButtons = []; // stack
 		
 		this.FpsLimit = 60;
@@ -197,7 +238,7 @@ window.App.Extend({
 		}
 		
 		this.Canvas.onmousemove = function( e ) {
-			that.UpdateCursor( e );
+			that.HandleMouseMove( e );
 			return false;
 		}
 		
@@ -413,12 +454,13 @@ window.App.Extend({
 		if ( !element.enabled ) {
 			element.focused = false;
 		}
+		element.hovered = false;
 		if ( element.data.focused )
 			this.FocusElement( element, true );
 		this.Redraw();
 		if ( this.TrackStats )
 			this.RenderCalls++;
-		this.UpdateCursor();
+		this.HandleMouseMove();
 	},
 	
 	RemoveElement: function( data ) {
@@ -447,7 +489,7 @@ window.App.Extend({
 		this.Redraw();
 		if ( this.TrackStats )
 			this.RenderCalls++;
-		this.UpdateCursor();
+		this.HandleMouseMove();
 	},
 	
 	ChangeElement: function( data ) {

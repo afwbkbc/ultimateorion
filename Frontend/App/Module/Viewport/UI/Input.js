@@ -12,7 +12,11 @@ window.App.Viewport.Extend({
 	},
 	
 	OnAddChild: function( ctx, element, child ) {
-		if ( child.data.element == 'UI/Label' ) {
+		if ( child.data.element == 'Layout/Panel' ) {
+			element.panel = child;
+			this.UpdateLabel( ctx, element );
+		}
+		else if ( child.data.element == 'UI/Label' ) {
 			element.label = child;
 			this.UpdateLabel( ctx, element );
 		}
@@ -65,6 +69,12 @@ window.App.Viewport.Extend({
 			element.label.data.attributes.Text = 
 				( element.data.attributes.masked ? '*'.repeat( element.data.attributes.Value.length ) : element.data.attributes.Value ) +
 				( element.blinkcursorvisible ? '▍' : ' ' );
+			if ( element.panel ) {
+				if ( element.focused )
+					element.panel.bgstyle = 'rgba( 30, 60, 60, 0.5 )';
+				else
+					delete element.panel.bgstyle;
+			}
 			window.App.Viewport.Redraw();
 		}
 	},

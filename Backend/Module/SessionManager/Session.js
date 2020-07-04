@@ -21,7 +21,7 @@ class Session extends require( '../../_Base' ) {
 			throw new Error( 'Session connections collision at #' + connection.Id );
 		console.log( '+CONNECTION', this.Id, connection.Id );
 		this.Connections[ connection.Id ] = connection;
-		this.OnConnect( connection );
+		this.Connect( connection );
 	}
 	
 	RemoveConnection( connection ) {
@@ -29,7 +29,7 @@ class Session extends require( '../../_Base' ) {
 			throw new Error( 'Session connections invalid id #' + connection.Id );
 		console.log( '-CONNECTION', this.Id, connection.Id );
 		delete this.Connections[ connection.Id ];
-		this.OnDisconnect( connection );
+		this.Disconnect( connection );
 	}
 	
 	SetGuestId( connection, guest_id ) {
@@ -42,7 +42,7 @@ class Session extends require( '../../_Base' ) {
 		});
 	}
 	
-	OnCreate() {
+	Create() {
 		console.log( '+SESSION #' + this.Id + ( this.User ? ' ( ' + this.User.Username + ' )' : '' ) );
 		
 		if ( this.User )
@@ -51,7 +51,7 @@ class Session extends require( '../../_Base' ) {
 			this.Viewport = new ( this.H.Loader.Require( 'Viewport/Template/MainMenuGuest' ) )( this );
 	}
 	
-	OnDestroy() {
+	Destroy() {
 		console.log( '-SESSION #' + this.Id + ( this.User ? ' ( ' + this.User.Username + ' )' : '' ) );
 		
 		if ( this.SessionTimeout )
@@ -67,7 +67,7 @@ class Session extends require( '../../_Base' ) {
 		delete this.Viewport;
 	}
 	
-	OnConnect( connection ) {
+	Connect( connection ) {
 		if ( this.SessionTimeout ) {
 			clearTimeout( this.SessionTimeout );
 			this.SessionTimeout = null;
@@ -75,7 +75,7 @@ class Session extends require( '../../_Base' ) {
 		this.Viewport.RenderRecursive( connection );
 	}
 	
-	OnDisconnect( connection ) {
+	Disconnect( connection ) {
 		if ( Object.keys( this.Connections ).length == 0 && !this.UserId ) {
 			// no connections left, guest session will timeout
 			if ( this.SessionTimeout )

@@ -30,4 +30,24 @@ window.App.Viewport.Extend({
 		return true;
 	},
 
+	OnAddChild: function( ctx, element, child ) {
+		if ( child.data.element == 'Layout/Panel' ) {
+			element.panel = child;
+		}
+	},
+	
+	OnHover: function( ctx, element ) {
+		if ( element.panel ) {
+			element.panel.bgstyle = 'rgba( 50, 120, 120, 0.5 )';
+			window.App.Viewport.Redraw();
+		}
+	},
+	
+	OnUnhover: function( ctx, element ) {
+		if ( element.panel ) {
+			delete element.panel.bgstyle;
+			window.App.Viewport.Redraw();
+		}
+	},
+	
 });
