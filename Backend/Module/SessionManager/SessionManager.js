@@ -4,7 +4,10 @@ class SessionManager extends require( '../_Module' ) {
 		super( module.filename );
 		
 		this.Md5 = require( 'md5' );
-		this.Session = require( './Session' );
+		this.Session = {
+			Guest: require( '../../Session/GuestSession' ),
+			User: require( '../../Session/UserSession' ),
+		}
 		
 		this.SessionPool = {};
 		this.NextSessionId = 0;
@@ -22,11 +25,11 @@ class SessionManager extends require( '../_Module' ) {
 		});
 	}
 	
-	CreateSession() {
+	CreateSession( type ) {
 		var session_id = ++this.NextSessionId;
 		if ( typeof( this.SessionPool[ session_id ] ) !== 'undefined' )
 			throw new Error( 'SessionPool collision at #' + session_id );
-		var session = new this.Session( this, session_id );
+		var session = new this.Session[ type ]( this, session_id );
 		this.SessionPool[ session_id ] = session;
 		console.log( '+SESSION', session.Id );
 		return session;
@@ -37,7 +40,7 @@ class SessionManager extends require( '../_Module' ) {
 			var session;
 			if ( !guest_id || typeof( this.GuestSessions[ guest_id ] ) === 'undefined' ) {
 				// create new session
-				session = this.CreateSession();
+				session = this.CreateSession( 'Guest' );
 				do {
 					guest_id = this.Md5( Math.random() );
 				} while ( typeof( this.GuestSessions[ guest_id ] ) !== 'undefined' );
@@ -65,7 +68,7 @@ class SessionManager extends require( '../_Module' ) {
 				.then( ( session ) => {
 					if ( !session ) {
 						// create new session
-						session = this.CreateSession();
+						session = this.CreateSession( 'User' );
 						session.User = user;
 						session.Create();
 					}

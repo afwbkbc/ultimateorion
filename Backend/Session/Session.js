@@ -1,4 +1,4 @@
-class Session extends require( '../../_Base' ) {
+class Session extends require( '../_Base' ) {
 	
 	constructor( session_manager, id ) {
 		super( module.filename );
@@ -10,8 +10,9 @@ class Session extends require( '../../_Base' ) {
 	}
 	
 	Serialize() {
+		// TODO
 		var data = {
-			viewport: this.Viewport.Serialize(),
+			//viewport: this.Viewport.Serialize(),
 		}
 		return JSON.stringify( data );
 	}
@@ -45,10 +46,8 @@ class Session extends require( '../../_Base' ) {
 	Create() {
 		console.log( '+SESSION #' + this.Id + ( this.User ? ' ( ' + this.User.Username + ' )' : '' ) );
 		
-		if ( this.User )
-			this.Viewport = new ( this.H.Loader.Require( 'Viewport/Template/MainMenuUser' ) )( this );
-		else
-			this.Viewport = new ( this.H.Loader.Require( 'Viewport/Template/MainMenuGuest' ) )( this );
+		if ( this.OnCreate )
+			this.OnCreate();
 	}
 	
 	Destroy() {
@@ -57,14 +56,8 @@ class Session extends require( '../../_Base' ) {
 		if ( this.SessionTimeout )
 			clearTimeout( this.SessionTimeout );
 		
-		if ( this.User ) {
-			// save to DB
-			var data = this.Serialize();
-			console.log( 'DATA', data );
-		}
-		
-		this.Viewport.Destroy();
-		delete this.Viewport;
+		if ( this.OnDestroy )
+			this.OnDestroy();
 	}
 	
 	Connect( connection ) {
@@ -72,7 +65,8 @@ class Session extends require( '../../_Base' ) {
 			clearTimeout( this.SessionTimeout );
 			this.SessionTimeout = null;
 		}
-		this.Viewport.RenderRecursive( connection );
+		if ( this.Viewport )
+			this.Viewport.RenderRecursive( connection );
 	}
 	
 	Disconnect( connection ) {
