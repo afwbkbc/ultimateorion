@@ -3,20 +3,12 @@ class MainMenuUser extends require( './MainMenu' ) {
 	constructor( session ) {
 		super( module.filename, session );
 
-		this.MainMenu = this.AddElement( 'Layout/Panel', [ 'RB', 'RB' ], [ -50, -50 ], {
-			Style: 'main-menu-block',
-			Width: 440,
-			Height: 420,
-		});
-		
-		this.MainMenu.AddElement( 'UI/Label', [ 'CT', 'CT' ], [ 0, 30 ], {
+		this.MainMenu.Append( 'UI/BlockLabel', {
 			Text: 'Welcome, ' + this.Session.User.Username + '!',
 		});
 		
-		this.MainMenu.AddElement( 'UI/Button', [ 'CT', 'CT' ], [ 0, 96 ], {
+		this.MainMenu.Append( 'UI/Button', {
 			Label: 'Create game',
-			Width: 400,
-			Height: 64,
 		})
 			.On( 'click', ( data, event ) => {
 				this.MainMenu.Disable();
@@ -28,24 +20,18 @@ class MainMenuUser extends require( './MainMenu' ) {
 					})
 					.On( 'success', ( data, event ) => {
 						console.log( 'GAME CREATED CALLBACK' );
-						/*event.connection.Send( 'set_user_token', {
-							token: data.token,
-						})*/
+						this.UpdateGamesList();
 					})
 				;
 			})
 		;
 		
-		this.MainMenu.AddElement( 'UI/Button', [ 'CT', 'CT' ], [ 0, 176 ], {
+		this.MainMenu.Append( 'UI/Button', {
 			Label: 'Join game',
-			Width: 400,
-			Height: 64,
 		});
 		
-		this.MainMenu.AddElement( 'UI/Button', [ 'CB', 'CB' ], [ 0, -100 ], {
+		this.MainMenu.Append( 'UI/Button', {
 			Label: 'Logout',
-			Width: 400,
-			Height: 64,
 		})
 			.On( 'click', ( data, event ) => {
 				
@@ -64,6 +50,34 @@ class MainMenuUser extends require( './MainMenu' ) {
 		
 		this.AddMainMenuLinks();
 		
+		this.UpdateGamesList();
+		
+	}
+	
+	UpdateGamesList() {
+		if ( Object.keys( this.Session.Players ).length > 0 ) {
+			
+			console.log( this.Session.Players );
+			if ( !this.GamesList ) {
+				this.GamesList = this.AddElement( 'Layout/Panel', [ 'LB', 'LB' ], [ 50, -50 ], {
+					Style: 'main-menu-block',
+					Width: 640,
+					Height: 220,
+				});
+				
+				this.GamesList.AddElement( 'UI/Label', [ 'CT', 'CT' ], [ 0, 30 ], {
+					Text: 'Your active games:',
+				});
+
+			}
+			
+		}
+		else {
+			if ( this.GamesList ) {
+				this.RemoveElement( this.GamesList );
+				delete this.GamesList;
+			}
+		}
 	}
 	
 }

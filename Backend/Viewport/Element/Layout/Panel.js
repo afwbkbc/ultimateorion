@@ -1,7 +1,7 @@
 class Panel extends require( '../BlockElement' ) {
 
-	constructor() {
-		super( module.filename );
+	constructor( filename ) {
+		super( filename ? filename : module.filename );
 		
 		this.SetAttributes({
 			Width: 0,

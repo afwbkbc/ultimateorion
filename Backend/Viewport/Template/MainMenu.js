@@ -12,12 +12,17 @@ class MainMenu extends require( '../Viewport' ) {
 			Text: 'v.0.0.1',
 		});
 
+		this.MainMenu = this.AddElement( 'Block/MainMenu', [ 'RB', 'RB' ], [ -50, -50 ], {
+			Style: 'main-menu-block',
+			ElementWidth: 460,
+			ElementHeight: 64,
+			ElementMargin: 20,
+		});
+		
 		this.AddMainMenuLinks = () => {
 			
-			this.MainMenu.AddElement( 'UI/Button', [ 'CB', 'CB' ], [ 0, -20 ], {
+			this.MainMenu.Append( 'UI/Button', {
 				Label: 'Quit',
-				Width: 400,
-				Height: 64,
 			})
 				.On( 'click', ( data, event ) => {
 					

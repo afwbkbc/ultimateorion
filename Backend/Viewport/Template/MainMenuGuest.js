@@ -3,20 +3,12 @@ class MainMenuGuest extends require( './MainMenu' ) {
 	constructor( session ) {
 		super( module.filename, session );
 
-		this.MainMenu = this.AddElement( 'Layout/Panel', [ 'RB', 'RB' ], [ -50, -50 ], {
-			Style: 'main-menu-block',
-			Width: 440,
-			Height: 340,
-		});
-		
-		this.MainMenu.AddElement( 'UI/Label', [ 'CT', 'CT' ], [ 0, 30 ], {
+		this.MainMenu.Append( 'UI/BlockLabel', {
 			Text: 'Welcome, Guest!',
 		});
 		
-		this.MainMenu.AddElement( 'UI/Button', [ 'CT', 'CT' ], [ 0, 96 ], {
+		this.MainMenu.Append( 'UI/Button', {
 			Label: 'Login',
-			Width: 400,
-			Height: 64,
 		})
 			.On( 'click', () => {
 				this.MainMenu.Disable();
@@ -36,10 +28,8 @@ class MainMenuGuest extends require( './MainMenu' ) {
 			})
 		;
 		
-		this.MainMenu.AddElement( 'UI/Button', [ 'CT', 'CT' ], [ 0, 176 ], {
+		this.MainMenu.Append( 'UI/Button', {
 			Label: 'Register',
-			Width: 400,
-			Height: 64,
 		})
 			.On( 'click', () => {
 				this.MainMenu.Disable();
@@ -59,7 +49,6 @@ class MainMenuGuest extends require( './MainMenu' ) {
 		;
 
 		this.AddMainMenuLinks();
-		
 	}
 	
 }

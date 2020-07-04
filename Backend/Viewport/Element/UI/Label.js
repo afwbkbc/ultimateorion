@@ -4,7 +4,7 @@ class Label extends require( '../Element' ) {
 		super( module.filename );
 		
 		this.SetAttributes({
-			
+			Text: '',
 		});
 	}
 	

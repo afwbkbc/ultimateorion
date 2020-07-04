@@ -167,6 +167,14 @@
 		}
 	}
 	
+	GetWidth() { // override when necessary
+		return this.Attributes.Width ? this.Attributes.Width : 0;
+	}
+	
+	GetHeight() { // override when necessary
+		return this.Attributes.Height ? this.Attributes.Height : 0;
+	}
+	
 }
 
 module.exports = Element;

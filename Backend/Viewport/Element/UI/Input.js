@@ -19,11 +19,9 @@ class Input extends require( '../Element' ) {
 			Style: 'input-label',
 			Text: this.Attributes.Value,
 		});
-		
-		var that = this;
 		this.On( 'input', ( event ) => {
-			that.SetAttribute( 'Value', event.value );
-			that.Label.SetAttribute( 'Text', event.value );
+			this.SetAttribute( 'Value', event.value );
+			this.Label.SetAttribute( 'Text', event.value );
 		});
 	}
 	
