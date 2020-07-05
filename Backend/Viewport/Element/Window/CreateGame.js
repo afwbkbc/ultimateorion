@@ -42,6 +42,7 @@ class CreateGame extends require( '../Layout/Window' ) {
 				else {
 					this.Viewport.Session.CreateGame( data.fields )
 						.then( () => {
+							this.Close();
 							this.Trigger( 'success', data.fields );
 						})
 						.catch( ( e ) => {

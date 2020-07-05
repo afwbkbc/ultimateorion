@@ -77,6 +77,26 @@ class Viewport extends require( './_ElementBase' ) {
 		element.Trigger( data.event, data, event ); // element-specific handlers
 	}
 	
+	DisableAll() {
+		for ( var k in this.Elements )
+			this.Elements[ k ].Disable();
+	}
+	
+	EnableAll() {
+		for ( var k in this.Elements )
+			this.Elements[ k ].Enable();
+	}
+	
+	ShowWindow( namespace ) {
+		this.DisableAll();
+		var window = this.AddElement( namespace, [ 'CC', 'CC' ], [ 0, 0 ], {} )
+			.On( 'close', () => {
+				this.EnableAll();
+			})
+		;
+		return window;
+	}
+	
 }
 
 module.exports = Viewport;
