@@ -3,7 +3,17 @@ class Crypto extends require( './_Module' ) {
 	constructor() {
 		super( module.filename );
 		
+		this.Md5 = require( 'md5' );
 		this.Bcrypt = require( 'bcrypt' );
+	}
+	
+	RandomMd5Hash( size ) {
+		if ( !size )
+			size = 1;
+		var hash = '';
+		for ( var i = 0 ; i < size ; i++ )
+			hash += this.Md5( Math.random() );
+		return hash;
 	}
 	
 	HashPassword( password ) {

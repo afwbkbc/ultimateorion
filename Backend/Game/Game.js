@@ -1,37 +1,28 @@
-class Game extends require( '../_Base' ) {
+class Game extends require( '../_Entity' ) {
 	
-	constructor( game_manager, id, name, host ) {
-		super( module.filename );
+	constructor( parameters ) {
+		super( module.filename, parameters );
 		
 		this.Player = require( './Player' );
 		
-		this.GameManager = game_manager;
-		this.Id = id;
-		this.Name = name;
-		this.Host = host;
 		this.Players = {};
 		
-		this.AddPlayer( host );
-		host.Session.AddToGame( this );
-		
-		//this.SessionTimeout = null;
 	}
 	
-	Create() {
+	OnCreate() {
 		console.log( '+GAME #' + this.Id );
 		
-		if ( this.OnCreate )
-			this.OnCreate();
+		this.AddPlayer( this.Host );
+		this.Host.Session.AddToGame( this );
 	}
 	
-	Destroy() {
+	OnDestroy() {
 		console.log( '-GAME #' + this.Id );
 		
 		/*if ( this.SessionTimeout )
 			clearTimeout( this.SessionTimeout );*/
 		
-		if ( this.OnDestroy )
-			this.OnDestroy();
+		
 	}
 	
 	AddPlayer( user ) {
@@ -60,33 +51,6 @@ class Game extends require( '../_Base' ) {
 		return player;
 	}
 	
-	/*Connect( connection ) {
-		if ( this.SessionTimeout ) {
-			clearTimeout( this.SessionTimeout );
-			this.SessionTimeout = null;
-		}
-		if ( this.Viewport )
-			this.Viewport.RenderRecursive( connection );
-	}
-	
-	Disconnect( connection ) {
-		if ( Object.keys( this.Connections ).length == 0 && !this.UserId ) {
-			// no connections left, guest session will timeout
-			if ( this.SessionTimeout )
-				throw new Error( 'SessionTimeout already active', this.Id );
-			
-			this.SessionTimeout = setTimeout( () => {
-				
-				this.SessionTimeout = null;
-				this.SessionManager.DestroySession( this );
-			}, this.SessionManager.Config.GuestTimeout );
-		}
-	}
-	
-	Send( action, data, on_response ) {
-		for ( var k in this.Connections )
-			this.Connections[ k ].Send( action, data, on_response );
-	}*/
 }
 
 module.exports = Game;

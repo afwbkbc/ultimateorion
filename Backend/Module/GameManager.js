@@ -1,33 +1,30 @@
-class GameManager extends require( './_Module' ) {
+class GameManager extends require( './_EntityManager' ) {
 	
 	constructor() {
-		super( module.filename );
+		super( module.filename, 'Game/Game' );
 		
-		this.Md5 = require( 'md5' );
-		this.Game = require( '../Game/Game' );
-		
-		this.GamePool = {};
-		this.NextGameId = 0;
-		
-	}
-	
-	Run() {
-		return new Promise( ( next, fail ) => {
-			
-			//this.UserSession = this.E.M.Sql.Models.UserSession;
-			
-			return next();
-		});
 	}
 	
 	CreateGame( game_name, game_host ) {
-		var game_id = ++this.NextGameId;
-		if ( typeof( this.GamePool[ game_id ] ) !== 'undefined' )
-			throw new Error( 'GamePool collision at #' + game_id );
-		var game = new this.Game( this, game_id, game_name, game_host );
-		this.GamePool[ game_id ] = game;
-		console.log( '+GAME', game.Id );
-		return game;
+		return new Promise( ( next, fail ) => {
+			this.Create({
+				parameters: {
+					Name: game_name,
+					Host: game_host,
+				},
+			})
+				.then( ( game ) => {
+					//console.log( 'CREATED', game );
+					
+					return next();
+				})
+				.catch( fail )
+			;
+			return; // tmp
+			this.GamePool[ game.Id ] = game;
+			console.log( '+GAME', game.Id );
+			return game;
+		});
 	}
 	
 	DestroyGame( game ) {

@@ -266,7 +266,7 @@ class Sql extends require( '../_Module' ) {
 		
 			var data = parameters.data;
 			
-			var is_insert = typeof( data.id ) === 'undefined' || data.id === null;
+			var is_insert = typeof( data.ID ) === 'undefined' || data.ID === null;
 			
 			var fields = '';
 			var values = [];
@@ -319,7 +319,7 @@ class Sql extends require( '../_Module' ) {
 			}
 			else {
 				query += ' WHERE `id` = ? LIMIT 1';
-				values.push( data.id );
+				values.push( data.ID );
 			}
 			
 			this.Sql.query( query, values, function ( err, result ) {
@@ -327,7 +327,7 @@ class Sql extends require( '../_Module' ) {
 					return fail( err );
 				
 				if ( is_insert ) {
-					data.id = result.insertId;
+					data.ID = result.insertId;
 				}
 				return next( data );
 			});

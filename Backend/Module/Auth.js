@@ -49,20 +49,24 @@ class Auth extends require( './_Module' ) {
 					
 					this.E.M.Crypto.HashPassword( data.password )
 						.then( ( hash ) => {
+							
+							// create user in db
 							user = new this.User({
 								Username: data.username,
 								Hash: hash,
 							});
 							user.Save()
 								.then( () => {
-									
-									this.CreateUserToken( user, data.remote_address )
-									.then( ( token ) => {
-										
-										return next( { token: token } );
+
+									// login and return token
+									this.LoginUser({
+										username: data.username,
+										password: data.password,
 									})
-									.catch( fail )
-								;
+										.then( next )
+										.catch( fail )
+									;
+									
 								})
 								.catch( fail )
 							;
@@ -107,6 +111,7 @@ class Auth extends require( './_Module' ) {
 								.then( ( token ) => {
 									
 									return next( { token: token } );
+									
 								})
 								.catch( fail )
 							;

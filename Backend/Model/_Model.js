@@ -130,8 +130,10 @@ module.exports = ( filename, schema ) => {
 			return new Promise( ( next, fail ) => {
 				
 				var data = {};
+				if ( this.ID )
+					data.ID = this.ID;
 				for ( var k in this.schema )
-					if ( this[ k ] ) {
+					if ( this[ k ] !== null ) {
 						// todo: validation?
 						data[ k ] = this[ k ];
 					}
@@ -143,8 +145,8 @@ module.exports = ( filename, schema ) => {
 					data: data,
 				})
 					.then( ( data ) => {
-						if ( data.id )
-							this.ID = data.id;
+						if ( data.ID )
+							this.ID = data.ID;
 						return next();
 					})
 					.catch( fail )

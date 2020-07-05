@@ -1,0 +1,10 @@
+class DbSync extends require( './_Module' ) {
+
+	constructor() {
+		super( module.filename );
+		
+	}
+	
+}
+
+module.exports = DbSync;
