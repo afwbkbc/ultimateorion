@@ -29,12 +29,17 @@ window.App.Extend({
 	},
 	
 	Run() {
+		
 		var that = this;
 		
 		// setup starting coordinates
 		var bg_x = Math.floor( Math.random() * this.config.background.dimensions.width ); // fully random
 		var bg_y = this.config.background.dimensions.height / 2;
 		this.el.background.style[ 'background-position' ] = bg_x + 'px ' + bg_y + 'px';
+		
+		// dont waste cpu for nothing
+		this.el.background.style.opacity = '1';
+		return;
 		
 		// background fade-in
 		that.el.background.style.opacity = 0; // just in case
