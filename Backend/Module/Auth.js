@@ -54,6 +54,7 @@ class Auth extends require( './_Module' ) {
 							user = new this.User({
 								Username: data.username,
 								Hash: hash,
+								SessionId: '', // will be filled later
 							});
 							user.Save()
 								.then( () => {
@@ -66,6 +67,7 @@ class Auth extends require( './_Module' ) {
 											this.LoginUser({
 												username: data.username,
 												password: data.password,
+												remote_address: data.remote_address,
 											})
 												.then( next )
 												.catch( fail )
@@ -165,7 +167,6 @@ class Auth extends require( './_Module' ) {
 		return new Promise( ( next, fail ) => {
 			
 			var hash;
-			
 			var token_hash_generated = () => {
 				var token = new this.UserToken({
 					User: user,

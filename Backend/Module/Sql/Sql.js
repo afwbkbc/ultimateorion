@@ -201,6 +201,7 @@ class Sql extends require( '../_Module' ) {
 		
 		if ( parameters.query ) {
 			for ( var k in parameters.query ) {
+				
 				var v = parameters.query[ k ].toString();
 				if ( !where.length )
 					where += ' WHERE ';
