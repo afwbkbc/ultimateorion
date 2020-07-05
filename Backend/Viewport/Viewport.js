@@ -10,7 +10,6 @@ class Viewport extends require( './_ElementBase' ) {
 		this.AllElements = {}; // all children included
 		this.FocusedElement = null;
 		this.DisabledLayers = []; // needed for DisableLayer() / RestoreLayer() calls, i.e. for ShowWindow
-		
 	}
 	
 	// override if needed

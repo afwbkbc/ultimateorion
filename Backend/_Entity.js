@@ -6,20 +6,33 @@ class Entity extends require( './_Base' ) {
 	}
 	
 	Create() {
-		console.log( '+ENTITY #' + this.Id );
-		
-		if ( this.OnCreate )
-			this.OnCreate();
+		return new Promise( ( next, fail ) => {
+			console.log( '+ENTITY #' + this.Id );
+			
+			if ( this.OnCreate ) {
+				this.OnCreate()
+					.then( next )
+					.catch( fail )
+				;
+			}
+			else
+				return next();
+		});
 	}
 	
 	Destroy() {
-		console.log( '-ENTITY #' + this.Id );
-		
-		/*if ( this.SessionTimeout )
-			clearTimeout( this.SessionTimeout );*/
-		
-		if ( this.OnDestroy )
-			this.OnDestroy();
+		return new Promise( ( next, fail ) => {
+			console.log( '-ENTITY #' + this.Id );
+			
+			if ( this.OnDestroy ) {
+				this.OnDestroy()
+					.then( next )
+					.catch( fail )
+				;
+			}
+			else
+				return next();
+		});
 	}
 
 	// override these:
@@ -37,7 +50,11 @@ class Entity extends require( './_Base' ) {
 			return next( this );
 		});
 	}
-	
+
+	// shortcuts
+	Save() {
+		return this.EntityManager.Save( this );
+	}
 }
 
 module.exports = Entity;

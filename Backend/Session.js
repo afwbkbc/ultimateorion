@@ -6,8 +6,6 @@ class Session extends require( './_Entity' ) {
 		this.Connections = {};
 		this.SessionTimeout = null;
 		
-		this.UserModel = require( './Model/User' );
-		
 		this.Players = {}; // per-game instances of user
 	}
 	
@@ -15,15 +13,22 @@ class Session extends require( './_Entity' ) {
 		return new Promise( ( next, fail ) => {
 			var data = {};
 			
-			if ( this.User )
-				data.UserId = this.User.ID;
-			
+			// viewport
 			if ( this.Viewport ) {
 				data.Viewport = {
-					classname: this.Viewport.Classname,
-					data: this.Viewport.Pack(),
+					Classname: this.Viewport.Classname,
+					Data: this.Viewport.Pack(),
 				};
 			}
+			
+			// players
+			data.Players = [];
+			for ( var k in this.Players )
+				data.Players.push( this.Players[ k ].Id );
+			
+			// user
+			if ( this.User )
+				data.UserId = this.User.ID;
 			
 			return next( data );
 		});
@@ -31,19 +36,53 @@ class Session extends require( './_Entity' ) {
 	
 	Unpack( data ) {
 		return new Promise( ( next, fail ) => {
+			
+			var init_viewport = () => {
+				if ( data.Viewport ) {
+					this.Viewport = new ( this.H.Loader.Require( 'Viewport/Template/' + data.Viewport.Classname ) )( this );
+					this.Viewport.Init();
+					this.Viewport.Unpack( data.Viewport.Data );
+				}
+			}
+			
+			var done = () => {
+				init_viewport();
+				return next( this );
+			}
+			
 			if ( data.UserId ) {
-				this.UserModel.FindOne({
-					ID: data.UserId,
-				})
+				
+				// user
+				this.Module( 'Auth' ).FindUser( data.UserId )
 					.then( ( user ) => {
 						if ( user ) {
-							
-							if ( data.Viewport ) {
-								// 
-							}
-							
+
+							// user
 							this.User = user;
-							return next( this );
+							user.Session = this;
+							
+							// players
+							if ( data.Players && data.Players.length ) {
+								var promises = [];
+								for ( var k in data.Players ) {
+									var id = data.Players[ k ];
+									promises.push( this.Manager( 'Player' ).FindPlayer( id ) );
+								}
+								Promise.all( promises )
+									.then( ( results ) => {
+										for ( var k in results ) {
+											var player = results[ k ];
+											if ( player )
+												this.Players[ player.Id ] = player;
+										}
+										
+										return done();
+									})
+									.catch ( fail )
+								;
+							}
+							else
+								return done();
 						}
 						else
 							return next( null );
@@ -52,7 +91,7 @@ class Session extends require( './_Entity' ) {
 				;
 			}
 			else
-				return next( this );
+				return done();
 		});
 	}
 
@@ -105,8 +144,8 @@ class Session extends require( './_Entity' ) {
 				
 				this.SessionTimeout = setTimeout( () => {
 					this.SessionTimeout = null;
-					this.Manager.DestroySession( this );
-				}, this.Manager.Config.GuestTimeout * 1000 );
+					this.EntityManager.DestroySession( this );
+				}, this.EntityManager.Config.GuestTimeout * 1000 );
 			}
 			
 		}
@@ -118,46 +157,82 @@ class Session extends require( './_Entity' ) {
 	}
 	
 	AddToGame( game ) {
-		if ( !this.Players[ game.Id ] ) {
-			game.AddPlayer( this.User );
-			var player = game.GetPlayer( this.User );
-			console.log( 'ADD TO GAME ' + player.User.Username + ' #' + game.Id );
-			this.Players[ game.Id ] = player;
-		}
+		return new Promise( ( next, fail ) => {
+			
+			// double-joining same game not allowed
+			for ( var k in this.Players )
+				if ( this.Players[ k ].Game.Id == game.Id )
+					return next();
+			
+			game.AddPlayer( this.User )
+				.then( ( player ) => {
+					console.log( 'ADD TO GAME ' + player.User.Username + ' #' + game.Id );
+					this.Players[ player.Id ] = player;
+					this.Save()
+						.then( next )
+						.catch( fail )
+					;
+				})
+				.catch( fail )
+			;
+		});
 	}
 	
 	RemoveFromGame( game ) {
-		if ( this.Players[ game.Id ] ) {
-			console.log( 'REMOVE FROM GAME ' + this.User.Username + ' #' + game.Id );
-			delete this.Players[ game.Id ];
-			game.RemovePlayer( this.User );
-		}
+		return new Promise( ( next, fail ) => {
+			
+			// find relevant player and destroy it
+			for ( var k in this.Players ) {
+				var player = this.Players[ k ];
+				if ( player.Game.Id == game.Id ) {
+					console.log( 'REMOVE FROM GAME ' + this.User.Username + ' #' + game.Id );
+					delete this.Players[ k ];
+					game.RemovePlayer( this.User )
+						.then( () => {
+							this.Save()
+								.then( next )
+								.catch( fail )
+							;
+						})
+						.catch( fail )
+					;
+					return;
+				}
+			}
+			return next(); // no player found
+		});
 	}
 	
 	OnCreate() {
-		if ( this.User )
-			this.Viewport = new ( this.H.Loader.Require( 'Viewport/Template/MainMenuUser' ) )( this );
-		else
-			this.Viewport = new ( this.H.Loader.Require( 'Viewport/Template/MainMenuGuest' ) )( this );
-		this.Viewport.Init();
+		return new Promise( ( next, fail ) => {
+			
+			if ( this.User )
+				this.Viewport = new ( this.H.Loader.Require( 'Viewport/Template/MainMenuUser' ) )( this );
+			else
+				this.Viewport = new ( this.H.Loader.Require( 'Viewport/Template/MainMenuGuest' ) )( this );
+			
+			this.Viewport.Init();
+			
+			return next();
+		});
 	}
 	
 	OnDestroy() {
-		
-		// save to DB
-		//var data = this.Serialize();
-		//console.log( 'DATA', data );
-		
-		if ( this.SessionTimeout )
-			clearTimeout( this.SessionTimeout );
-		
-		this.Viewport.Destroy();
-		delete this.Viewport;
+		return new Promise( ( next, fail ) => {
+			
+			if ( this.SessionTimeout )
+				clearTimeout( this.SessionTimeout );
+			
+			this.Viewport.Destroy();
+			delete this.Viewport;
+			
+			return next();
+		});
 	}
 
 	CreateGame( settings ) {
 		return new Promise( ( next, fail ) => {
-			this.E.M.GameManager.CreateGame( settings.name, this.User )
+			this.Manager( 'Game' ).CreateGame( settings.name, this.User )
 				.then( () => {
 					
 					return next();

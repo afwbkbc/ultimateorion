@@ -140,7 +140,7 @@ module.exports = ( filename, schema ) => {
 				
 				data = sanitize_query( data );
 				
-				this.E.M.Sql.Save({
+				this.Module( 'Sql' ).Save({
 					table: model_name,
 					data: data,
 				})
@@ -160,7 +160,7 @@ module.exports = ( filename, schema ) => {
 				if ( !this.ID )
 					return fail( new Error( 'can\'t delete object without ID' ) );
 				
-				this.E.M.Sql.Delete({
+				this.Module( 'Sql' ).Delete({
 					table: model_name,
 					query: {
 						ID: this.ID,

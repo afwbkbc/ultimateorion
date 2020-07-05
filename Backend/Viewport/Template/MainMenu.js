@@ -25,7 +25,7 @@ class MainMenu extends require( '../Viewport' ) {
 					};
 					
 					if ( event.connection.UserToken )
-						this.E.M.Auth.RemoveUserToken( event.connection.UserToken, event.connection.RemoteAddress )
+						this.Module( 'Auth' ).RemoveUserToken( event.connection.UserToken, event.connection.RemoteAddress )
 							.then( done )
 							.catch( ( e ) => {
 								throw e;

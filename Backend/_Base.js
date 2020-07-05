@@ -63,6 +63,20 @@ class _Base {
 		this.Config = this.H.Config.GetConfig( this.Classname );
 	}
 
+	// handy shortcuts
+	Module( namespace ) {
+		return this.E.M[ namespace ];
+	}
+	Manager( namespace ) {
+		return this.Module( namespace + 'Manager' );
+	}
+	Model( namespace ) {
+		return this.Module( 'Sql' ).Models[ namespace ];
+	}
+	CacheScope( key, func ) {
+		return this.Module( 'ObjectCache' ).Scope( key, func );
+	}
+	
 }
 
 module.exports = _Base;

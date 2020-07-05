@@ -40,7 +40,7 @@ class MainMenuGuest extends require( './MainMenu' ) {
 		})
 			.On( 'click', ( data, event ) => {
 				
-				this.E.M.Auth.RemoveUserToken( event.connection.UserToken, event.connection.RemoteAddress )
+				this.Module( 'Auth' ).RemoveUserToken( event.connection.UserToken, event.connection.RemoteAddress )
 					.then( () => {
 						event.connection.Send( 'clear_user_token', {
 							token: data.token,

@@ -13,9 +13,9 @@ class MainMenuUser extends require( './MainMenu' ) {
 	
 	UpdateGamesList() {
 		var players = this.Session.Players;
+		
 		if ( Object.keys( players ).length > 0 ) {
 			
-			//console.log( this.Session.Players );
 			if ( !this.GamesList ) {
 				this.GamesList = this.AddElement( 'Block/GamesList', [ 'LB', 'LB' ], [ 50, -50 ], {} );
 				this.GamesListItems = {};

@@ -1,12 +1,5 @@
 class TestGame extends require( './Game' ) {
 	
-	OnCreate() {
-		
-	}
-	
-	OnDestroy() {
-		
-	}
 	
 }
 

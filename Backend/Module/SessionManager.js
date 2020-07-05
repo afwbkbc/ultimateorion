@@ -45,12 +45,12 @@ class SessionManager extends require( './_EntityManager' ) {
 			
 			// look in memory first
 			var session = this.UserSessions[ user.ID ];
-			if ( session ) {
+			if ( session )
 				return next( session );
-			}
 		
 			// look in db and add to memory if found
 			var session_found = ( session ) => {
+				user.Session = session;
 				this.UserSessions[ user.ID ] = session;
 				return next( session );
 			}

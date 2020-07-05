@@ -87,7 +87,7 @@ class Connection extends require( '../../_Base' ) {
 			
 			var session;
 			if ( data.user_token ) {
-				this.E.M.Auth.GetUserByToken( data.user_token, this.RemoteAddress )
+				this.Module( 'Auth' ).GetUserByToken( data.user_token, this.RemoteAddress )
 					.then( ( user ) => {
 						if ( !user )
 							return guestsession();

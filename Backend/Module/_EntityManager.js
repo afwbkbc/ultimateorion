@@ -14,8 +14,7 @@ class EntityManager extends require( './_Module' ) {
 	Run() {
 		return new Promise( ( next, fail ) => {
 			
-			this.DbSync = this.E.M.DbSync;
-			this.Crypto = this.E.M.Crypto;
+			this.Crypto = this.Module( 'Crypto' );
 
 			return next();
 		});
@@ -25,7 +24,7 @@ class EntityManager extends require( './_Module' ) {
 		return new Promise( ( next, fail ) => {
 			var entity_id;
 			do {
-				entity_id = this.EntityName + '_' + this.Crypto.RandomMd5Hash( 3 );
+				entity_id = this.EntityName + '_' + this.Crypto.RandomMd5Hash();
 			} while ( entity_ids_in_progress[ entity_id ] );
 			entity_ids_in_progress[ entity_id ] = true;
 			this.EntityModel.FindOne({
@@ -65,11 +64,11 @@ class EntityManager extends require( './_Module' ) {
 		});
 	}
 	
-	ConstructEntity( model ) {
+	ConstructEntity( db ) {
 		var entity = new this.EntityClass();
-		entity.Manager = this;
-		entity.Model = model;
-		entity.Id = model.EntityId;
+		entity.EntityManager = this;
+		entity.Db = db;
+		entity.Id = entity.Db.EntityId;
 		return entity;
 	}
 	
@@ -78,20 +77,31 @@ class EntityManager extends require( './_Module' ) {
 			
 			this.GenerateUniqueModel()
 				.then( ( model ) => {
-					var entity = this.ConstructEntity( model );
-					if ( options && options.parameters ) {
-						for ( var k in options.parameters )
-							entity[ k ] = options.parameters[ k ];
-					}
-					
-					entity.Create();
-					
-					this.Save( entity )
-						.then( () => {
+					this.CacheScope( model.EntityId, ( next, fail ) => {
+						return next( this.ConstructEntity( model ) );
+					})
+						.then( ( entity ) => {
+							if ( options ) {
+								if ( options.parameters ) {
+									for ( var k in options.parameters )
+										entity[ k ] = options.parameters[ k ];
+								}
+							}
 							
-							// entity created and saved to db
-							
-							return next( entity );
+							entity.Create()
+								.then( () => {
+									this.Save( entity )
+										.then( () => {
+											
+											// entity created and saved to db
+											
+											return next( entity );
+										})
+										.catch( fail )
+									;
+								})
+								.catch( fail )
+							;
 						})
 						.catch( fail )
 					;
@@ -104,13 +114,29 @@ class EntityManager extends require( './_Module' ) {
 	
 	Load( entity_id ) {
 		return new Promise( ( next, fail ) => {
-			this.EntityModel.FindOne({
-				EntityId: entity_id,
+			console.log( 'LOAD', entity_id );
+			this.CacheScope( entity_id, ( next, fail ) => {
+				this.EntityModel.FindOne({
+					EntityId: entity_id,
+				})
+					.then( ( model ) => {
+						if ( model ) {
+							var entity = this.ConstructEntity( model );
+							entity.UnpackNeeded = true;
+							return next( entity );
+						}
+						else
+							return next( null );
+					})
+					.catch( fail )
+				;
 			})
-				.then( ( model ) => {
-					if ( model ) {
-						var entity = this.ConstructEntity( model );
-						entity.Unpack( JSON.parse( entity.Model.Data ) )
+				.then( ( entity ) => {
+					if ( !entity )
+						return next( null );
+					else if ( entity.UnpackNeeded ) {
+						delete entity.UnpackNeeded;
+						entity.Unpack( JSON.parse( entity.Db.Data ) )
 							.then( ( entity ) => {
 								if ( entity )
 									return next( entity );
@@ -128,7 +154,7 @@ class EntityManager extends require( './_Module' ) {
 						;
 					}
 					else
-						return next( null );
+						return next( entity );
 				})
 				.catch( fail )
 			;
@@ -139,8 +165,8 @@ class EntityManager extends require( './_Module' ) {
 		return new Promise( ( next, fail ) => {
 			entity.Pack()
 				.then( ( data ) => {
-					entity.Model.Data = JSON.stringify( data );
-					entity.Model.Save()
+					entity.Db.Data = JSON.stringify( data );
+					entity.Db.Save()
 						.then( next )
 						.catch( fail )
 					;
@@ -152,8 +178,15 @@ class EntityManager extends require( './_Module' ) {
 	
 	Delete( entity ) {
 		return new Promise( ( next, fail ) => {
-			entity.Destroy();
-			entity.Model.Delete();
+			entity.Destroy()
+				.then( () => {
+					entity.Db.Delete()
+						.then( next )
+						.catch( fail )
+					;
+				})
+				.catch( fail )
+			;
 		});
 	}
 

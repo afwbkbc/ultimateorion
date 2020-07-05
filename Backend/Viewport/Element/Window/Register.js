@@ -30,7 +30,7 @@ class Register extends require( '../Layout/Window' ) {
 			})
 			.On( 'submit', ( data, event ) => {
 				data.fields.remote_address = event.connection.RemoteAddress;
-				this.DisableWhile( this.E.M.Auth.RegisterUser( data.fields ) )
+				this.DisableWhile( this.Module( 'Auth' ).RegisterUser( data.fields ) )
 					.then( ( res ) => {
 						if ( res.errors )
 							this.Form.ShowErrors( res.errors );

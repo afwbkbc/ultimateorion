@@ -14,16 +14,12 @@ class GameManager extends require( './_EntityManager' ) {
 				},
 			})
 				.then( ( game ) => {
-					//console.log( 'CREATED', game );
+					console.log( '+GAME', game.Id );
 					
-					return next();
+					return next( game );
 				})
 				.catch( fail )
 			;
-			return; // tmp
-			this.GamePool[ game.Id ] = game;
-			console.log( '+GAME', game.Id );
-			return game;
 		});
 	}
 	
@@ -33,6 +29,15 @@ class GameManager extends require( './_EntityManager' ) {
 		console.log( '-GAME', game.Id );
 		delete this.GamePool[ game.Id ];
 		game.Destroy();
+	}
+	
+	FindGame( id ) {
+		return new Promise( ( next, fail ) => {
+			this.Load( id )
+				.then( next )
+				.catch( fail )
+			;
+		});
 	}
 	
 }

@@ -3,15 +3,15 @@ class Auth extends require( './_Module' ) {
 	constructor() {
 		super( module.filename );
 
-		this.Md5 = require( 'md5' );
 	}
 
 	Run() {
 		return new Promise( ( next, fail ) => {
 
 			// handy shortcuts
-			this.User = this.E.M.Sql.Models.User;
-			this.UserToken = this.E.M.Sql.Models.UserToken;
+			this.User = this.Model( 'User' );
+			this.UserToken = this.Model( 'UserToken' );
+			this.Crypto = this.Module( 'Crypto' );
 			
 			return next();
 		});
@@ -47,7 +47,7 @@ class Auth extends require( './_Module' ) {
 					if ( user )
 						return next( { errors: { username: 'Username already taken!' } } );
 					
-					this.E.M.Crypto.HashPassword( data.password )
+					this.Crypto.HashPassword( data.password )
 						.then( ( hash ) => {
 							
 							// create user in db
@@ -58,12 +58,19 @@ class Auth extends require( './_Module' ) {
 							user.Save()
 								.then( () => {
 
-									// login and return token
-									this.LoginUser({
-										username: data.username,
-										password: data.password,
+									this.CacheScope( 'USER_' + user.ID, ( next, fail ) => {
+										return next( user );
 									})
-										.then( next )
+										.then( () => {
+											// login and return token
+											this.LoginUser({
+												username: data.username,
+												password: data.password,
+											})
+												.then( next )
+												.catch( fail )
+											;
+										})
 										.catch( fail )
 									;
 									
@@ -102,16 +109,23 @@ class Auth extends require( './_Module' ) {
 					if ( !user )
 						return next( autherror );
 					
-					this.E.M.Crypto.CheckPassword( data.password, user.Hash )
+					this.Crypto.CheckPassword( data.password, user.Hash )
 						.then( ( is_password_ok ) => {
 							if ( !is_password_ok )
 								return next( autherror );
 							
-							this.CreateUserToken( user, data.remote_address )
-								.then( ( token ) => {
-									
-									return next( { token: token } );
-									
+							this.CacheScope( 'USER_' + user.ID, ( next, fail ) => {
+								return next( user );
+							})
+								.then( ( user ) => {
+									this.CreateUserToken( user, data.remote_address )
+										.then( ( token ) => {
+											
+											return next( { token: token } );
+											
+										})
+										.catch( fail )
+									;
 								})
 								.catch( fail )
 							;
@@ -169,7 +183,7 @@ class Auth extends require( './_Module' ) {
 			}
 			
 			var generate_token_hash = () => {
-				hash = this.Md5( Math.random() ) + this.Md5( Math.random() ) + this.Md5( Math.random() ) + this.Md5( Math.random() );
+				hash = this.Crypto.RandomMd5Hash( 4 );
 				this.UserToken.FindOne({
 					User: user,
 					Hash: hash,
@@ -198,11 +212,36 @@ class Auth extends require( './_Module' ) {
 				RemoteAddress: remote_address,
 			}, [ 'User' ])
 				.then( ( token ) => {
-					//console.log( 'GETUSERBYTOKEN', hash, remote_address, token );
-					
 					if ( !token )
 						return next( null );
-					return next( token.User );
+					
+					this.CacheScope( 'USER_' + token.User.ID, ( next, fail ) => {
+						return next( token.User );
+					})
+						.then( ( user ) => {
+							return next( user );
+						})
+						.catch( fail )
+					;
+				})
+				.catch( fail )
+			;
+		});
+	}
+	
+	FindUser( user_id ) {
+		return new Promise( ( next, fail ) => {
+			
+			this.CacheScope( 'USER_' + user_id, ( next, fail ) => {
+				this.User.FindOne({
+					ID: user_id,
+				})
+					.then( next )
+					.catch( fail )
+				;
+			})
+				.then( ( user ) => {
+					return next( user );
 				})
 				.catch( fail )
 			;
