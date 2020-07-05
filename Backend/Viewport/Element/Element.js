@@ -179,6 +179,18 @@
 		return this.Attributes.Height ? this.Attributes.Height : 0;
 	}
 	
+	DisableWhile( promise ) {
+		return new Promise( ( next, fail ) => {
+			this.Disable();
+			promise
+				.then( ( result ) => {
+					this.Enable();
+					return next( result );
+				})
+				.catch( fail )
+			;
+		});
+	}
 }
 
 module.exports = Element;

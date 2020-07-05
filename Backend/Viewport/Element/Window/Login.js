@@ -26,11 +26,9 @@ class Login extends require( '../Layout/Window' ) {
 				this.Form.AddSubmit( 'Login' );
 			})
 			.On( 'submit', ( data, event ) => {
-				this.Disable();
 				data.fields.remote_address = event.connection.RemoteAddress;
-				this.E.M.Auth.LoginUser( data.fields )
+				this.DisableWhile( this.E.M.Auth.LoginUser( data.fields ) )
 					.then( ( res ) => {
-						this.Enable();
 						if ( res.errors )
 							this.Form.ShowErrors( res.errors );
 						else {

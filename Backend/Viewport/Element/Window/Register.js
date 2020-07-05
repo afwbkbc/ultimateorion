@@ -29,11 +29,9 @@ class Register extends require( '../Layout/Window' ) {
 				this.Form.AddSubmit( 'Create profile' );
 			})
 			.On( 'submit', ( data, event ) => {
-				this.Disable();
 				data.fields.remote_address = event.connection.RemoteAddress;
-				this.E.M.Auth.RegisterUser( data.fields )
+				this.DisableWhile( this.E.M.Auth.RegisterUser( data.fields ) )
 					.then( ( res ) => {
-						this.Enable();
 						if ( res.errors )
 							this.Form.ShowErrors( res.errors );
 						else {

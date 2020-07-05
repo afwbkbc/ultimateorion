@@ -34,8 +34,7 @@ class CreateGame extends require( '../Layout/Window' ) {
 				if ( err )
 					this.Form.ShowErrors( err );
 				else {
-					this.Disable();
-					this.Viewport.Session.CreateGame( data.fields )
+					this.DisableWhile( this.Viewport.Session.CreateGame( data.fields ) )
 						.then( () => {
 							this.Close();
 							this.Trigger( 'success', data.fields );
