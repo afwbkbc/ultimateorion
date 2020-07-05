@@ -219,8 +219,10 @@ class Session extends require( './_Entity' ) {
 			if ( this.SessionTimeout )
 				clearTimeout( this.SessionTimeout );
 			
-			this.Viewport.Destroy();
-			delete this.Viewport;
+			if ( this.Viewport ) {
+				this.Viewport.Destroy();
+				delete this.Viewport;
+			}
 			
 			return next();
 		});
