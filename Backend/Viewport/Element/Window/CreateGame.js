@@ -25,21 +25,16 @@ class CreateGame extends require( '../Layout/Window' ) {
 				this.Form.AddSubmit( 'Create' );
 			})
 			.On( 'submit', ( data, event ) => {
-				this.Disable();
-				
 				var f = data.fields;
 				var err = null;
 				
 				if ( !f.name )
-					err = 'Please enter game name!';
+					err = { name: 'Please enter game name!' };
 				
-				if ( err ) {
-					this.Error = this.Form.ShowError( err, () => {
-						this.Enable();
-						this.Form.FocusField( 'name' );
-					});
-				}
+				if ( err )
+					this.Form.ShowErrors( err );
 				else {
+					this.Disable();
 					this.Viewport.Session.CreateGame( data.fields )
 						.then( () => {
 							this.Close();

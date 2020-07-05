@@ -9,6 +9,7 @@ class Viewport extends require( './_ElementBase' ) {
 		this.Viewport = this; // will be copied to all children
 		this.AllElements = {}; // all children included
 		this.FocusedElement = null;
+		this.DisabledLayers = []; // needed for DisableLayer() / RestoreLayer() calls, i.e. for ShowWindow
 	}
 	
 	Serialize() {
@@ -77,21 +78,31 @@ class Viewport extends require( './_ElementBase' ) {
 		element.Trigger( data.event, data, event ); // element-specific handlers
 	}
 	
-	DisableAll() {
-		for ( var k in this.Elements )
-			this.Elements[ k ].Disable();
+	DisableLayer() {
+		var disabled_elements = [];
+		for ( var k in this.Elements ) {
+			var el = this.Elements[ k ];
+			if ( el.IsEnabled ) {
+				el.Disable();
+				disabled_elements.push( el );
+			}
+		}
+		this.DisabledLayers.push( disabled_elements );
 	}
 	
-	EnableAll() {
-		for ( var k in this.Elements )
-			this.Elements[ k ].Enable();
+	RestoreLayer() {
+		if ( !this.DisabledLayers.length )
+			throw new Error( 'no layer to restore in RestoreLayer()' );
+		var disabled_elements = this.DisabledLayers.pop();
+		for ( var k in disabled_elements )
+			disabled_elements[ k ].Enable();
 	}
 	
-	ShowWindow( namespace ) {
-		this.DisableAll();
-		var window = this.AddElement( namespace, [ 'CC', 'CC' ], [ 0, 0 ], {} )
+	ShowWindow( namespace, attributes ) {
+		this.DisableLayer();
+		var window = this.AddElement( namespace, [ 'CC', 'CC' ], [ 0, 0 ], attributes ? attributes : {} )
 			.On( 'close', () => {
-				this.EnableAll();
+				this.RestoreLayer();
 			})
 		;
 		return window;

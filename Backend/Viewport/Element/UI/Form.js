@@ -67,17 +67,17 @@ class Form extends require( '../Layout/Panel' ) {
 		this.CurrentTopOffset += this.Attributes.FieldHeight + this.Attributes.FieldMargin * 2;
 	}
 	
-	ShowError( error_message, onclose ) {
-		if ( this.ErrorWindow )
-			throw new Error( 'duplicate Error shown' );
-		this.ErrorWindow = this.Viewport.AddElement( 'Window/Error', [ 'CC', 'CC' ], [ 0, 0 ], {
-			ErrorText: error_message,
-		})
-			.On( 'close', ( data, event ) => {
-				delete this.ErrorWindow;
-				return onclose( data, event );
+	ShowErrors( errors ) {
+		for ( var k in errors ) {
+			this.Viewport.ShowWindow( 'Window/Error', {
+				ErrorText: errors[ k ],
 			})
-		;
+				.On( 'close', () => {
+					this.FocusField( k );
+				})
+			;
+			break;
+		}
 	}
 	
 }

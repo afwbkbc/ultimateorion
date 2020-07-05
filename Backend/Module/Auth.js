@@ -20,32 +20,32 @@ class Auth extends require( './_Module' ) {
 	RegisterUser( data ) {
 		return new Promise( ( next, fail ) => {
 			
-			var error = null;
+			var errors = null;
 			if ( !data.username.length )
-				error = [ 'username', 'Please enter username!' ];
+				errors = { username: 'Please enter username!' };
 			else if ( data.username.length > this.Config.MaxUsernameLength )
-				error = [ 'username', 'Username must be at most ' + this.Config.MaxUsernameLength + ' symbols!' ];
+				errors = { username: 'Username must be at most ' + this.Config.MaxUsernameLength + ' symbols!' };
 			else if ( !data.password.length )
-				error = [ 'password', 'Please enter password!' ];
+				errors = { password: 'Please enter password!' };
 			else if ( data.password.length < this.Config.MinPasswordLength )
-				error = [ 'password', 'Password must be at least ' + this.Config.MinPasswordLength + ' symbols!' ];
+				errors = { password: 'Password must be at least ' + this.Config.MinPasswordLength + ' symbols!' };
 			else if ( data.password.length > this.Config.MaxPasswordLength )
-				error = [ 'password', 'Password must be at most ' + this.Config.MaxPasswordLength + ' symbols!' ];
+				errors = { password: 'Password must be at most ' + this.Config.MaxPasswordLength + ' symbols!' };
 			else if ( !data.confirm.length )
-				error = [ 'confirm', 'Please confirm password!' ];
+				errors = { confirm: 'Please confirm password!' };
 			else if ( data.password != data.confirm )
-				error = [ 'confirm', 'Password confirmation doesn\'t match!' ];
+				errors = { confirm: 'Password confirmation doesn\'t match!' };
 
-			if ( error )
-				return next( { error: error } );
+			if ( errors )
+				return next( { errors: errors } );
 			
-			// check if username exists
+			// check if username taken
 			this.User.FindOne({
 				Username: data.username,
 			})
 				.then( ( user ) => {
 					if ( user )
-						return next( { error: [ 'username', 'Username already taken!' ] } );
+						return next( { errors: { username: 'Username already taken!' } } );
 					
 					this.E.M.Crypto.HashPassword( data.password )
 						.then( ( hash ) => {
@@ -80,16 +80,16 @@ class Auth extends require( './_Module' ) {
 	LoginUser( data ) {
 		return new Promise( ( next, fail ) => {
 			
-			var error = null;
+			var errors = null;
 			if ( !data.username.length )
-				error = [ 'username', 'Please enter username!' ];
+				errors = { username: 'Please enter username!' };
 			else if ( !data.password.length )
-				error = [ 'password', 'Please enter password!' ];
+				errors = { password: 'Please enter password!' };
 
-			if ( error )
-				return next( { error: error } );
+			if ( errors )
+				return next( { errors: errors } );
 			
-			var autherror = { error: [ 'password', 'Login failed - invalid username and/or password!' ] };
+			var autherror = { errors: { password: 'Login failed - invalid username and/or password!' } };
 			
 			this.User.FindOne({
 				Username: data.username,

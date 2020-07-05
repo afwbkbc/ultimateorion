@@ -30,12 +30,9 @@ class Login extends require( '../Layout/Window' ) {
 				data.fields.remote_address = event.connection.RemoteAddress;
 				this.E.M.Auth.LoginUser( data.fields )
 					.then( ( res ) => {
-						if ( res.error ) {
-							this.Form.ShowError( res.error[ 1 ], () => {
-								this.Enable();
-								this.Form.FocusField( res.error[ 0 ] );
-							});
-						}
+						this.Enable();
+						if ( res.errors )
+							this.Form.ShowErrors( res.errors );
 						else {
 							this.Close();
 							this.Trigger( 'success', {
