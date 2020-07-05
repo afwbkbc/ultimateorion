@@ -1,6 +1,6 @@
 class Entity extends require( './_Base' ) {
 	
-	constructor( filename, parameters ) {
+	constructor( filename ) {
 		super( filename );
 		
 	}

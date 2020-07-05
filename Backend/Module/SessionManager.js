@@ -23,10 +23,11 @@ class SessionManager extends require( './_EntityManager' ) {
 		return new Promise( ( next, fail ) => {
 			if ( !guest_id || typeof( this.GuestSessions[ guest_id ] ) === 'undefined' ) {
 				// create new session
-				this.Create()
-					.then( ( session ) => {
+				var session = this.ConstructEntity();
+				session.Create()
+					.then( () => {
 						do {
-							guest_id = this.Crypto.Md5( Math.random() );
+							guest_id = this.Crypto.RandomMd5Hash();
 						} while ( typeof( this.GuestSessions[ guest_id ] ) !== 'undefined' );
 						session.SetGuestId( connection, guest_id );
 						this.GuestSessions[ guest_id ] = session;

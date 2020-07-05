@@ -67,8 +67,10 @@ class EntityManager extends require( './_Module' ) {
 	ConstructEntity( db ) {
 		var entity = new this.EntityClass();
 		entity.EntityManager = this;
-		entity.Db = db;
-		entity.Id = entity.Db.EntityId;
+		if ( db ) {
+			entity.Db = db;
+			entity.Id = entity.Db.EntityId;
+		}
 		return entity;
 	}
 	

@@ -7,7 +7,8 @@
 		"UseSSL": false
 	},
 	"SessionManager": {
-		"GuestTimeout": "60000"
+		"GuestSessionTimeout": "60",
+		"UserSessionTimeout": "36000"
 	},
 	"Sql": {
 		"Host": "localhost",

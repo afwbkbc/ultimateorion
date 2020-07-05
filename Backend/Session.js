@@ -134,20 +134,16 @@ class Session extends require( './_Entity' ) {
 	Disconnect( connection ) {
 		if ( Object.keys( this.Connections ).length == 0 ) {
 			
-			if ( this.User ) {
-				// TODO
-			}
-			else {
-				// no connections left, guest session will timeout
-				if ( this.SessionTimeout )
-					throw new Error( 'SessionTimeout already active', this.Id );
-				
-				this.SessionTimeout = setTimeout( () => {
-					this.SessionTimeout = null;
-					this.EntityManager.DestroySession( this );
-				}, this.EntityManager.Config.GuestTimeout * 1000 );
-			}
+			var session_timeout = this.User ? this.EntityManager.Config.UserSessionTimeout : this.EntityManager.Config.GuestSessionTimeout;
 			
+			// no connections left, session will timeout
+			if ( this.SessionTimeout )
+				throw new Error( 'SessionTimeout already active', this.Id );
+				
+			this.SessionTimeout = setTimeout( () => {
+				this.SessionTimeout = null;
+				this.EntityManager.DestroySession( this );
+			}, session_timeout * 1000 );
 		}
 	}
 	

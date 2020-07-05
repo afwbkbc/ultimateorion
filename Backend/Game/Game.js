@@ -74,7 +74,7 @@ class Game extends require( '../_Entity' ) {
 	
 	OnCreate() {
 		return new Promise( ( next, fail ) => {
-			console.log( '+GAME #' + this.Id, this );
+			console.log( '+GAME #' + this.Id );
 			
 			this.AddPlayer( this.Host )
 				.then( () => {
