@@ -17,7 +17,7 @@ class ObjectCache extends require( './_Module' ) {
 			else {
 				if ( this.Caching[ key ] ) {
 					// something is already building this object, wait for it and return when object ready
-					//console.log( 'CACHEWAIT ' + key );
+					console.log( 'CACHEWAIT ' + key );
 					this.Caching[ key ].push( ( obj ) => {
 						console.log( '[CACHED] ' + key );
 						return next( obj );
@@ -26,14 +26,14 @@ class ObjectCache extends require( './_Module' ) {
 				else {
 					this.Caching[ key ] = [];
 					// build cache
-					//console.log( 'CACHEBUILD ' + key );
+					console.log( 'CACHEBUILD ' + key );
 					return func( ( obj ) => {
 						if ( obj ) {
 							// object built successfully, cache it
 							console.log( '[ORIG] ' + key );
 							this.Cache[ key ] = obj;
 						}
-						//console.log( 'CACHEDONE', key );
+						console.log( 'CACHEDONE', key );
 						// return result ( either object or null )
 						next( obj );
 						// also return it to whatever was waiting
