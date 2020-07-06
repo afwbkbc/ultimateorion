@@ -119,6 +119,8 @@ module.exports = ( filename, schema ) => {
 		constructor( data ) {
 			super( filename );
 			
+			this.Classname = model_name;
+			
 			this.schema = schema;
 			
 			if ( data )

@@ -22,13 +22,34 @@ class Player extends require( '../_Entity' ) {
 			if ( !data.UserId || !data.GameId )
 				return next( null ); // invalid player
 			
-			Promise.all([
-				this.Module( 'Auth' ).FindUser( data.UserId ),
-				this.Manager( 'Game' ).FindGame( data.GameId ), // recursion
-			])
+			var promises = [];
+			if ( !this.User )
+				promises.push( this.Module( 'Auth' ).FindUser( data.UserId ) );
+			if ( !this.Game )
+				promises.push( this.Manager( 'Game' ).FindGame( data.GameId, {
+					parameters: {
+						Players: {
+							[ this.Id ]: this,
+						},
+					},
+				}));
+			
+			if ( !promises.length )
+				return next( this ); // nothing to do
+			
+			Promise.all( promises )
 				.then( ( results ) => {
-					this.User = results[ 0 ];
-					this.Game = results[ 1 ];
+					for ( var k in results ) {
+						var obj = results[ k ];
+						if ( !obj ) // one of mandatory objects not found, entity invalid
+							return next( null );
+						if ( obj.Classname == 'Game' || obj.Classname == 'User' )
+							this[ obj.Classname ] = obj;
+						else {
+							console.log( 'INVALID CLASSNAME "' + obj.Classname );
+							return next( null );
+						}
+					}
 					return next( this );
 				})
 				.catch( fail )

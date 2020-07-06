@@ -31,9 +31,9 @@ class GameManager extends require( './_EntityManager' ) {
 		game.Destroy();
 	}
 	
-	FindGame( id ) {
+	FindGame( id, options ) {
 		return new Promise( ( next, fail ) => {
-			this.Load( id )
+			this.Load( id, options )
 				.then( next )
 				.catch( fail )
 			;

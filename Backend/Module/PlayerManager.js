@@ -31,9 +31,9 @@ class PlayerManager extends require( './_EntityManager' ) {
 		});
 	}
 	
-	FindPlayer( player_id ) {
+	FindPlayer( player_id, options ) {
 		return new Promise( ( next, fail ) => {
-			this.Load( player_id )
+			this.Load( player_id, options )
 				.then( next )
 				.catch( fail )
 			;

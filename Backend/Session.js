@@ -66,7 +66,11 @@ class Session extends require( './_Entity' ) {
 								var promises = [];
 								for ( var k in data.Players ) {
 									var id = data.Players[ k ];
-									promises.push( this.Manager( 'Player' ).FindPlayer( id ) );
+									promises.push( this.Manager( 'Player' ).FindPlayer( id, {
+										parameters: {
+											User: this.User,
+										},
+									}));
 								}
 								Promise.all( promises )
 									.then( ( results ) => {

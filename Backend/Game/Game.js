@@ -27,23 +27,28 @@ class Game extends require( '../_Entity' ) {
 		return new Promise( ( next, fail ) => {
 			
 			if ( data.HostId ) { // host is mandatory
-				
 				// name
 				if ( data.Name )
 					this.Name = data.Name;
 				
 				// host
-				this.Module( 'Auth' ).FindUser( data.HostId )
+				/*this.Module( 'Auth' ).FindUser( data.HostId )
 					.then( ( user ) => {
 						if ( user ) {
-							this.Host = user;
+							this.Host = user;*/
 							
 							// players
 							if ( data.Players && data.Players.length ) {
 								var promises = [];
 								for ( var k in data.Players ) {
 									var id = data.Players[ k ];
-									promises.push( this.Manager( 'Player' ).FindPlayer( id ) );
+									if ( !this.Players[ id ] ) {
+										promises.push( this.Manager( 'Player' ).FindPlayer( id, {
+											parameters: {
+												Game: this,
+											},
+										}));
+									}
 								}
 								Promise.all( promises )
 									.then( ( results ) => {
@@ -60,12 +65,12 @@ class Game extends require( '../_Entity' ) {
 							else
 								return next( this );
 							
-						}
+/*						}
 						else
 							return next( null );
 					})
 					.catch( fail )
-				;
+				;*/
 			}
 			else
 				return next( null );

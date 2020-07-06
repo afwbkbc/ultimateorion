@@ -114,9 +114,9 @@ class EntityManager extends require( './_Module' ) {
 		});
 	}
 	
-	Load( entity_id ) {
+	Load( entity_id, options ) {
 		return new Promise( ( next, fail ) => {
-			console.log( 'LOAD', entity_id );
+			console.log( 'LOAD', entity_id, options && options.parameters ? Object.keys( options.parameters ) : null );
 			this.CacheScope( entity_id, ( next, fail ) => {
 				this.EntityModel.FindOne({
 					EntityId: entity_id,
@@ -124,8 +124,29 @@ class EntityManager extends require( './_Module' ) {
 					.then( ( model ) => {
 						if ( model ) {
 							var entity = this.ConstructEntity( model );
-							entity.UnpackNeeded = true;
-							return next( entity );
+							if ( options ) {
+								if ( options.parameters ) {
+									for ( var k in options.parameters )
+										entity[ k ] = options.parameters[ k ];
+								}
+							}
+							//console.log( 'UNPACK', entity.Classname, Object.keys( entity ) );
+							entity.Unpack( JSON.parse( entity.Db.Data ) )
+								.then( ( entity ) => {
+									if ( entity )
+										return next( entity );
+									else {
+										// entity invalid, delete it and return 'not found'
+										model.Delete()
+											.then( () => {
+												return next( null );
+											})
+											.catch( fail )
+										;
+									}
+								})
+								.catch( fail )
+							;
 						}
 						else
 							return next( null );
@@ -133,31 +154,7 @@ class EntityManager extends require( './_Module' ) {
 					.catch( fail )
 				;
 			})
-				.then( ( entity ) => {
-					if ( !entity )
-						return next( null );
-					else if ( entity.UnpackNeeded ) {
-						delete entity.UnpackNeeded;
-						entity.Unpack( JSON.parse( entity.Db.Data ) )
-							.then( ( entity ) => {
-								if ( entity )
-									return next( entity );
-								else {
-									// entity invalid, delete it and return 'not found'
-									model.Delete()
-										.then( () => {
-											return next( null );
-										})
-										.catch( fail )
-									;
-								}
-							})
-							.catch( fail )
-						;
-					}
-					else
-						return next( entity );
-				})
+				.then( next )
 				.catch( fail )
 			;
 		});
