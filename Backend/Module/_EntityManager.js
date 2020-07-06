@@ -175,15 +175,22 @@ class EntityManager extends require( './_Module' ) {
 		});
 	}
 	
-	Delete( entity ) {
+	Delete( entity, options ) {
 		return new Promise( ( next, fail ) => {
-			entity.Destroy()
-				.then( () => {
-					entity.Db.Delete()
-						.then( next )
-						.catch( fail )
-					;
-				})
+			this.CacheRemove( entity.Id, ( next, fail ) => {
+				entity.Destroy()
+					.then( () => {
+						if ( options && options.keep_in_db )
+							return next();
+						entity.Db.Delete()
+							.then( next )
+							.catch( fail )
+						;
+					})
+					.catch( fail )
+				;
+			})
+				.then( next )
 				.catch( fail )
 			;
 		});

@@ -113,7 +113,9 @@ class SessionManager extends require( './_EntityManager' ) {
 				throw new Error( 'SessionPool invalid/malformed session' + session.Id );
 			if ( session.Connections.length > 0 )
 				throw new Error( 'SessionPool session #' + session.Id + ' has active connections on destruction' );
-			this.Delete( session )
+			this.Delete( session, {
+				keep_in_db: true,
+			})
 				.then( next )
 				.catch( fail )
 			;

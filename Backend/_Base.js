@@ -76,6 +76,9 @@ class _Base {
 	CacheScope( key, func ) {
 		return this.Module( 'ObjectCache' ).Scope( key, func );
 	}
+	CacheRemove( key, func ) {
+		return this.Module( 'ObjectCache' ).Remove( key, func );
+	}
 	
 }
 
