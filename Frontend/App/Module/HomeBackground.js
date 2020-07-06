@@ -28,7 +28,7 @@ window.App.Extend({
 		
 	},
 	
-	Run() {
+	Run: function() {
 		
 		var that = this;
 		

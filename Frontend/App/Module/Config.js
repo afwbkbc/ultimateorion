@@ -1,6 +1,6 @@
 window.App.Extend({
 	
-	Init( next ) {
+	Init: function( next ) {
 		
 		var that = this;
 		
