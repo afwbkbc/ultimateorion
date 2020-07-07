@@ -5,12 +5,13 @@ class PlayerManager extends require( './_EntityManager' ) {
 		
 	}
 	
-	CreatePlayer( user, game ) {
+	CreatePlayer( user, game, flags ) {
 		return new Promise( ( next, fail ) => {
 			this.Create({
 				parameters:{
 					User: user,
 					Game: game,
+					Flags: flags ? flags : {},
 				}
 			})
 				.then( ( player ) => {

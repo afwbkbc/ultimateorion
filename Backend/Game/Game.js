@@ -4,6 +4,8 @@ class Game extends require( '../_Entity' ) {
 		super( module.filename, parameters );
 		
 		this.Players = {};
+		
+		this.GameState = 'lobby';
 	}
 	
 	Pack() {
@@ -11,7 +13,7 @@ class Game extends require( '../_Entity' ) {
 			
 			var data = {
 				Name: this.Name,
-				HostId: this.Host.ID,
+				GameState: this.GameState,
 			};
 			
 			// players
@@ -26,54 +28,55 @@ class Game extends require( '../_Entity' ) {
 	Unpack( data ) {
 		return new Promise( ( next, fail ) => {
 			
-			if ( data.HostId ) { // host is mandatory
-				// name
-				if ( data.Name )
-					this.Name = data.Name;
-				
-				// host
-				/*this.Module( 'Auth' ).FindUser( data.HostId )
-					.then( ( user ) => {
-						if ( user ) {
-							this.Host = user;*/
-							
-							// players
-							if ( data.Players && data.Players.length ) {
-								var promises = [];
-								for ( var k in data.Players ) {
-									var id = data.Players[ k ];
-									if ( !this.Players[ id ] ) {
-										promises.push( this.Manager( 'Player' ).FindPlayer( id, {
-											parameters: {
-												Game: this,
-											},
-										}));
-									}
-								}
-								Promise.all( promises )
-									.then( ( results ) => {
-										for ( var k in results ) {
-											var player = results[ k ];
-											if ( player )
-												this.Players[ player.Id ] = player;
-										}
-										return next( this );
-									})
-									.catch ( fail )
-								;
+			if ( !data.Name || !data.GameState ) // mandatory fields
+				return next( null );
+			
+			this.Name = data.Name;
+			this.GameState = data.GameState;
+			
+			this.Host = null; // will be fetched from players
+			
+			// players
+			if ( data.Players && data.Players.length ) {
+				var promises = [];
+				for ( var k in data.Players ) {
+					var id = data.Players[ k ];
+					if ( !this.Players[ id ] ) {
+						promises.push( this.Manager( 'Player' ).FindPlayer( id, {
+							parameters: {
+								Game: this,
+							},
+						}));
+					}
+				}
+				Promise.all( promises )
+					.then( ( results ) => {
+						for ( var k in results ) {
+							var player = results[ k ];
+							if ( player )
+								this.Players[ player.Id ] = player;
+						}
+						
+						// find host
+						for ( var k in this.Players ) {
+							var player = this.Players[ k ];
+							if ( player.Flags.is_host ) {
+								if ( this.Host )
+									return next( null ); // game can't have 2 hosts
+								this.Host = player;
 							}
-							else
-								return next( this );
-							
-/*						}
-						else
-							return next( null );
+						}
+						if ( !this.Host && this.GameState == 'lobby' )
+							return next( null ); // game can't be without host while in lobby
+						
+						return next( this );
 					})
-					.catch( fail )
-				;*/
+					.catch ( fail )
+				;
 			}
 			else
-				return next( null );
+				return next( this );
+			
 		});
 	}
 	
@@ -81,7 +84,9 @@ class Game extends require( '../_Entity' ) {
 		return new Promise( ( next, fail ) => {
 			console.log( '+GAME #' + this.Id );
 			
-			this.AddPlayer( this.Host )
+			this.AddPlayer( this.Host, {
+				is_host: true,
+			})
 				.then( () => {
 					this.Host.Session.AddToGame( this );
 					return next();
@@ -100,11 +105,11 @@ class Game extends require( '../_Entity' ) {
 		});
 	}
 	
-	AddPlayer( user ) {
+	AddPlayer( user, flags ) {
 		return new Promise( ( next, fail ) => {
 			var player = this.Players[ user.Id ];
 			if ( !player ) {
-				this.Manager( 'Player' ).CreatePlayer( user, this )
+				this.Manager( 'Player' ).CreatePlayer( user, this, flags )
 					.then( ( player ) => {
 						console.log( 'GAME #' + this.Id + ' : ADD PLAYER #' + player.Id + ' ( ' + user.Username + ' )' );
 						this.Players[ user.Id ] = player;

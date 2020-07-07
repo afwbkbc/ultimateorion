@@ -2,6 +2,8 @@ class Player extends require( '../_Entity' ) {
 
 	constructor() {
 		super( module.filename );
+		
+		this.Flags = {}; 
 	}
 
 	Pack() {
@@ -10,6 +12,7 @@ class Player extends require( '../_Entity' ) {
 			var data = {
 				UserId: this.User.ID,
 				GameId: this.Game.Id,
+				Flags: JSON.stringify( this.Flags ),
 			}
 			
 			return next( data );
@@ -21,6 +24,9 @@ class Player extends require( '../_Entity' ) {
 			
 			if ( !data.UserId || !data.GameId )
 				return next( null ); // invalid player
+			
+			if ( data.Flags )
+				this.Flags = JSON.parse( data.Flags );
 			
 			var promises = [];
 			if ( !this.User )
