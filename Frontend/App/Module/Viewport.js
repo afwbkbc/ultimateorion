@@ -327,6 +327,11 @@ window.App.Extend({
 				that.Redraws = 0;
 				that.LastRenderCalls = that.RenderCalls;
 				that.RenderCalls = 0;
+				if ( !that.IsStateChanged ) {
+					// redraw just to display stats
+					that.Redraws--; // this is "fake" redraw so don't count it
+					that.Redraw();
+				}
 			}, 1000 );
 		}
 		
@@ -338,10 +343,10 @@ window.App.Extend({
 				if ( that.TrackStats ) {
 					that.Ctx.font = "30px Verdana";
 					that.Ctx.textAlign = 'top left';
-					that.Ctx.fillStyle = 'white';
-					that.Ctx.fillText( 'FPS: ' + that.LastFrames + ' / ~' + that.FpsLimit, 100, 100 );
-					that.Ctx.fillText( 'Redraws/s: ' + that.LastRedraws, 100, 130 );
-					that.Ctx.fillText( 'Rendercalls/s: ' + that.LastRenderCalls, 100, 160 );
+					that.Ctx.fillStyle = 'rgba( 0, 155, 128, 0.5 )';
+					that.Ctx.fillText( 'FPS: ' + that.LastFrames + ' / ~' + that.FpsLimit, 1000, 0 );
+					that.Ctx.fillText( 'Redraws/s: ' + that.LastRedraws, 1300, 0 );
+					that.Ctx.fillText( 'Rendercalls/s: ' + that.LastRenderCalls, 1600, 0 );
 				
 				}
 				that.IsStateChanged = false;

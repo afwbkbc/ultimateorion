@@ -3,6 +3,8 @@ class Game extends require( '../_Entity' ) {
 	constructor( parameters ) {
 		super( module.filename, parameters );
 		
+		this.GamesListRepository = 'Games_List';
+		
 		this.Players = {};
 		
 		this.GameState = 'lobby';
@@ -89,7 +91,16 @@ class Game extends require( '../_Entity' ) {
 			})
 				.then( () => {
 					this.Host.Session.AddToGame( this );
-					return next();
+					
+					this.GetRepository( this.GamesListRepository )
+						.then( ( repository ) => {
+							repository.Insert( this )
+								.then( next )
+								.catch( fail )
+							;
+						})
+						.catch( fail )
+					;
 				})
 				.catch( fail )
 			;

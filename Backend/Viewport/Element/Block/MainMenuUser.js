@@ -33,7 +33,11 @@ class MainMenuGuest extends require( './MainMenu' ) {
 		
 		this.Append( 'UI/Button', {
 			Label: 'Join game',
-		});
+		})
+			.On( 'click', ( data, event ) => {
+				this.Viewport.ShowWindow( 'Window/GameBrowser', {} );
+			})
+		;
 		
 		this.Append( 'UI/Button', {
 			Label: 'Logout',
