@@ -14,7 +14,16 @@ class GameBrowser extends require( '../Layout/Window' ) {
 	Prepare() {
 		super.Prepare();
 		
-
+		this.GetRepository( 'Games_List' )
+			.then( ( repository ) => {
+				repository.FindAll()
+					.then( ( games ) => {
+						console.log( 'GAMES', games );
+					})
+				;
+			})
+		
+		//console.log( 'REPO', this.GamesListRepository );
 		
 	}
 	

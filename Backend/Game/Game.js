@@ -112,7 +112,16 @@ class Game extends require( '../_Entity' ) {
 			
 			console.log( '-GAME #' + this.Id );
 			
-			return next();
+			this.GetRepository( this.GamesListRepository )
+				.then( ( repository ) => {
+					repository.Remove( this )
+						.then( next )
+						.catch( fail )
+					;
+				})
+				.catch( fail )
+			;
+			
 		});
 	}
 	
