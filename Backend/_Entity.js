@@ -1,4 +1,4 @@
-class Entity extends require( './_Base' ) {
+class Entity extends require( './_EventAwareBase' ) {
 	
 	constructor( filename ) {
 		super( filename );

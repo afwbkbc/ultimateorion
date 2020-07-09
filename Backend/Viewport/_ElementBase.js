@@ -1,4 +1,4 @@
-class _ElementBase extends require( '../_Base' ) {
+class _ElementBase extends require( '../_EventAwareBase' ) {
 	
 	constructor( filename ) {
 		super( filename );
@@ -50,6 +50,8 @@ class _ElementBase extends require( '../_Base' ) {
 	}
 	
 	OnDestroyRecursive() {
+		if ( this.OnDestroy )
+			this.OnDestroy();
 		for ( var k in this.Elements )
 			this.RemoveElement( this.Elements[ k ] );
 		this.Threads.Kill();
@@ -57,8 +59,6 @@ class _ElementBase extends require( '../_Base' ) {
 			this.Viewport.UnregisterElement( this );
 		if ( this.Unrender )
 			this.Unrender( this.Viewport.Session );
-		if ( this.OnDestroy )
-			this.OnDestroy();
 	}
 	
 	RenderRecursive( target ) {

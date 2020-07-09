@@ -10,7 +10,7 @@ class GameManager extends require( './_EntityManager' ) {
 			this.Create({
 				parameters: {
 					Name: game_name,
-					Host: game_host,
+					HostUser: game_host,
 				},
 			})
 				.then( ( game ) => {

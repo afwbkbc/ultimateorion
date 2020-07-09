@@ -11,7 +11,6 @@
 		this.IsFocused = false;
 		this.IsEnabled = true;
 		this.IsRendered = false;
-		this.Events = {};
 		
 		// set defaults
 		this.SetAttributes({
@@ -115,21 +114,6 @@
 		var session = this.GetSession();
 		this.Unrender( session );
 		this.Render( session );
-	}
-	
-	On( eventtype, callback ) {
-		if ( !this.Events[ eventtype ] )
-			this.Events[ eventtype ] = [];
-		this.Events[ eventtype ].push( callback );
-		return this;
-	}
-	
-	Trigger( eventtype, data, event ) {
-		if ( this.Events[ eventtype ] )
-			for ( var k in this.Events[ eventtype ] ) {
-				if ( this.Events[ eventtype ][ k ].apply( this, [ data ? data : {}, event ? event : {} ] ) === false )
-					break;
-			}
 	}
 	
 	Focus() {

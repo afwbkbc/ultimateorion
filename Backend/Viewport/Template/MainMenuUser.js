@@ -42,10 +42,10 @@ class MainMenuUser extends require( './MainMenu' ) {
 					gameblock.AddElement( 'UI/Button', [ 'RC', 'RC' ], [ -14, 0 ], {
 						Width: 120,
 						Height: 46,
-						Label: 'Open',
+						Label: 'Play',
 					})
 						.On( 'click', () => {
-							//console.log( 'JOIN', players[ k ].Game );
+							console.log( 'PLAY', players[ k ].Game );
 						})
 					;
 					this.GamesListItems[ k ] = gameblock;

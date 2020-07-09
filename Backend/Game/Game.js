@@ -86,11 +86,14 @@ class Game extends require( '../_Entity' ) {
 		return new Promise( ( next, fail ) => {
 			console.log( '+GAME #' + this.Id );
 			
-			this.AddPlayer( this.Host, {
+			this.AddPlayer( this.HostUser, {
 				is_host: true,
 			})
-				.then( () => {
-					this.Host.Session.AddToGame( this );
+				.then( ( player ) => {
+					this.Host = player; // set reference to host player
+					delete this.HostUser; // not needed anymore
+					
+					this.Host.User.Session.AddToGame( this );
 					
 					this.GetRepository( this.GamesListRepository )
 						.then( ( repository ) => {
@@ -171,13 +174,14 @@ class Game extends require( '../_Entity' ) {
 		});
 	}
 	
-	GetPlayer( user ) {
-		var player = this.Players[ user.Id ];
-		if ( !player )
-			throw new Error( 'game #' + this.Id + ' : no player for user ' + user.Username );
-		return player;
+	FindPlayerForUser( user ) {
+		for ( var k in this.Players ) {
+			var player = this.Players[ k ];
+			if ( player.User.ID == user.ID )
+				return player;
+		}
+		return null;
 	}
-	
 }
 
 module.exports = Game;

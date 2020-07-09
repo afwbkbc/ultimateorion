@@ -3,6 +3,8 @@ class Block extends require( '../BlockElement' ) {
 	constructor() {
 		super( module.filename );
 		
+		this.SetCoreClass( module.filename );
+		
 		this.SetAttributes({
 			Expand: 'V',
 			ElementWidth: 0,
@@ -20,7 +22,9 @@ class Block extends require( '../BlockElement' ) {
 		else
 			throw new Error( 'unsupported expand type "' + exp + '"' );
 		
-		this.Background = this.AddElement( 'Layout/Panel', [ 'LT', 'LT' ], [ 0, 0 ], {} );
+		this.Background = this.AddElement( 'Layout/Panel', [ 'LT', 'LT' ], [ 0, 0 ], {
+			NoBorder: this.Attributes.NoBorder,
+		});
 	}
 	
 	Append( namespace, attributes ) {
@@ -44,7 +48,7 @@ class Block extends require( '../BlockElement' ) {
 		
 		// add element
 		if ( !attributes.Width )
-			attributes.Width = this.Attributes.ElementWidth;
+			attributes.Width = this.Attributes.ElementWidth - this.Attributes.ElementMargin * 2;
 		if ( !attributes.Height )
 			attributes.Height = this.Attributes.ElementHeight;
 		var element = this.AddElement( namespace, anchors, coords, attributes );

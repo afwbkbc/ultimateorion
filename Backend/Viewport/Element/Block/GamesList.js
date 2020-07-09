@@ -5,7 +5,7 @@ class GamesList extends require( '../Layout/Block' ) {
 		
 		this.SetAttributes({
 			Style: 'main-menu-block',
-			ElementWidth: 640,
+			ElementWidth: 680,
 			ElementHeight: 64,
 			ElementMargin: 14,
 		});

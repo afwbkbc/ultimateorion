@@ -1,4 +1,4 @@
-class Repository extends require( './_Base' ) {
+class Repository extends require( './_EventAwareBase' ) {
 
 	constructor( repository_id ) {
 		super( module.filename );
@@ -6,6 +6,7 @@ class Repository extends require( './_Base' ) {
 		this.RepositoryId = repository_id;
 		this.RepositoryModel = this.Model( 'EntityRepository' );
 		this.EntityManager = this.Manager( 'Repository' );
+		this.Listeners = [];
 	}
 	
 	Create() {
@@ -29,7 +30,12 @@ class Repository extends require( './_Base' ) {
 						EntityRepositoryId: this.RepositoryId,
 					});
 					db_entity.Save()
-						.then( next )
+						.then( () => {
+							this.Trigger( 'add', {
+								Entity: entity,
+							});
+							return next();
+						})
 						.catch( fail )
 					;
 				})
@@ -90,6 +96,29 @@ class Repository extends require( './_Base' ) {
 			
 			return next();
 		});
+	}
+
+	AttachListener( listener ) {
+		if ( this.Listeners.indexOf( listener ) < 0 ) {
+			super.AttachListener( listener );
+			
+			// push state to listener ( via 'add' events )
+			this.FindAll()
+				.then( ( entities ) => {
+					for ( var k in entities ) {
+						var entity = entities[ k ];
+						if ( entity )
+							listener.Trigger( 'add', {
+								Entity: entity,
+							});
+					}
+				})
+				.catch( ( e ) => {
+					throw e;
+				})
+			;
+			
+		}
 	}
 	
 }
