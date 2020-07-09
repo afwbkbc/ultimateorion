@@ -7,58 +7,14 @@ class Repository extends require( './_EventAwareBase' ) {
 		this.RepositoryModel = this.Model( 'EntityRepository' );
 		this.EntityManager = this.Manager( 'Repository' );
 		this.Listeners = [];
+		this.Entities = {};
 	}
 	
 	Create() {
 		return new Promise( ( next, fail ) => {
 			console.log( 'R[ ' + this.RepositoryId + ' ].Create()' );
-			
-			return next();
-		});
-	}
-	
-	Insert( entity ) {
-		return new Promise( ( next, fail ) => {
-			console.log( 'R[ ' + this.RepositoryId + ' ].Insert( ' + entity.Id + ' )' );
-			
-			this.FindModel( entity.Id )
-				.then( ( db_entity ) => {
-					if ( db_entity ) // already in repository
-						return next();
-					db_entity = new this.RepositoryModel({
-						EntityId: entity.Id,
-						EntityRepositoryId: this.RepositoryId,
-					});
-					db_entity.Save()
-						.then( () => {
-							this.Trigger( 'add', {
-								Entity: entity,
-							});
-							return next();
-						})
-						.catch( fail )
-					;
-				})
-				.catch( fail )
-			;
-			
-		});
-	}
-	
-	FindModel( entity_id ) {
-		return new Promise( ( next, fail ) => {
-			this.RepositoryModel.FindOne({
-				EntityId: entity_id,
-				EntityRepositoryId: this.RepositoryId,
-			})
-				.then( next )
-				.catch( fail )
-			;
-		});
-	}
-	
-	FindAll() {
-		return new Promise( ( next, fail ) => {
+
+			// load current state from db
 			this.RepositoryModel.Find({
 				EntityRepositoryId: this.RepositoryId,
 			})
@@ -68,18 +24,50 @@ class Repository extends require( './_EventAwareBase' ) {
 					for ( var k in db_entities )
 						promises.push( this.EntityManager.Load( db_entities[ k ].EntityId ) );
 					
-					var entities = {};
-					
 					Promise.all( promises )
-						.then( next )
+						.then( ( entities ) => {
+							for ( var k in entities ) {
+								var entity = entities[ k ];
+								if ( entity )
+									this.Entities[ entity.Id ] = entity;
+							}
+							return next();
+						})
 						.catch( fail )
 					;
 					
 				})
 				.catch( fail )
 			;
-			
 		});
+	}
+	
+	Insert( entity ) {
+		return new Promise( ( next, fail ) => {
+			console.log( 'R[ ' + this.RepositoryId + ' ].Insert( ' + entity.Id + ' )' );
+			
+			if ( this.Entities[ entity.Id ] )
+				return next(); // already in repository
+
+			var db_entity = new this.RepositoryModel({
+				EntityId: entity.Id,
+				EntityRepositoryId: this.RepositoryId,
+			});
+			db_entity.Save()
+				.then( () => {
+					this.Entities[ entity.Id ] = entity;
+					this.Trigger( 'add', {
+						Entity: entity,
+					});
+					return next();
+				})
+				.catch( fail )
+			;
+		});
+	}
+	
+	GetEntities() {
+		return this.Entities;
 	}
 	
 	Remove( entity ) {
@@ -103,21 +91,15 @@ class Repository extends require( './_EventAwareBase' ) {
 			super.AttachListener( listener );
 			
 			// push state to listener ( via 'add' events )
-			this.FindAll()
-				.then( ( entities ) => {
-					for ( var k in entities ) {
-						var entity = entities[ k ];
-						if ( entity )
-							listener.Trigger( 'add', {
-								Entity: entity,
-							});
-					}
-				})
-				.catch( ( e ) => {
-					throw e;
-				})
-			;
-			
+			var entities = this.GetEntities();
+			for ( var k in entities ) {
+				var entity = entities[ k ];
+				if ( entity ) {
+					listener.Trigger( 'add', {
+						Entity: entities[ k ],
+					});
+				}
+			}
 		}
 	}
 	
