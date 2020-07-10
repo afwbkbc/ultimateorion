@@ -372,8 +372,6 @@ window.App.Extend({
 	PositionElement: function( element, is_recursive ) {
 		var bounds;
 
-		console.log( 'POSITIONELEMENT', element );
-		
 		if ( element.parent ) {
 			bounds = this.GetElementBounds( element.parent );
 			bounds[ 0 ] += element.parent.coords[ 0 ];
