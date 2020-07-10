@@ -26,7 +26,7 @@ class GameBrowser extends require( '../Layout/Window' ) {
 		this.GetRepository( 'Games_List' )
 			.then( ( repository ) => {
 
-				this.GamesListener = repository.CreateListener()
+				this.Listen( repository )
 					.On( 'add', ( data ) => {
 						var game = data.Entity;
 						if ( this.GameRows[ game.Id ] )
@@ -46,26 +46,14 @@ class GameBrowser extends require( '../Layout/Window' ) {
 					.On( 'change', ( data ) => {
 						console.log( 'CHANGE', data.Entity );
 					})
-					.Attach()
 				;
 				
-				/*repository.FindAll()
-					.then( ( games ) => {
-						console.log( 'GAMES', games );
-					})
-				;*/
-				
-				//console.log( 'LISTENER', this.GamesListener );
-				
 			})
+			.catch( ( e ) => {
+				throw e;
+			})
+		;
 		
-		//console.log( 'REPO', this.GamesListRepository );
-		
-	}
-	
-	OnDestroy() {
-		if ( this.GamesListener )
-			this.GamesListener.Detach();
 	}
 	
 }

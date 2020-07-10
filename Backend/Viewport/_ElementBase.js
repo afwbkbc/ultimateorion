@@ -5,7 +5,7 @@ class _ElementBase extends require( '../_EventAwareBase' ) {
 
 		this.Elements = {};
 		this.Threads = this.H.Threads.CreatePool();
-		
+		this.Listeners = [];
 	}
 	
 	GetSession() {
@@ -50,6 +50,9 @@ class _ElementBase extends require( '../_EventAwareBase' ) {
 	}
 	
 	OnDestroyRecursive() {
+		if ( this.Listeners )
+			for ( var k in this.Listeners )
+				this.Listeners[ k ].Detach();
 		if ( this.OnDestroy )
 			this.OnDestroy();
 		for ( var k in this.Elements )
@@ -87,6 +90,15 @@ class _ElementBase extends require( '../_EventAwareBase' ) {
 			this.IsVisible = false;
 			this.UnrenderRecursive( this.Viewport.Session );
 		}
+	}
+	
+	Listen( listenable ) {
+		var listener = listenable.CreateListener();
+		this.Listeners.push( listener );
+		setTimeout( () => { // allow for .On() calls to be applied first
+			listener.Attach();
+		}, 0 );
+		return listener;
 	}
 	
 }
