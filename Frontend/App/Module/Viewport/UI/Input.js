@@ -67,7 +67,7 @@ window.App.Viewport.Extend({
 	UpdateLabel: function( ctx, element ) {
 		if ( element.label ) {
 			element.label.data.attributes.Text = 
-				( element.data.attributes.masked ? '*'.repeat( element.data.attributes.Value.length ) : element.data.attributes.Value ) +
+				( element.data.attributes.Masked ? '*'.repeat( element.data.attributes.Value.length ) : element.data.attributes.Value ) +
 				( element.blinkcursorvisible ? '▍' : ' ' );
 			if ( element.panel ) {
 				if ( element.focused )

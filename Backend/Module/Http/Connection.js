@@ -11,6 +11,11 @@ class Connection extends require( '../../_Base' ) {
 		this.Ws = ws;
 		this.Req = req;
 		this.RemoteAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+		
+		// ugly hack for localhost development convenience
+		if ( [ '::ffff:127.0.0.1', '127.0.0.1' ].indexOf( this.RemoteAddress ) >= 0 )
+			this.RemoteAddress = '::1';
+			
 		this.SessionManager = this.Http.E.M.SessionManager;
 		this.Authorized = false;
 		this.EventsBF = {};

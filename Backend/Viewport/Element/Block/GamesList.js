@@ -32,8 +32,7 @@ class GamesList extends require( '../Layout/Block' ) {
 						
 						if ( game.FindPlayerForUser( this.Viewport.Session.User ) ) { // do not show if not joined
 							this.GameRows[ game.Id ] = this.Append( 'Block/GamesList/GameRow', {
-								GameId: game.Id,
-								GameName: game.Name,
+								Game: game,
 							});
 						}
 					})

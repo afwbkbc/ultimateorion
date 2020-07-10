@@ -8,8 +8,6 @@ class SessionManager extends require( './_EntityManager' ) {
 	}
 	
 	CreateSession( type ) {
-		/*var session = new this.Session[ type ]( this, session_id );
-		this.SessionPool[ session_id ] = session;*/
 		this.Create()
 			.then( ( game ) => {
 			

@@ -21,10 +21,10 @@ class Register extends require( '../Layout/Window' ) {
 			.On( 'prepare', () => {
 				this.Form.AddInput( 'username', 'Username' );
 				this.Form.AddInput( 'password', 'Password', {
-					masked: true,
+					Masked: true,
 				});
 				this.Form.AddInput( 'confirm', 'Confirm password', {
-					masked: true,
+					Masked: true,
 				});
 				this.Form.AddSubmit( 'Create profile' );
 			})

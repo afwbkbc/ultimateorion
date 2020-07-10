@@ -1,7 +1,9 @@
-class Input extends require( '../Element' ) {
+class Input extends require( '../BlockElement' ) {
 	
 	constructor() {
 		super( module.filename );
+		
+		this.SendAttributes( [ 'Value', 'MaxLength', 'Masked' ] );
 		
 		this.SetAttributes({
 			Value: '',

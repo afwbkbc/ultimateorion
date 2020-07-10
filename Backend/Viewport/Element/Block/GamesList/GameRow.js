@@ -11,7 +11,7 @@ class GameRow extends require( '../../Layout/Panel' ) {
 	Prepare() {
 		
 		this.AddElement( 'UI/Label', [ 'LC', 'LC' ], [ 14, 0 ], {
-			Text: this.Attributes.GameName,
+			Text: this.Attributes.Game.Name,
 		});
 		this.AddElement( 'UI/Button', [ 'RC', 'RC' ], [ -14, 0 ], {
 			Width: 120,
@@ -19,7 +19,11 @@ class GameRow extends require( '../../Layout/Panel' ) {
 			Label: 'Play',
 		})
 			.On( 'click', () => {
-				console.log( 'PLAY', this.Attributes.GameId );
+				console.log( 'PLAY', this.Attributes.Game.Id );
+				this.Viewport.ShowWindow( 'Window/Game', {
+					Game: this.Attributes.Game,
+				});
+				
 			})
 		;
 		

@@ -3,18 +3,22 @@
 	constructor( filename ) {
 		super( filename );
 
-		this.Attributes = {
-			offsets: [ 0, 0 ],
-			anchors: [ 'CC', 'CC' ],
-		};
+		this.AttributesToSend = new Set(); // whitelist of attributes to be send to frontend
+		this.Attributes = {};
+		this.SendableAttributes = {};
 		this.IsVisible = true;
 		this.IsFocused = false;
 		this.IsEnabled = true;
 		this.IsRendered = false;
 		
 		// set defaults
+		
+		this.SendAttributes( [ 'Style', 'offsets', 'anchors' ] );
+		
 		this.SetAttributes({
 			Style: 'default',
+			offsets: [ 0, 0 ],
+			anchors: [ 'CC', 'CC' ],
 		});
 
 		this.On( 'focus', () => {
@@ -37,10 +41,29 @@
 	
 	SetAttributes( attributes, is_sync_needed ) {
 		this.Attributes = Object.assign( this.Attributes, attributes );
-		if ( is_sync_needed && this.IsRenderedRecursive() && this.Viewport && this.Viewport.Session )
+		var attributes_to_send = {};
+		
+		/*for ( var k in attributes )
+			if ( !this.AttributesToSend.has( k ) )
+				console.log( 'SKIPATTRIBUTE', k, this.Classname );*/
+		
+		for ( var k of this.AttributesToSend ) {
+			var a = attributes[ k ];
+			if ( typeof( a ) !== 'undefined' ) {
+				attributes_to_send[ k ] = a;
+				this.SendableAttributes[ k ] = a;
+			}
+		}
+		if ( is_sync_needed && this.IsRenderedRecursive() && this.Viewport && this.Viewport.Session && Object.keys( attributes_to_send ).length > 0 ) {
 			this.RenderChange( this.Viewport.Session, {
-				attributes: attributes,
+				attributes: attributes_to_send,
 			});
+		}
+	}
+	
+	SendAttributes( attributes ) {
+		for ( var k in attributes )
+			this.AttributesToSend.add( attributes[ k ] );
 	}
 	
 	SetAttribute( key, value ) {
@@ -71,7 +94,7 @@
 		var payload = {
 			id: this.Id,
 			element: this.ElementType,
-			attributes: this.Attributes,
+			attributes: this.SendableAttributes,
 			focused: this.IsFocused,
 			enabled: this.IsEnabled,
 		};

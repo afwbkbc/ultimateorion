@@ -11,11 +11,11 @@ class GameRow extends require( '../../Layout/Panel' ) {
 	Prepare() {
 		
 		this.AddElement( 'UI/Label', [ 'LC', 'LC' ], [ 20, 0 ], {
-			Text: this.Attributes.GameName,
+			Text: this.Attributes.Game.Name,
 		});
 		
 		this.AddElement( 'UI/Label', [ 'LC', 'LC' ], [ 900, 0 ], {
-			Text: this.Attributes.GameHost,
+			Text: this.Attributes.Game.Host.User.Username,
 		});
 		
 		this.AddElement( 'UI/Button', [ 'RC', 'RC' ], [ -20, 0 ], {
@@ -24,7 +24,7 @@ class GameRow extends require( '../../Layout/Panel' ) {
 			Label: 'Join',
 		})
 			.On( 'click', () => {
-				console.log( 'JOIN', this.Attributes.GameId );
+				console.log( 'JOIN', this.Attributes.Game.Id );
 			})
 		;
 		

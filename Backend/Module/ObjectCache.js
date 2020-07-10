@@ -13,33 +13,33 @@ class ObjectCache extends require( './_Module' ) {
 		return new Promise( ( next, fail ) => {
 			if ( this.Removing[ key ] ) {
 				// entity being removed atm
-				console.log( '[REMOVING] ' + key );
+				//console.log( '[REMOVING] ' + key );
 				return next( null );
 			}
 			if ( this.Cache[ key ] ) {
-				console.log( '[CACHED] ' + key );
+				//console.log( '[CACHED] ' + key );
 				return next( this.Cache[ key ] );
 			}
 			else {
 				if ( this.Caching[ key ] ) {
 					// something is already building this object, wait for it and return when object ready
-					console.log( 'CACHEWAIT ' + key );
+					//console.log( 'CACHEWAIT ' + key );
 					this.Caching[ key ].push( ( obj ) => {
-						console.log( '[CACHED] ' + key );
+						//console.log( '[CACHED] ' + key );
 						return next( obj );
 					})
 				}
 				else {
 					this.Caching[ key ] = [];
 					// build cache
-					console.log( 'CACHEBUILD ' + key );
+					//console.log( 'CACHEBUILD ' + key );
 					return func( ( obj ) => {
 						if ( obj ) {
 							// object built successfully, cache it
-							console.log( '[ORIG] ' + key );
+							//console.log( '[ORIG] ' + key );
 							this.Cache[ key ] = obj;
 						}
-						console.log( 'CACHEDONE', key );
+						//console.log( 'CACHEDONE', key );
 						// return result ( either object or null )
 						next( obj );
 						// also return to whatever was waiting

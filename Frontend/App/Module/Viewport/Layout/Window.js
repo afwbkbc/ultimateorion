@@ -5,4 +5,9 @@ window.App.Viewport.Extend({
 		ctx.fillRect( 0, 0, 1920, 1080 );
 	},
 	
+	OnAddChild: function( ctx, element, child ) {
+		if ( child.data.attributes.Style == 'window-closebutton' )
+			element.is_closeable = true; // hack?
+	},
+	
 })

@@ -277,12 +277,14 @@ window.App.Extend({
 			else if ( e.key == 'Escape' ) {
 				if ( that.Windows.length > 0 ) {
 					var el = that.Windows[ that.Windows.length - 1 ];
-					if ( !el.closing ) { // to prevent event spam
-						el.closing = true;
-						that.SendEvent({
-							element: el.data.id,
-							event: 'close',
-						});
+					if ( el.is_closeable ) { // only closeable windows can be closed
+						if ( !el.closing ) { // to prevent event spam
+							el.closing = true;
+							that.SendEvent({
+								element: el.data.id,
+								event: 'close',
+							});
+						}
 					}
 				}
 				return false;
@@ -308,6 +310,7 @@ window.App.Extend({
 			if ( clickzone ) {
 				var a = clickzone.area;
 				if ( coords[ 0 ] >= a[ 0 ] && coords[ 1 ] >= a[ 1 ] && coords[ 0 ] <= a[ 2 ] && coords[ 1 ] <= a[ 3 ] ) {
+					//console.log( 'CLICKZONE', clickzone.area );
 					if ( this.IsElementEnabled( clickzone.element ) )
 						return clickzone;
 				}
@@ -410,6 +413,12 @@ window.App.Extend({
 		};
 		
 		element.coords = [ source_point[ 0 ] - dest_point[ 0 ] + a.offsets[ 0 ], source_point[ 1 ] - dest_point[ 1 ] + a.offsets[ 1 ] ];
+		
+		// update clickzone if needed
+		if ( element.clickzone ) {
+			this.RemoveClickzone( element );
+			this.AddClickzoneIfNeeded( element );
+		}
 		
 		if ( is_recursive ) {
 			for ( var k in element.children )

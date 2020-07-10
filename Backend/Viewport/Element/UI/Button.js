@@ -1,7 +1,9 @@
-class Button extends require( '../Element' ) {
+class Button extends require( '../BlockElement' ) {
 	
 	constructor() {
 		super( module.filename );
+		
+		this.SendAttributes( [ 'Type', 'DefaultButton' ] );
 		
 		this.SetAttributes({
 			Label: '',

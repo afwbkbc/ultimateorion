@@ -8,6 +8,7 @@ class Window extends require( '../BlockElement' ) {
 		this.SetAttributes({
 			Title: '',
 			TitlebarHeight: 64,
+			WithTitlebar: true,
 			WithCloseButton: true,
 			WithFadeBackground: true,
 		});
@@ -16,18 +17,19 @@ class Window extends require( '../BlockElement' ) {
 	
 	Prepare() {
 		
-		this.Titlebar = this.AddElement( 'Layout/Panel', [ 'LT', 'LT' ], [ 0, 0 ], {
-			Style: 'window-titlebar',
-			Width: this.Attributes.Width - ( this.Attributes.WithCloseButton ? this.Attributes.TitlebarHeight : 0 ),
-			Height: this.Attributes.TitlebarHeight,
-		});
-		{
-			this.TitlebarText = this.Titlebar.AddElement( 'UI/Label', [ 'CC', 'CC' ], [ 0, 0 ], {
+		if ( this.Attributes.WithTitlebar ) {
+			this.Titlebar = this.AddElement( 'Layout/Panel', [ 'LT', 'LT' ], [ 0, 0 ], {
 				Style: 'window-titlebar',
-				Text: this.Attributes.Title,
+				Width: this.Attributes.Width - ( this.Attributes.WithCloseButton ? this.Attributes.TitlebarHeight : 0 ),
+				Height: this.Attributes.TitlebarHeight,
 			});
+			{
+				this.TitlebarText = this.Titlebar.AddElement( 'UI/Label', [ 'CC', 'CC' ], [ 0, 0 ], {
+					Style: 'window-titlebar',
+					Text: this.Attributes.Title,
+				});
+			}
 		}
-		
 		if ( this.Attributes.WithCloseButton ) {
 			this.CloseButton = this.AddElement( 'UI/Button', [ 'RT', 'RT' ], [ 0, 0 ], {
 				Style: 'window-closebutton',
@@ -43,7 +45,7 @@ class Window extends require( '../BlockElement' ) {
 		this.Body = this.AddElement( 'Layout/Panel', [ 'LB', 'LB' ], [ 0, 0 ], {
 			Style: 'window-body',
 			Width: this.Attributes.Width,
-			Height: this.Attributes.Height - this.Attributes.TitlebarHeight,
+			Height: this.Attributes.Height - ( this.Attributes.WithTitlebar ? this.Attributes.TitlebarHeight : 0 ),
 		});
 		
 		this.On( 'close', ( data, event ) => {

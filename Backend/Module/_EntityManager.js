@@ -116,7 +116,7 @@ class EntityManager extends require( './_Module' ) {
 	
 	Load( entity_id, options ) {
 		return new Promise( ( next, fail ) => {
-			console.log( 'LOAD', entity_id, options && options.parameters ? Object.keys( options.parameters ) : null );
+			//console.log( 'LOAD', entity_id, options && options.parameters ? Object.keys( options.parameters ) : null );
 			this.CacheScope( entity_id, ( next, fail ) => {
 				this.EntityModel.FindOne({
 					EntityId: entity_id,

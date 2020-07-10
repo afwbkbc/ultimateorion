@@ -21,7 +21,7 @@ class Login extends require( '../Layout/Window' ) {
 			.On( 'prepare', ( data, event ) => {
 				this.Form.AddInput( 'username', 'Username' );
 				this.Form.AddInput( 'password', 'Password', {
-					masked: true,
+					Masked: true,
 				});
 				this.Form.AddSubmit( 'Login' );
 			})
