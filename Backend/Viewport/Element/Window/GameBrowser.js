@@ -38,7 +38,16 @@ class GameBrowser extends require( '../Layout/Window' ) {
 							})
 								.On( 'join', () => {
 									this.Close();
-									game.AddPlayerForUser( this.Viewport.Session.User );
+									game.AddPlayerForUser( this.Viewport.Session.User )
+										.then( () => {
+											this.Viewport.ShowWindow( 'Window/Game', {
+												Game: game,
+											});
+										})
+										.catch( ( e ) => {
+											throw e;
+										})
+									;
 								})
 							;
 						}
