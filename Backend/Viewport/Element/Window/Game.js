@@ -17,6 +17,7 @@ class Game extends require( '../Layout/Window' ) {
 		//this.Hide();
 		
 		this.Manager( 'Game' ).FindGame( this.Attributes.Game.Id, {
+			caller: this.Id,
 			parameters: {
 				/*Players: { // needed?
 					[ this.Id ]: this,

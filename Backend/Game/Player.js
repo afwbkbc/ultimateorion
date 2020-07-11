@@ -35,6 +35,7 @@ class Player extends require( '../_Entity' ) {
 				promises.push( this.Module( 'Auth' ).FindUser( data.UserId ) );
 			if ( !this.Game )
 				promises.push( this.Manager( 'Game' ).FindGame( data.GameId, {
+					caller: this.Id,
 					parameters: {
 						Players: {
 							[ this.Id ]: this,

@@ -46,6 +46,7 @@ class Game extends require( '../_Entity' ) {
 					var id = data.Players[ k ];
 					if ( !this.Players[ id ] ) {
 						promises.push( this.Manager( 'Player' ).FindPlayer( id, {
+							caller: this.Id,
 							parameters: {
 								Game: this,
 							},
@@ -96,6 +97,7 @@ class Game extends require( '../_Entity' ) {
 				return done( options.parameters.Repository );
 			
 			this.GetRepository( 'Games_List', {
+				caller: this.Id,
 				parameters: {
 					Entities: {
 						[ this.Id ]: this,

@@ -76,8 +76,8 @@ class _Base {
 	GetRepository( repository_id, options ) {
 		return this.Manager( 'Repository' ).Get( repository_id, options );
 	}
-	CacheScope( key, func ) {
-		return this.Module( 'ObjectCache' ).Scope( key, func );
+	CacheScope( initiator_key, target_key, generator_func ) {
+		return this.Module( 'ObjectCache' ).Scope( initiator_key, target_key, generator_func );
 	}
 	CacheRemove( key, func ) {
 		return this.Module( 'ObjectCache' ).Remove( key, func );

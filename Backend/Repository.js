@@ -26,6 +26,7 @@ class Repository extends require( './_EventAwareBase' ) {
 							this.Entities[ entity_id ] = options.parameters.Entities[ entity_id ];
 						else {
 							promises.push( this.EntityManager.Load( entity_id, {
+								caller: this.RepositoryId,
 								parameters: {
 									Repository: this,
 								},

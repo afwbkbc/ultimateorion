@@ -59,7 +59,7 @@ class Auth extends require( './_Module' ) {
 							user.Save()
 								.then( () => {
 
-									this.CacheScope( 'USER_' + user.ID, ( next, fail ) => {
+									this.CacheScope( null, 'USER_' + user.ID, ( next, fail ) => {
 										return next( user );
 									})
 										.then( () => {
@@ -116,7 +116,7 @@ class Auth extends require( './_Module' ) {
 							if ( !is_password_ok )
 								return next( autherror );
 							
-							this.CacheScope( 'USER_' + user.ID, ( next, fail ) => {
+							this.CacheScope( null, 'USER_' + user.ID, ( next, fail ) => {
 								return next( user );
 							})
 								.then( ( user ) => {
@@ -216,7 +216,7 @@ class Auth extends require( './_Module' ) {
 					if ( !token )
 						return next( null );
 					
-					this.CacheScope( 'USER_' + token.User.ID, ( next, fail ) => {
+					this.CacheScope( null, 'USER_' + token.User.ID, ( next, fail ) => {
 						return next( token.User );
 					})
 						.then( ( user ) => {
@@ -230,10 +230,10 @@ class Auth extends require( './_Module' ) {
 		});
 	}
 	
-	FindUser( user_id ) {
+	FindUser( user_id, options ) {
 		return new Promise( ( next, fail ) => {
 			
-			this.CacheScope( 'USER_' + user_id, ( next, fail ) => {
+			this.CacheScope( options && options.caller ? options.caller : null, 'USER_' + user_id, ( next, fail ) => {
 				this.User.FindOne({
 					ID: user_id,
 				})

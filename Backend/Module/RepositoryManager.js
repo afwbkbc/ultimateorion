@@ -9,7 +9,7 @@ class RepositoryManager extends require( './_Module' ) {
 	Get( repository_id, options ) {
 		return new Promise( ( next, fail ) => {
 			//console.log( 'GETREPOSITORY', repository_id, options );
-			this.CacheScope( 'REPOSITORY_' + repository_id, ( next, fail ) => {
+			this.CacheScope( options && options.caller ? 'REPOSITORY_' + options.caller : null, 'REPOSITORY_' + repository_id, ( next, fail ) => {
 				var repository = new this.Repository( repository_id );
 				repository.Create( options )
 					.then( () => {

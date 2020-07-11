@@ -79,7 +79,7 @@ class EntityManager extends require( './_Module' ) {
 			
 			this.GenerateUniqueModel()
 				.then( ( model ) => {
-					this.CacheScope( model.EntityId, ( next, fail ) => {
+					this.CacheScope( options && options.caller ? options.caller : null, model.EntityId, ( next, fail ) => {
 						return next( this.ConstructEntity( model ) );
 					})
 						.then( ( entity ) => {
@@ -117,7 +117,7 @@ class EntityManager extends require( './_Module' ) {
 	Load( entity_id, options ) {
 		return new Promise( ( next, fail ) => {
 			console.log( 'LOAD', entity_id, options && options.parameters ? Object.keys( options.parameters ) : null );
-			this.CacheScope( entity_id, ( next, fail ) => {
+			this.CacheScope( options && options.caller ? options.caller : null, entity_id, ( next, fail ) => {
 				this.EntityModel.FindOne({
 					EntityId: entity_id,
 				})
