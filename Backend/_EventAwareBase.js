@@ -30,8 +30,9 @@ class EventAwareBase extends require( './_Base' ) {
 				if ( this.Events[ eventtype ][ k ].apply( this, [ data ? data : {}, event ? event : {} ] ) === false )
 					break;
 			}
-		for ( var k in this.Listeners )
-			this.Listeners[ k ].Trigger( eventtype, data, event );
+		var listeners = [ ...this.Listeners ];
+		for ( var k in listeners )
+			listeners[ k ].Trigger( eventtype, data, event );
 		for ( var k in this.TriggerRepositories )
 			this.TriggerRepositories[ k ].TriggerEvent( this, eventtype, data, event );
 	}
@@ -45,13 +46,16 @@ class EventAwareBase extends require( './_Base' ) {
 			this.Listeners.push( listener );
 			if ( this.OnListen )
 				this.OnListen( listener );
+			//console.log( '+LISTENER', this.Id, this.Listeners.length - 1 );
 		}
 	}
 	
 	DetachListener( listener ) {
 		var pos = this.Listeners.indexOf( listener );
-		if ( pos >= 0 )
+		if ( pos >= 0 ) {
 			this.Listeners.splice( pos, 1 );
+			//console.log( '-LISTENER', this.Id, pos );
+		}
 	}
 	
 }

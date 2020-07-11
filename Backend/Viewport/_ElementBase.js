@@ -96,7 +96,7 @@ class _ElementBase extends require( '../_EventAwareBase' ) {
 		this.Listeners.push( listener );
 		setTimeout( () => { // allow for .On() calls to be applied first
 			listener.Attach();
-		}, 0 );
+		}, 1 );
 		return listener;
 	}
 	
