@@ -99,6 +99,16 @@ class Http extends require( '../_Module' ) {
 					case '.js':
 						contenttype = 'text/javascript';
 						break;
+					case '.png':
+						contenttype = 'image/png';
+						break;
+					case '.jpg':
+					case '.jpeg':
+						contenttype = 'image/jpeg';
+						break;
+					case '.gif':
+						contenttype = 'image/gif';
+						break;
 					default:
 						contenttype = 'text/plain';
 				}
