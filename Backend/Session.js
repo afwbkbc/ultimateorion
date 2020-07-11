@@ -238,9 +238,9 @@ class Session extends require( './_Entity' ) {
 	CreateGame( settings ) {
 		return new Promise( ( next, fail ) => {
 			this.Manager( 'Game' ).CreateGame( settings.name, this.User )
-				.then( () => {
+				.then( ( game ) => {
 					
-					return next();
+					return next( game );
 				})
 				.catch( fail )
 			;
