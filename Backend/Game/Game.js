@@ -88,10 +88,10 @@ class Game extends require( '../_Entity' ) {
 			var done = ( repository ) => {
 				this.Repository = repository;
 				this.TriggerRepositories.push( this.Repository ); // to duplicate events there
-				console.log( 'GAME ONINIT DONE', this.Id );
+				//console.log( 'GAME ONINIT DONE', this.Id );
 				return next();
 			}
-			console.log( 'GAME ONINIT', this.Id, options );
+			//console.log( 'GAME ONINIT', this.Id, options );
 			if( options && options.parameters && options.parameters.Repository )
 				return done( options.parameters.Repository );
 			
