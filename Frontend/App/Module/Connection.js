@@ -58,6 +58,8 @@ window.App.Extend({
 		};
 		
 		this.ws.onmessage = function( message ) {
+			if ( window.App.Viewport.TrackStats )
+				window.App.Viewport.TrackData.NetIn[ 0 ] += message.data.length;
 			var data = JSON.parse( message.data );
 			if ( data.mode == 'FB' ) {
 				// response from backend
@@ -160,7 +162,10 @@ window.App.Extend({
 		else {
 			event.type = 'S'; // just standalone async event
 		}
-		this.ws.send( JSON.stringify( event ) );
+		var data = JSON.stringify( event );
+		if ( window.App.Viewport.TrackStats )
+			window.App.Viewport.TrackData.NetOut[ 0 ] += data.length;
+		this.ws.send( data );
 	},
 	
 	Reply: function( id, data ) {

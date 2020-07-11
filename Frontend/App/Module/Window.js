@@ -4,19 +4,24 @@ window.App.Extend({
 	
 	Init: function( next ) {
 		
-		// handle tab focus/blur
-		this.IsFocused = document.hasFocus();
-
-		var that = this;
-		window.onfocus = function() {
-		    that.IsFocused = true;
-		    that.Trigger( 'focus' );
-		    
-		};
-		window.onblur = function() {
-		    that.IsFocused = false;
-		    that.Trigger( 'blur' );
-		};
+		this.IsFocused = true;
+		
+		// not really needed for now
+		/*
+			// handle tab focus/blur
+			this.IsFocused = document.hasFocus();
+	
+			var that = this;
+			window.onfocus = function() {
+			    that.IsFocused = true;
+			    that.Trigger( 'focus' );
+			    
+			};
+			window.onblur = function() {
+			    that.IsFocused = false;
+			    that.Trigger( 'blur' );
+			};
+		*/
 		
 		return next();
 	},

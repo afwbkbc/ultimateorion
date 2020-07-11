@@ -177,7 +177,7 @@ window.App.Extend({
 		this.Windows = []; // stack
 		
 		this.FpsLimit = 60; // TODO: per-user settings
-		this.TrackStats = true;
+		this.TrackStats = [ 'NetIn', 'NetOut', 'Frames', 'Redraws', 'RenderCalls' ];
 		
 		var that = this;
 		
@@ -211,12 +211,11 @@ window.App.Extend({
 		onresize();
 
 		if ( this.TrackStats ) {
-			this.Frames = 0;
-			this.LastFrames = 0;
-			this.Redraws = 0;
-			this.LastRedraws = 0;
-			this.RenderCalls = 0;
-			this.LastRenderCalls = 0;
+			this.TrackData = {};
+			for ( var k in this.TrackStats ) {
+				var v = this.TrackStats[ k ];
+				this.TrackData[ v ] = [ 0, 0 ];
+			}
 		}
 		
 		this.IsStateChanged = true;
@@ -324,18 +323,27 @@ window.App.Extend({
 		
 		if ( this.TrackStats ) {
 			this.FpsInterval = setInterval( function() {
-				that.LastFrames = that.Frames;
-				that.Frames = 0;
-				that.LastRedraws = that.Redraws;
-				that.Redraws = 0;
-				that.LastRenderCalls = that.RenderCalls;
-				that.RenderCalls = 0;
+				for ( var k in that.TrackStats ) {
+					var v = that.TrackStats[ k ];
+					that.TrackData[ v ][ 1 ] = that.TrackData[ v ][ 0 ];
+					that.TrackData[ v ][ 0 ] = 0;
+				}
 				if ( !that.IsStateChanged ) {
 					// redraw just to display stats
-					that.Redraws--; // this is "fake" redraw so don't count it
+					that.TrackData.Redraws[ 0 ]--; // this is "fake" redraw so don't count it
 					that.Redraw();
 				}
 			}, 1000 );
+		}
+		
+		if ( that.TrackStats ) {
+			var format_bytes = function( bytes ) {
+				if ( bytes < 1024 )
+					return bytes + 'B';
+				if ( bytes < 1024 * 1024 )
+					return Math.round( bytes / 1024 ) + 'KB';
+				return Math.round( bytes / 1024 / 1024 ) + 'MB';
+			}
 		}
 		
 		// main loop
@@ -344,18 +352,26 @@ window.App.Extend({
 			if ( window.App.Window.IsFocused && window.App.Connection.IsConnected && that.IsStateChanged ) {
 				that.Render();
 				if ( that.TrackStats ) {
+					
 					that.Ctx.font = "30px Verdana";
 					that.Ctx.textAlign = 'top left';
 					that.Ctx.fillStyle = 'rgba( 0, 155, 128, 0.5 )';
-					that.Ctx.fillText( 'FPS: ' + that.LastFrames + ' / ~' + that.FpsLimit, 1000, 0 );
-					that.Ctx.fillText( 'Redraws/s: ' + that.LastRedraws, 1300, 0 );
-					that.Ctx.fillText( 'Rendercalls/s: ' + that.LastRenderCalls, 1600, 0 );
+					
+					// network
+					that.Ctx.fillText( 'Network: ' + format_bytes( that.TrackData.NetIn[ 1 ] + that.TrackData.NetOut[ 1 ] ) + '/s ( in: ' + format_bytes( that.TrackData.NetIn[ 1 ] ) + '/s ; out: ' + format_bytes( that.TrackData.NetOut[ 1 ] ) + '/s )', 40, 0 );
+					
+					// renderer
+					that.Ctx.fillText( 'FPS: ' + that.TrackData.Frames[ 1 ] + ' / ~' + that.FpsLimit, 1000, 0 );
+					that.Ctx.fillText( 'Redraws/s: ' + that.TrackData.Redraws[ 1 ], 1300, 0 );
+					that.Ctx.fillText( 'Rendercalls/s: ' + that.TrackData.RenderCalls[ 1 ], 1600, 0 );
 				
 				}
 				that.IsStateChanged = false;
-				that.Redraws++;
+				if ( that.TrackStats )
+					that.TrackData.Redraws[ 0 ]++;
 			}
-			that.Frames++;
+			if ( that.TrackStats )
+				that.TrackData.Frames[ 0 ]++;
 		}, fps_ms );
 	},
 	
@@ -495,7 +511,7 @@ window.App.Extend({
 			this.Windows.push( element );
 		this.Redraw();
 		if ( this.TrackStats )
-			this.RenderCalls++;
+			this.TrackData.RenderCalls[ 0 ]++;
 		this.HandleMouseMove();
 	},
 	
@@ -533,7 +549,7 @@ window.App.Extend({
 		delete this.Layers[ element.layer ][ data.id ];
 		this.Redraw();
 		if ( this.TrackStats )
-			this.RenderCalls++;
+			this.TrackData.RenderCalls[ 0 ]++;
 		this.HandleMouseMove();
 	},
 	
@@ -582,7 +598,7 @@ window.App.Extend({
 			}
 		}
 		if ( this.TrackStats )
-			this.RenderCalls++;
+			this.TrackData.RenderCalls[ 0 ]++;
 	},
 	
 	Render: function() {
