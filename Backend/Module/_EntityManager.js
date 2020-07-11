@@ -211,6 +211,7 @@ class EntityManager extends require( './_Module' ) {
 			this.CacheRemove( entity.Id, ( next, fail ) => {
 				entity.Destroy()
 					.then( () => {
+						//console.log( 'DELETE', entity.Classname, entity.Db.ID );
 						if ( options && options.keep_in_db )
 							return next();
 						entity.Db.Delete()

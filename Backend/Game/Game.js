@@ -143,6 +143,7 @@ class Game extends require( '../_Entity' ) {
 		return new Promise( ( next, fail ) => {
 			this.Repository = null;
 			this.TriggerRepositories = [];
+			return next();
 		});
 	}
 	
