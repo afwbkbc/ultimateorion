@@ -8,6 +8,8 @@ class GamesList extends require( '../Layout/Block' ) {
 			ElementWidth: 680,
 			ElementHeight: 64,
 			ElementMargin: 14,
+			ElementHasBorder: true,
+			HasBorder: true,
 		});
 	}
 	

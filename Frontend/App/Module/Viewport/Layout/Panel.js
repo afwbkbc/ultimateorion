@@ -3,7 +3,7 @@ window.App.Viewport.Extend({
 	Render: function( ctx, element ) {
 		var a = element.data.attributes;
 		var c = element.coords;
-		if ( !a.NoBorder ) {
+		if ( a.HasBorder ) {
 			ctx.strokeStyle = 'aqua';
 			ctx.strokeRect( c[0], c[1], a.Width, a.Height );
 		}

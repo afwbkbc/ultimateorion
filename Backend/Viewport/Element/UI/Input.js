@@ -16,6 +16,7 @@ class Input extends require( '../BlockElement' ) {
 			Style: 'input-background',
 			Width: this.Attributes.Width,
 			Height: this.Attributes.Height,
+			HasBorder: true,
 		});
 		this.Label = this.AddElement( 'UI/Label', [ 'LC', 'LC' ], [ 26, 0 ], {
 			Style: 'input-label',

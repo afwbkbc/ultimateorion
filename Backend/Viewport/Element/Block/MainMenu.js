@@ -8,6 +8,7 @@ class MainMenu extends require( '../Layout/Block' ) {
 			ElementWidth: 460,
 			ElementHeight: 64,
 			ElementMargin: 20,
+			HasBorder: true,
 		});
 		
 	}

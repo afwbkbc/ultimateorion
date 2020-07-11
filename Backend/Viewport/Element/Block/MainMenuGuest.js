@@ -5,7 +5,7 @@ class MainMenuGuest extends require( './MainMenu' ) {
 		
 		
 		this.SetAttributes({
-			
+
 		});
 		
 	}

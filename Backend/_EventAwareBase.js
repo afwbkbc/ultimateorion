@@ -4,6 +4,7 @@ class EventAwareBase extends require( './_Base' ) {
 		super( fname );
 		
 		this.Events = {};
+		this.Listeners = [];
 	}
 
 	On( eventtype, callback ) {
@@ -37,8 +38,11 @@ class EventAwareBase extends require( './_Base' ) {
 	}
 	
 	AttachListener( listener ) {
-		if ( this.Listeners.indexOf( listener ) < 0 )
+		if ( this.Listeners.indexOf( listener ) < 0 ) {
 			this.Listeners.push( listener );
+			if ( this.OnListen )
+				this.OnListen( listener );
+		}
 	}
 	
 	DetachListener( listener ) {

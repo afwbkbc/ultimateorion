@@ -5,7 +5,6 @@ class _ElementBase extends require( '../_EventAwareBase' ) {
 
 		this.Elements = {};
 		this.Threads = this.H.Threads.CreatePool();
-		this.Listeners = [];
 	}
 	
 	GetSession() {
@@ -101,6 +100,8 @@ class _ElementBase extends require( '../_EventAwareBase' ) {
 		return listener;
 	}
 	
+	// override if needed
+	Prepare() {}
 }
 
 module.exports = _ElementBase;

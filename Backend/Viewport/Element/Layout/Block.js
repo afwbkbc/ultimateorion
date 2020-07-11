@@ -10,10 +10,13 @@ class Block extends require( '../BlockElement' ) {
 			ElementWidth: 0,
 			ElementHeight: 0,
 			ElementMargin: 0,
+			ElementHasBorder: false,
 		});
 	}
 	
 	Prepare() {
+		super.Prepare();
+		
 		var exp = this.Attributes.Expand;
 		if ( exp == 'V' ) {
 			this.InnerWidth = 0;
@@ -23,7 +26,7 @@ class Block extends require( '../BlockElement' ) {
 			throw new Error( 'unsupported expand type "' + exp + '"' );
 		
 		this.Background = this.AddElement( 'Layout/Panel', [ 'LT', 'LT' ], [ 0, 0 ], {
-			NoBorder: this.Attributes.NoBorder,
+			HasBorder: this.Attributes.HasBorder,
 		});
 	}
 	
@@ -51,6 +54,7 @@ class Block extends require( '../BlockElement' ) {
 			attributes.Width = this.Attributes.ElementWidth - this.Attributes.ElementMargin * 2;
 		if ( !attributes.Height )
 			attributes.Height = this.Attributes.ElementHeight;
+		attributes.HasBorder = this.Attributes.ElementHasBorder;
 		var element = this.AddElement( namespace, anchors, coords, attributes );
 		
 		// resize if needed

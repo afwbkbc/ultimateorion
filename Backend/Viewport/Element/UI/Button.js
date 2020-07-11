@@ -15,6 +15,7 @@ class Button extends require( '../BlockElement' ) {
 			Style: 'button-background',
 			Width: this.Attributes.Width,
 			Height: this.Attributes.Height,
+			HasBorder: true,
 		});
 		this.Label = this.AddElement( 'UI/Label', [ 'CC', 'CC' ], [ 0, 0 ], {
 			Style: 'button-label',

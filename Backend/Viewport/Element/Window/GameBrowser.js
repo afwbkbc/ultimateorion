@@ -20,7 +20,7 @@ class GameBrowser extends require( '../Layout/Window' ) {
 			ElementWidth: this.Body.Attributes.Width,
 			ElementHeight: 100,
 			ElementMargin: 20,
-			NoBorder: true,
+			ElementHasBorder: true,
 		});
 		
 		this.GetRepository( 'Games_List' )
@@ -33,7 +33,7 @@ class GameBrowser extends require( '../Layout/Window' ) {
 							throw new Error( 'game row already exists for game "' + game.Id + '"' );
 						
 						if ( !game.FindPlayerForUser( this.Viewport.Session.User ) ) { // do not show if already joined
-							this.GameRows[ game.Id ] = this.GameRowsBlock.Append( 'Block/GameBrowser/GameRow', {
+							this.GameRows[ game.Id ] = this.GameRowsBlock.Append( 'Window/GameBrowser/GameRow', {
 								Game: game,
 							});
 						}

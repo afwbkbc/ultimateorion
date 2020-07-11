@@ -182,6 +182,15 @@ class Game extends require( '../_Entity' ) {
 		}
 		return null;
 	}
+	
+	OnListen( listener ) {
+		for ( var k in this.Players ) {
+			listener.Trigger( 'player_join', {
+				Player: this.Players[ k ],
+			});
+		}
+	}
+	
 }
 
 module.exports = Game;

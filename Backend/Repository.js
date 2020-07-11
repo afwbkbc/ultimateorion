@@ -86,19 +86,14 @@ class Repository extends require( './_EventAwareBase' ) {
 		});
 	}
 
-	AttachListener( listener ) {
-		if ( this.Listeners.indexOf( listener ) < 0 ) {
-			super.AttachListener( listener );
-			
-			// push state to listener ( via 'add' events )
-			var entities = this.GetEntities();
-			for ( var k in entities ) {
-				var entity = entities[ k ];
-				if ( entity ) {
-					listener.Trigger( 'add', {
-						Entity: entities[ k ],
-					});
-				}
+	OnListen( listener ) {
+		var entities = this.GetEntities();
+		for ( var k in entities ) {
+			var entity = entities[ k ];
+			if ( entity ) {
+				listener.Trigger( 'add', {
+					Entity: entities[ k ],
+				});
 			}
 		}
 	}
