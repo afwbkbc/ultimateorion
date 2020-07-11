@@ -20,7 +20,10 @@ class Rows extends require( '../_Rows' ) {
 	}
 	
 	RemovePlayer( player ) {
-		console.log( 'REMOVE', player );
+		if ( this.Players[ player.Id ] ) {
+			this.Remove( this.Players[ player.Id ] );
+			delete this.Players[ player.Id ];
+		}
 	}
 	
 }

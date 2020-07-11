@@ -44,11 +44,12 @@ class Repository extends require( './_EventAwareBase' ) {
 	
 	Insert( entity ) {
 		return new Promise( ( next, fail ) => {
-			console.log( 'R[ ' + this.RepositoryId + ' ].Insert( ' + entity.Id + ' )' );
 			
 			if ( this.Entities[ entity.Id ] )
 				return next(); // already in repository
 
+			console.log( 'R[ ' + this.RepositoryId + ' ].Insert( ' + entity.Id + ' )' );
+			
 			var db_entity = new this.RepositoryModel({
 				EntityId: entity.Id,
 				EntityRepositoryId: this.RepositoryId,
@@ -72,9 +73,34 @@ class Repository extends require( './_EventAwareBase' ) {
 	
 	Remove( entity ) {
 		return new Promise( ( next, fail ) => {
+			
+			if ( !this.Entities[ entity.Id ] )
+				return next(); // not in repository
+			
 			console.log( 'R[ ' + this.RepositoryId + ' ].Remove( ' + entity.Id + ' )' );
 			
-			return next();
+			delete this.Entities[ entity.Id ];
+			this.Trigger( 'remove', {
+				Entity: entity,
+			});
+			
+			this.RepositoryModel.FindOne({
+				EntityId: entity.Id,
+				EntityRepositoryId: this.RepositoryId,
+			})
+				.then( ( db_entity ) => {
+					
+					if ( !db_entity )
+						return next(); // nothing to delete
+					
+					db_entity.Delete()
+						.then( next )
+						.catch( fail )
+					;
+				})
+				.catch( fail )
+			;
+			
 		});
 	}
 	

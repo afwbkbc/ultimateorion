@@ -12,6 +12,8 @@ class Block extends require( '../BlockElement' ) {
 			ElementMargin: 0,
 			ElementHasBorder: false,
 		});
+		
+		this.ManagedElements = [];
 	}
 	
 	Prepare() {
@@ -77,9 +79,32 @@ class Block extends require( '../BlockElement' ) {
 			this.Background.SetAttributes( updated_attributes, true );
 		}
 		
+		this.ManagedElements.push( element );
+		
 		return element;
 	}
 	
+	Remove( element ) {
+		var shifting_by = 0; // after removal we need to move all other elements up, then shrink and reposition self // TODO: 'H' extend
+		for ( var k in this.ManagedElements ) {
+			var el = this.ManagedElements[ k ];
+			if ( shifting_by ) {
+				var o = el.GetOffsets();
+				el.SetOffsets( [ o[ 0 ], o[ 1 ] - shifting_by ] );
+			}
+			else if ( el.Id == element.Id ) {
+				shifting_by = element.GetHeight() + this.Attributes.ElementMargin;
+				this.RemoveElement( element );
+				delete this.ManagedElements[ k ];
+			}
+		}
+		if ( shifting_by ) {
+			this.InnerHeight -= shifting_by;
+			this.SetAttribute( 'Height', this.InnerHeight, true );
+			this.Background.SetAttribute( 'Height', this.InnerHeight, true );
+		}
+		
+	}
 	
 }
 

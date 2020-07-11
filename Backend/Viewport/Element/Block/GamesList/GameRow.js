@@ -19,11 +19,9 @@ class GameRow extends require( '../../Layout/Panel' ) {
 			Label: 'Play',
 		})
 			.On( 'click', () => {
-				console.log( 'PLAY', this.Attributes.Game.Id );
 				this.Viewport.ShowWindow( 'Window/Game', {
 					Game: this.Attributes.Game,
 				});
-				
 			})
 		;
 		

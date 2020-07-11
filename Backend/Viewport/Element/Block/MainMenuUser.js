@@ -21,13 +21,7 @@ class MainMenuGuest extends require( './MainMenu' ) {
 			Label: 'Create game',
 		})
 			.On( 'click', ( data, event ) => {
-				
-				this.Viewport.ShowWindow( 'Window/CreateGame', {} )
-					.On( 'success', ( data, event ) => {
-						this.Parent.UpdateGamesList();
-					})
-				;
-				
+				this.Viewport.ShowWindow( 'Window/CreateGame' );
 			})
 		;
 		

@@ -568,7 +568,8 @@ window.App.Extend({
 					el.data.attributes.offsets = value;
 					el.coords[ 0 ] -= diff[ 0 ];
 					el.coords[ 1 ] -= diff[ 1 ];
-					this.Redraw();
+					this.PositionElement( el, true );
+					//this.Redraw();
 					break;
 				case 'attributes':
 					var is_reposition_needed = false;

@@ -66,10 +66,10 @@
 			this.AttributesToSend.add( attributes[ k ] );
 	}
 	
-	SetAttribute( key, value ) {
+	SetAttribute( key, value, is_sync_needed ) {
 		var attrs = {};
 		attrs[ key ] = value;
-		this.SetAttributes( attrs );
+		this.SetAttributes( attrs, is_sync_needed );
 	}
 	
 	IsVisibleRecursive() {
@@ -126,7 +126,7 @@
 	
 	SetOffsets( offsets ) {
 		if ( offsets[ 0 ] != this.Attributes.offsets[ 0 ] || offsets[ 1 ] != this.Attributes.offsets[ 1 ] ) {
-			this.Attributes.offsets = offsets;
+			this.SetAttribute( 'offsets', offsets, false );
 			this.RenderChange( this.GetSession(), {
 				offsets: offsets,
 			});

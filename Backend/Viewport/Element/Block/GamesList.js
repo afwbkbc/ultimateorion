@@ -16,6 +16,8 @@ class GamesList extends require( '../Layout/Block' ) {
 	Prepare() {
 		super.Prepare();
 		
+		this.Hide();
+		
 		this.Append( 'UI/BlockLabel', {
 			Text: 'Your active games:',
 			TextAnchors: [ 'LC', 'LC' ],
@@ -36,10 +38,17 @@ class GamesList extends require( '../Layout/Block' ) {
 							this.GameRows[ game.Id ] = this.Append( 'Block/GamesList/GameRow', {
 								Game: game,
 							});
+							this.Show();
 						}
 					})
 					.On( 'remove', ( data ) => {
-						console.log( 'REMOVE', data.Entity );
+						var game = data.Entity;
+						if ( this.GameRows[ game.Id ] ) {
+							this.Remove( this.GameRows[ game.Id ] );
+							delete this.GameRows[ game.Id ];
+							if ( Object.keys( this.GameRows ).length == 0 )
+								this.Hide();
+						}
 					})
 					.On( 'change', ( data ) => {
 						console.log( 'CHANGE', data.Entity );

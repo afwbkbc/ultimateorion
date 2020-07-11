@@ -166,7 +166,7 @@ class Session extends require( './_Entity' ) {
 			
 			game.AddPlayer( this.User )
 				.then( ( player ) => {
-					console.log( 'ADD TO GAME ' + player.User.Username + ' #' + game.Id );
+					//console.log( 'ADD TO GAME ' + player.User.Username + ' #' + game.Id );
 					this.Players[ player.Id ] = player;
 					this.Save()
 						.then( next )
@@ -185,7 +185,7 @@ class Session extends require( './_Entity' ) {
 			for ( var k in this.Players ) {
 				var player = this.Players[ k ];
 				if ( player.Game.Id == game.Id ) {
-					console.log( 'REMOVE FROM GAME ' + this.User.Username + ' #' + game.Id );
+					//console.log( 'REMOVE FROM GAME ' + this.User.Username + ' #' + game.Id );
 					delete this.Players[ k ];
 					game.RemovePlayer( this.User )
 						.then( () => {
@@ -196,7 +196,7 @@ class Session extends require( './_Entity' ) {
 						})
 						.catch( fail )
 					;
-					return;
+					return next();
 				}
 			}
 			return next(); // no player found

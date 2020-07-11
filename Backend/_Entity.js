@@ -55,6 +55,11 @@ class Entity extends require( './_EventAwareBase' ) {
 	Save() {
 		return this.EntityManager.Save( this );
 	}
+	
+	Delete() {
+		return this.EntityManager.Delete( this );
+	}
+	
 }
 
 module.exports = Entity;

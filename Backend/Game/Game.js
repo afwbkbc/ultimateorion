@@ -130,24 +130,26 @@ class Game extends require( '../_Entity' ) {
 	
 	AddPlayer( user, flags ) {
 		return new Promise( ( next, fail ) => {
-			var player = this.Players[ user.Id ];
-			if ( !player ) {
-				this.Manager( 'Player' ).CreatePlayer( user, this, flags )
-					.then( ( player ) => {
-						console.log( 'GAME #' + this.Id + ' : ADD PLAYER #' + player.Id + ' ( ' + user.Username + ' )' );
-						this.Players[ user.Id ] = player;
-						this.Save()
-							.then( () => {
-								return next( player );
-							})
-							.catch( fail )
-						;
-					})
-					.catch( fail )
-				;
+			
+			for ( var k in this.Players ) {
+				var player = this.Players[ k ];
+				if ( player.User.ID == user.ID )
+					return next( player ); // already added
 			}
-			else
-				return next( player );
+			
+			this.Manager( 'Player' ).CreatePlayer( user, this, flags )
+				.then( ( player ) => {
+					console.log( 'GAME #' + this.Id + ' : ADD PLAYER #' + player.Id + ' ( ' + user.Username + ' )' );
+					this.Players[ player.Id ] = player;
+					this.Save()
+						.then( () => {
+							return next( player );
+						})
+						.catch( fail )
+					;
+				})
+				.catch( fail )
+			;
 		});
 	}
 	
@@ -157,21 +159,26 @@ class Game extends require( '../_Entity' ) {
 			if ( player ) {
 				console.log( 'GAME #' + this.Id + ' : REMOVE PLAYER #' + player.Id + ' ( ' + player.User.Username + ' )' );
 				
-				this.Trigger( 'player_leave', {
-					Player: player,
-				});
-				
-				return next(); // tmp
-				
 				this.Manager( 'Player' ).DeletePlayer( player )
 					.then( () => {
 						delete this.Players[ user.Id ];
-						this.Save()
-							.then( () => {
-								return next();
-							})
-							.catch( fail )
-						;
+						
+						this.Trigger( 'player_leave', {
+							Player: player,
+						});
+						
+						if ( Object.keys( this.Players ).length == 0 ) { // no players left, delete game
+							this.Delete()
+								.then( next )
+								.catch( fail )
+							;
+						}
+						else {
+							this.Save()
+								.then( next )
+								.catch( fail )
+							;
+						}
 					})
 					.catch( fail )
 				;

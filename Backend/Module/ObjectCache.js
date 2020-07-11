@@ -58,16 +58,16 @@ class ObjectCache extends require( './_Module' ) {
 		return new Promise( ( next, fail ) => {
 			if ( this.Removing[ key ] ) {
 				// already removing, add callback to wait
-				console.log( 'CACHEREMOVEWAIT ' + key );
+				//console.log( 'CACHEREMOVEWAIT ' + key );
 				this.Removing.push( func );
 				return next();
 			}
-			console.log( 'CACHEREMOVE ' + key );
+			//console.log( 'CACHEREMOVE ' + key );
 			this.Removing[ key ] = [];
 			delete this.Caching[ key ];
 			delete this.Cache[ key ];
 			return func( () => {
-				console.log( 'CACHEREMOVEDONE ' + key );
+				//console.log( 'CACHEREMOVEDONE ' + key );
 				// continue flow
 				next();
 				// also return to whatever was waiting

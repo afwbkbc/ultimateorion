@@ -39,7 +39,11 @@ class GameBrowser extends require( '../Layout/Window' ) {
 						}
 					})
 					.On( 'remove', ( data ) => {
-						console.log( 'REMOVE', data.Entity );
+						var game = data.Entity;
+						if ( this.GameRows[ game.Id ] ) {
+							this.GameRowsBlock.Remove( this.GameRows[ game.Id ] );
+							delete this.GameRows[ game.Id ];
+						}
 					})
 					.On( 'change', ( data ) => {
 						console.log( 'CHANGE', data.Entity );
