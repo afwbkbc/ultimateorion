@@ -90,7 +90,7 @@ class EntityManager extends require( './_Module' ) {
 								}
 							}
 							
-							entity.Create()
+							entity.Create( options )
 								.then( () => {
 									this.Save( entity )
 										.then( () => {
@@ -116,7 +116,7 @@ class EntityManager extends require( './_Module' ) {
 	
 	Load( entity_id, options ) {
 		return new Promise( ( next, fail ) => {
-			//console.log( 'LOAD', entity_id, options && options.parameters ? Object.keys( options.parameters ) : null );
+			console.log( 'LOAD', entity_id, options && options.parameters ? Object.keys( options.parameters ) : null );
 			this.CacheScope( entity_id, ( next, fail ) => {
 				this.EntityModel.FindOne({
 					EntityId: entity_id,
@@ -131,11 +131,9 @@ class EntityManager extends require( './_Module' ) {
 								}
 							}
 							//console.log( 'UNPACK', entity.Classname, Object.keys( entity ) );
-							entity.Unpack( JSON.parse( entity.Db.Data ) )
+							entity.Unpack( JSON.parse( entity.Db.Data ), options )
 								.then( ( entity ) => {
-									if ( entity )
-										return next( entity );
-									else {
+									if ( !entity ) {
 										// entity invalid, delete it and return 'not found'
 										model.Delete()
 											.then( () => {
@@ -144,6 +142,16 @@ class EntityManager extends require( './_Module' ) {
 											.catch( fail )
 										;
 									}
+									else {
+										//console.log( 'UNPACK DONE' );
+										entity.OnInit( options )
+											.then( () => {
+												return next( entity );
+											})
+											.catch( fail )
+										;
+									}
+									
 								})
 								.catch( fail )
 							;

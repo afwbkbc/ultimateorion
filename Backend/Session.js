@@ -164,7 +164,7 @@ class Session extends require( './_Entity' ) {
 				if ( this.Players[ k ].Game.Id == game.Id )
 					return next();
 			
-			game.AddPlayer( this.User )
+			game.AddPlayerForUser( this.User )
 				.then( ( player ) => {
 					//console.log( 'ADD TO GAME ' + player.User.Username + ' #' + game.Id );
 					this.Players[ player.Id ] = player;

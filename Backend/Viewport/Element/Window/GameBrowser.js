@@ -35,7 +35,12 @@ class GameBrowser extends require( '../Layout/Window' ) {
 						if ( !game.FindPlayerForUser( this.Viewport.Session.User ) ) { // do not show if already joined
 							this.GameRows[ game.Id ] = this.GameRowsBlock.Append( 'Window/GameBrowser/GameRow', {
 								Game: game,
-							});
+							})
+								.On( 'join', () => {
+									this.Close();
+									game.AddPlayerForUser( this.Viewport.Session.User );
+								})
+							;
 						}
 					})
 					.On( 'remove', ( data ) => {

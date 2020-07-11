@@ -24,7 +24,7 @@ class GameRow extends require( '../../Layout/Panel' ) {
 			Label: 'Join',
 		})
 			.On( 'click', () => {
-				console.log( 'JOIN', this.Attributes.Game.Id );
+				this.Trigger( 'join' );
 			})
 		;
 		

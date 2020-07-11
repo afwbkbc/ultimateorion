@@ -28,30 +28,37 @@ class GamesList extends require( '../Layout/Block' ) {
 		this.GetRepository( 'Games_List' )
 			.then( ( repository ) => {
 
+				var add_game = ( game ) => {
+					if ( !this.GameRows[ game.Id ] ) {
+						this.GameRows[ game.Id ] = this.Append( 'Block/GamesList/GameRow', {
+							Game: game,
+						});
+						
+						this.Show();
+					}
+				}
+				
+				var remove_game = ( game ) => {
+					if ( this.GameRows[ game.Id ] ) {
+						this.Remove( this.GameRows[ game.Id ] );
+						delete this.GameRows[ game.Id ];
+						if ( Object.keys( this.GameRows ).length == 0 )
+							this.Hide();
+					}
+				}
+				
 				this.Listen( repository )
 					.On( 'add', ( data ) => {
 						var game = data.Entity;
-						if ( this.GameRows[ game.Id ] )
-							throw new Error( 'game row already exists for game "' + game.Id + '"' );
-						
-						if ( game.FindPlayerForUser( this.Viewport.Session.User ) ) { // do not show if not joined
-							this.GameRows[ game.Id ] = this.Append( 'Block/GamesList/GameRow', {
-								Game: game,
-							});
-							this.Show();
-						}
+						if ( game.FindPlayerForUser( this.Viewport.Session.User ) ) // show only if joined this game
+							add_game( game );
 					})
 					.On( 'remove', ( data ) => {
 						var game = data.Entity;
-						if ( this.GameRows[ game.Id ] ) {
-							this.Remove( this.GameRows[ game.Id ] );
-							delete this.GameRows[ game.Id ];
-							if ( Object.keys( this.GameRows ).length == 0 )
-								this.Hide();
-						}
+						remove_game( game );
 					})
-					.On( 'change', ( data ) => {
-						console.log( 'CHANGE', data.Entity );
+					.On( 'event', ( data ) => {
+						console.log( 'EVENT', data.EventType );
 					})
 				;
 				

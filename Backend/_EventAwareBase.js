@@ -5,6 +5,7 @@ class EventAwareBase extends require( './_Base' ) {
 		
 		this.Events = {};
 		this.Listeners = [];
+		this.TriggerRepositories = [];
 	}
 
 	On( eventtype, callback ) {
@@ -31,6 +32,8 @@ class EventAwareBase extends require( './_Base' ) {
 			}
 		for ( var k in this.Listeners )
 			this.Listeners[ k ].Trigger( eventtype, data, event );
+		for ( var k in this.TriggerRepositories )
+			this.TriggerRepositories[ k ].TriggerEvent( this, eventtype, data, event );
 	}
 	
 	CreateListener() {

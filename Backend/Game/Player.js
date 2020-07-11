@@ -19,7 +19,7 @@ class Player extends require( '../_Entity' ) {
 		});
 	}
 	
-	Unpack( data ) {
+	Unpack( data, options ) {
 		return new Promise( ( next, fail ) => {
 			
 			if ( !data.UserId || !data.GameId )
@@ -27,6 +27,8 @@ class Player extends require( '../_Entity' ) {
 			
 			if ( data.Flags )
 				this.Flags = JSON.parse( data.Flags );
+			
+			//console.log( 'UNPACK PLAYER', data, options );
 			
 			var promises = [];
 			if ( !this.User )

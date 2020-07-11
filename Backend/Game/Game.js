@@ -27,7 +27,7 @@ class Game extends require( '../_Entity' ) {
 		});
 	}
 	
-	Unpack( data ) {
+	Unpack( data, options ) {
 		return new Promise( ( next, fail ) => {
 			
 			if ( !data.Name || !data.GameState ) // mandatory fields
@@ -40,6 +40,7 @@ class Game extends require( '../_Entity' ) {
 			
 			// players
 			if ( data.Players && data.Players.length ) {
+				
 				var promises = [];
 				for ( var k in data.Players ) {
 					var id = data.Players[ k ];
@@ -82,25 +83,51 @@ class Game extends require( '../_Entity' ) {
 		});
 	}
 	
+	OnInit( options ) {
+		return new Promise( ( next, fail ) => {
+			var done = ( repository ) => {
+				this.Repository = repository;
+				this.TriggerRepositories.push( this.Repository ); // to duplicate events there
+				console.log( 'GAME ONINIT DONE', this.Id );
+				return next();
+			}
+			console.log( 'GAME ONINIT', this.Id, options );
+			if( options && options.parameters && options.parameters.Repository )
+				return done( options.parameters.Repository );
+			
+			this.GetRepository( 'Games_List', {
+				parameters: {
+					Entities: {
+						[ this.Id ]: this,
+					},
+				},
+			})
+				.then( done )
+				.catch( fail )
+			;
+		});
+	}
+	
+	OnDeinit() {
+		return new Promise( ( next, fail ) => {
+			this.Repository = null;
+			this.TriggerRepositories = [];
+		});
+	}
+	
 	OnCreate() {
 		return new Promise( ( next, fail ) => {
 			console.log( '+GAME #' + this.Id );
 			
-			this.AddPlayer( this.HostUser, {
+			this.AddPlayerForUser( this.HostUser, {
 				is_host: true,
 			})
 				.then( ( player ) => {
 					this.Host = player; // set reference to host player
 					delete this.HostUser; // not needed anymore
-					
-					this.Host.User.Session.AddToGame( this );
-					
-					this.GetRepository( this.GamesListRepository )
-						.then( ( repository ) => {
-							repository.Insert( this )
-								.then( next )
-								.catch( fail )
-							;
+					this.Repository.Insert( this )
+						.then( () => {
+							return next();
 						})
 						.catch( fail )
 					;
@@ -115,20 +142,15 @@ class Game extends require( '../_Entity' ) {
 			
 			console.log( '-GAME #' + this.Id );
 			
-			this.GetRepository( this.GamesListRepository )
-				.then( ( repository ) => {
-					repository.Remove( this )
-						.then( next )
-						.catch( fail )
-					;
-				})
+			this.Repository.Remove( this )
+				.then( next )
 				.catch( fail )
 			;
 			
 		});
 	}
 	
-	AddPlayer( user, flags ) {
+	AddPlayerForUser( user, flags ) {
 		return new Promise( ( next, fail ) => {
 			
 			for ( var k in this.Players ) {
@@ -143,6 +165,12 @@ class Game extends require( '../_Entity' ) {
 					this.Players[ player.Id ] = player;
 					this.Save()
 						.then( () => {
+							user.Session.AddToGame( this );
+							
+							this.Trigger( 'player_join', {
+								Player: player,
+							});
+
 							return next( player );
 						})
 						.catch( fail )
@@ -159,13 +187,13 @@ class Game extends require( '../_Entity' ) {
 			if ( player ) {
 				console.log( 'GAME #' + this.Id + ' : REMOVE PLAYER #' + player.Id + ' ( ' + player.User.Username + ' )' );
 				
+				this.Trigger( 'player_leave', {
+					Player: player,
+				});
+				
 				this.Manager( 'Player' ).DeletePlayer( player )
 					.then( () => {
 						delete this.Players[ user.Id ];
-						
-						this.Trigger( 'player_leave', {
-							Player: player,
-						});
 						
 						if ( Object.keys( this.Players ).length == 0 ) { // no players left, delete game
 							this.Delete()

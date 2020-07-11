@@ -73,8 +73,8 @@ class _Base {
 	Model( namespace ) {
 		return this.Module( 'Sql' ).Models[ namespace ];
 	}
-	GetRepository( repository_id ) {
-		return this.Manager( 'Repository' ).Get( repository_id );
+	GetRepository( repository_id, options ) {
+		return this.Manager( 'Repository' ).Get( repository_id, options );
 	}
 	CacheScope( key, func ) {
 		return this.Module( 'ObjectCache' ).Scope( key, func );

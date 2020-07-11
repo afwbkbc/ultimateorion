@@ -6,11 +6,12 @@ class RepositoryManager extends require( './_Module' ) {
 		this.Repository = require( '../Repository' );
 	}
 	
-	Get( repository_id ) {
+	Get( repository_id, options ) {
 		return new Promise( ( next, fail ) => {
+			//console.log( 'GETREPOSITORY', repository_id, options );
 			this.CacheScope( 'REPOSITORY_' + repository_id, ( next, fail ) => {
 				var repository = new this.Repository( repository_id );
-				repository.Create()
+				repository.Create( options )
 					.then( () => {
 						return next( repository );
 					})

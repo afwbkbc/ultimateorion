@@ -5,33 +5,46 @@ class Entity extends require( './_EventAwareBase' ) {
 		
 	}
 	
-	Create() {
+	Create( options ) {
 		return new Promise( ( next, fail ) => {
 			console.log( '+ENTITY #' + this.Id );
+
+			this.OnInit()
+				.then( () => {
+					if ( this.OnCreate ) {
+						this.OnCreate( options )
+							.then( next )
+							.catch( fail )
+						;
+					}
+					else
+						return next();
+				})
+				.catch( fail )
+			;
 			
-			if ( this.OnCreate ) {
-				this.OnCreate()
-					.then( next )
-					.catch( fail )
-				;
-			}
-			else
-				return next();
 		});
 	}
 	
 	Destroy() {
 		return new Promise( ( next, fail ) => {
 			console.log( '-ENTITY #' + this.Id );
-			
-			if ( this.OnDestroy ) {
-				this.OnDestroy()
+
+			var deinit = () => {
+				this.OnDeinit()
 					.then( next )
 					.catch( fail )
 				;
 			}
+			
+			if ( this.OnDestroy ) {
+				this.OnDestroy()
+					.then( deinit )
+					.catch( fail )
+				;
+			}
 			else
-				return next();
+				return deinit();
 		});
 	}
 
@@ -43,12 +56,23 @@ class Entity extends require( './_EventAwareBase' ) {
 			return next( {} );
 		});
 	}
-	
 	// after loading from db
 	Unpack( data ) {
 		return new Promise( ( next, fail ) => {
 			return next( this );
 		});
+	}
+	// additional initialization
+	OnInit( options ) {
+		return new Promise( ( next, fail ) => {
+			return next();
+		})
+	}
+	// additional deinitialization
+	OnDeinit() {
+		return new Promise( ( next, fail ) => {
+			return next();
+		})
 	}
 
 	// shortcuts

@@ -10,7 +10,7 @@ class Repository extends require( './_EventAwareBase' ) {
 		this.Entities = {};
 	}
 	
-	Create() {
+	Create( options ) {
 		return new Promise( ( next, fail ) => {
 			console.log( 'R[ ' + this.RepositoryId + ' ].Create()' );
 
@@ -19,22 +19,37 @@ class Repository extends require( './_EventAwareBase' ) {
 				EntityRepositoryId: this.RepositoryId,
 			})
 				.then( ( db_entities ) => {
-					
 					var promises = [];
-					for ( var k in db_entities )
-						promises.push( this.EntityManager.Load( db_entities[ k ].EntityId ) );
+					for ( var k in db_entities ) {
+						var entity_id = db_entities[ k ].EntityId;
+						if ( options && options.parameters && options.parameters.Entities && options.parameters.Entities[ entity_id ] )
+							this.Entities[ entity_id ] = options.parameters.Entities[ entity_id ];
+						else {
+							promises.push( this.EntityManager.Load( entity_id, {
+								parameters: {
+									Repository: this,
+								},
+							}));
+						}
+					}
 					
+					// fetch later to avoid deadlock 
 					Promise.all( promises )
 						.then( ( entities ) => {
 							for ( var k in entities ) {
 								var entity = entities[ k ];
-								if ( entity )
+								if ( entity ) {
 									this.Entities[ entity.Id ] = entity;
+									this.Trigger( 'add', {
+										Entity: entity,
+									});
+								}
 							}
-							return next();
 						})
 						.catch( fail )
 					;
+					
+					return next();
 					
 				})
 				.catch( fail )
@@ -64,6 +79,15 @@ class Repository extends require( './_EventAwareBase' ) {
 				})
 				.catch( fail )
 			;
+		});
+	}
+	
+	TriggerEvent( entity, eventtype, data, event ) {
+		this.Trigger( 'event', {
+			Entity: entity,
+			EventType: eventtype,
+			Data: data,
+			Event: event,
 		});
 	}
 	

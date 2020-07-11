@@ -52,7 +52,6 @@ class Lobby extends require( '../../Layout/Window' ) {
 			Height: 360,
 		})
 			.On( 'leave', ( data ) => {
-				console.log( 'REMOVEPLAYER', this.Player.Id );
 				this.Game.RemovePlayer( this.Player );
 			})
 		;
@@ -60,6 +59,7 @@ class Lobby extends require( '../../Layout/Window' ) {
 		// listen to game events and update UI accordingly
 		this.Listen( this.Attributes.Game )
 			.On( 'player_join', ( data ) => {
+				console.log( 'player_join' );
 				var player = data.Player;
 				if ( !this.Players[ player.Id ] ) {
 					this.Players[ player.Id ] = player;
@@ -67,8 +67,8 @@ class Lobby extends require( '../../Layout/Window' ) {
 				}
 			})
 			.On( 'player_leave', ( data ) => {
+				console.log( 'player_leave' );
 				var player = data.Player;
-				console.log( 'PLAYER LEAVE', this.Player.Id, player.Id );
 				if ( player.Id == this.Player.Id ) {
 					this.Close(); // we left this game, return to main menu
 				}
