@@ -22,6 +22,10 @@ class Fs extends require( './_Helper' ) {
 		return this.Path.extname( path );
 	}
 	
+	GetFiles( path ) {
+		return this.Fs.readdirSync( path );
+	}
+	
 	// returns array of namespaces to classes found in directory ( no recursion except for Dir/Script.js cases )
 	GetClasses( namespace ) {
 		var classes = {};

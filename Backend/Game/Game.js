@@ -155,7 +155,14 @@ class Game extends require( '../_Entity' ) {
 		return new Promise( ( next, fail ) => {
 			var player = this.Players[ user.Id ];
 			if ( player ) {
-				console.log( 'GAME #' + this.Id + ' : REMOVE PLAYER #' + player.Id + ' ( ' + user.Username + ' )' );
+				console.log( 'GAME #' + this.Id + ' : REMOVE PLAYER #' + player.Id + ' ( ' + player.User.Username + ' )' );
+				
+				this.Trigger( 'player_leave', {
+					Player: player,
+				});
+				
+				return next(); // tmp
+				
 				this.Manager( 'Player' ).DeletePlayer( player )
 					.then( () => {
 						delete this.Players[ user.Id ];

@@ -25,7 +25,11 @@ class ActionBlock extends require( '../../../Layout/Block' ) {
 		
 		this.Append( 'UI/Button', {
 			Label: 'Leave game',
-		});
+		})
+			.On( 'click', ( data ) => {
+				this.Trigger( 'leave' );
+			})
+		;
 		
 		/*this.Rows = this.AddElement( 'Window/Game/Lobby/' + this.Attributes.BlockType + '/Rows', [ 'LT', 'LT' ], [ 0, 60 ], {
 			Width: this.Attributes.Width,

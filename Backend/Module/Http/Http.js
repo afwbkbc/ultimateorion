@@ -58,6 +58,20 @@ class Http extends require( '../_Module' ) {
 						filepath = '/error.html';
 						status = 404;
 						break;
+					case '/DevGallery' :
+						// generate file list with links to images
+						var content = '<!DOCTYPE html><head><title>UltimateOrion Development Gallery</title></head><body><h1>UltimateOrion Development Gallery</h1>';
+						content += '<a href="/">..</a><br/>';
+						var files = this.H.Fs.GetFiles( './Frontend/DevGallery' );
+						for ( var k in files ) {
+							var f = files[ k ];
+							content += '<a href="/DevGallery/' + f + '">' + f + '</a><br/>';
+						}
+						content += '</body></html>';
+						res.setHeader( 'Content-Type', 'text/html' );
+						res.writeHead( 200 );
+						res.end( content );
+						return;
 					case '/' :
 						filepath = '/index.html';
 						status = 200;

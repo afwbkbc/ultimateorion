@@ -20,6 +20,13 @@ class Lobby extends require( '../../Layout/Window' ) {
 		
 		super.Prepare();
 		
+		this.Game = this.Attributes.Game;
+		if ( !this.Game )
+			throw new Error( 'Game not defined' );
+		this.Player = this.Game.FindPlayerForUser( this.Viewport.Session.User );
+		if ( !this.Player )
+			throw new Error( 'Player not found' );
+		
 		this.Settings = this.Body.AddElement( 'Window/Game/Lobby/Settings', [ 'LT', 'LT' ], [ 20, 20 ], {
 			Width: 500,
 			Height: 600,
@@ -43,8 +50,14 @@ class Lobby extends require( '../../Layout/Window' ) {
 		this.ActionBlock = this.Body.AddElement( 'Window/Game/Lobby/ActionBlock', [ 'LT', 'LT' ], [ 1580, 690 ], {
 			Width: 320,
 			Height: 360,
-		});
-
+		})
+			.On( 'leave', ( data ) => {
+				this.Game.RemovePlayer( this.Player );
+			})
+		;
+		
+		
+		// listen to game events and update UI accordingly
 		this.Listen( this.Attributes.Game )
 			.On( 'player_join', ( data ) => {
 				var player = data.Player;
