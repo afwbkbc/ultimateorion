@@ -25,14 +25,36 @@ class ObjectCache extends require( './_Module' ) {
 				return next( this.Cache[ target_key ] );
 			}
 			else {
+				var caching_done = ( obj ) => {
+					if ( obj ) {
+						// object built successfully, cache it
+						if ( this.Debug )
+							console.log( '[ORIG] ' + target_key );
+						this.Cache[ target_key ] = obj;
+					}
+					if ( this.Debug )
+						console.log( 'CACHEDONE', target_key );
+					// return result ( either object or null )
+					next( obj );
+					// also return to whatever was waiting
+					for ( var k in this.Caching[ target_key ] )
+						this.Caching[ target_key ][ k ]( obj );
+					// cleanup
+					delete this.Caching[ target_key ];
+				};
+				
 				if ( this.Caching[ target_key ] ) {
 					if ( initiator_key && this.Caching[ initiator_key ] ) {
-						// deadlock
-						console.log( '!!!!! DEADLOCK between ' + initiator_key + ' and ' + target_key + ' !!!!!' );
-						// need to construct temporary non-initialized object so that it can be initialized later
-						return next( null );
+						// deadlock!
+						if ( this.Debug )
+							console.log( '!!!!! DEADLOCK between ' + initiator_key + ' and ' + target_key + ' !!!!!' );
+						// return deadlock information to handle it somewhere else somehow
+						return fail( new this.G.DeadlockError( initiator_key, target_key, generator_func, ( obj ) => {
+							// breakout handler
+							//delete this.Caching[ target_key ];
+							return caching_done( null );
+						}, fail ) );
 					}
-					
 					
 					// something is already building this object, wait for it and return when object ready
 					if ( this.Debug )
@@ -48,23 +70,7 @@ class ObjectCache extends require( './_Module' ) {
 					// build cache
 					if ( this.Debug )
 						console.log( 'CACHEBUILD ' + target_key );
-					return generator_func( ( obj ) => {
-						if ( obj ) {
-							// object built successfully, cache it
-							if ( this.Debug )
-								console.log( '[ORIG] ' + target_key );
-							this.Cache[ target_key ] = obj;
-						}
-						if ( this.Debug )
-							console.log( 'CACHEDONE', target_key );
-						// return result ( either object or null )
-						next( obj );
-						// also return to whatever was waiting
-						for ( var k in this.Caching[ target_key ] )
-							this.Caching[ target_key ][ k ]( obj );
-						// cleanup
-						delete this.Caching[ target_key ];
-					}, fail );
+					return generator_func( caching_done, fail );
 				}
 			}
 			
@@ -77,7 +83,7 @@ class ObjectCache extends require( './_Module' ) {
 				// already removing, add callback to wait
 				if ( this.Debug )
 					console.log( 'CACHEREMOVEWAIT ' + key );
-				this.Removing.push( func );
+				this.Removing[ key ].push( func );
 				return next();
 			}
 			if ( this.Debug )

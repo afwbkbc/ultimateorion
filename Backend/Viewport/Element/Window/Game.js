@@ -38,6 +38,7 @@ class Game extends require( '../Layout/Window' ) {
 					throw new Error( 'unknown/invalid game state "' + game.GameState + '"' );
 				
 				this.Window.On( 'close', () => {
+					console.log( 'CLOSED' );
 					this.Close();
 				});
 				

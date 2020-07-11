@@ -29,19 +29,39 @@ class Player extends require( '../_Entity' ) {
 				this.Flags = JSON.parse( data.Flags );
 			
 			//console.log( 'UNPACK PLAYER', data, options );
+
+			var p = {
+				caller: this.Id,
+				parameters: {
+					Players: {
+						[ this.Id ]: this,
+					},
+				},
+				on_before_deadlock: ( obj ) => {
+					//console.log( 'P BEFOREDEADLOCK', obj );
+					//this.Game = new this.G.DeferredEntity( obj.EntityId );
+				},
+				on_after_deadlock: ( obj ) => {
+					//console.log( 'P AFTERDEADLOCK', obj );
+					this.Manager( 'Game' ).FindGame( obj.EntityId, p )
+						.then( ( game ) => {
+							this.Game = game;
+							this.Save();
+							this.Game.Trigger( 'player_join', {
+								Player: this,
+							});
+							console.log( 'THISGAMEID', this.Game.Id );
+						})
+						.catch( fail )
+					;
+				},
+			};
 			
 			var promises = [];
 			if ( !this.User )
 				promises.push( this.Module( 'Auth' ).FindUser( data.UserId ) );
 			if ( !this.Game )
-				promises.push( this.Manager( 'Game' ).FindGame( data.GameId, {
-					caller: this.Id,
-					parameters: {
-						Players: {
-							[ this.Id ]: this,
-						},
-					},
-				}));
+				promises.push( this.Manager( 'Game' ).FindGame( data.GameId, p ));
 			
 			if ( !promises.length )
 				return next( this ); // nothing to do
@@ -50,15 +70,16 @@ class Player extends require( '../_Entity' ) {
 				.then( ( results ) => {
 					for ( var k in results ) {
 						var obj = results[ k ];
-						if ( !obj ) // one of mandatory objects not found, entity invalid
-							return next( null );
+						if ( !obj || obj instanceof this.G.DeferredEntity )
+							continue; // will be set later
 						if ( obj.Classname == 'Game' || obj.Classname == 'User' )
 							this[ obj.Classname ] = obj;
 						else {
-							console.log( 'INVALID CLASSNAME "' + obj.Classname );
+							console.log( 'unexpected object "' + obj.Classname + '"' );
 							return next( null );
 						}
 					}
+					console.log( 'RESULT1', this.Id, this.Game ? this.Game.Id : '???' );
 					return next( this );
 				})
 				.catch( fail )

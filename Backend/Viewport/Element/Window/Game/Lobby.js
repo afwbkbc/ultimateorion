@@ -21,11 +21,11 @@ class Lobby extends require( '../../Layout/Window' ) {
 		super.Prepare();
 		
 		this.Game = this.Attributes.Game;
-		if ( !this.Game )
-			throw new Error( 'Game not defined' );
 		this.Player = this.Game.FindPlayerForUser( this.Viewport.Session.User );
-		if ( !this.Player )
-			throw new Error( 'Player not found' );
+		if ( !this.Game || !this.Player ) {
+			this.Close();
+			return;
+		}
 		
 		this.Settings = this.Body.AddElement( 'Window/Game/Lobby/Settings', [ 'LT', 'LT' ], [ 20, 20 ], {
 			Width: 500,
@@ -59,7 +59,7 @@ class Lobby extends require( '../../Layout/Window' ) {
 		// listen to game events and update UI accordingly
 		this.Listen( this.Attributes.Game )
 			.On( 'player_join', ( data ) => {
-				console.log( 'player_join' );
+				//console.log( 'player_join' );
 				var player = data.Player;
 				if ( !this.Players[ player.Id ] ) {
 					this.Players[ player.Id ] = player;
@@ -67,7 +67,7 @@ class Lobby extends require( '../../Layout/Window' ) {
 				}
 			})
 			.On( 'player_leave', ( data ) => {
-				console.log( 'player_leave' );
+				//console.log( 'player_leave' );
 				var player = data.Player;
 				if ( player.Id == this.Player.Id ) {
 					this.Close(); // we left this game, return to main menu

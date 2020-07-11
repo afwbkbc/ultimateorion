@@ -33,6 +33,7 @@ class GameManager extends require( './_EntityManager' ) {
 	
 	FindGame( id, options ) {
 		return new Promise( ( next, fail ) => {
+			//console.log( 'FINDGAME', id, options );
 			this.Load( id, options )
 				.then( next )
 				.catch( fail )

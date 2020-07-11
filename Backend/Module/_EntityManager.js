@@ -116,7 +116,7 @@ class EntityManager extends require( './_Module' ) {
 	
 	Load( entity_id, options ) {
 		return new Promise( ( next, fail ) => {
-			console.log( 'LOAD', entity_id, options && options.parameters ? Object.keys( options.parameters ) : null );
+			//console.log( 'LOAD', entity_id, options && options.parameters ? Object.keys( options.parameters ) : null );
 			this.CacheScope( options && options.caller ? options.caller : null, entity_id, ( next, fail ) => {
 				this.EntityModel.FindOne({
 					EntityId: entity_id,
@@ -163,7 +163,30 @@ class EntityManager extends require( './_Module' ) {
 				;
 			})
 				.then( next )
-				.catch( fail )
+				.catch( ( e ) => {
+					if ( e instanceof this.G.DeadlockError ) {
+						if ( options && options.on_before_deadlock && options.on_after_deadlock ) {
+							
+							//console.log( 'DEADLOCK', e, options );
+							// some information about object
+							var obj = new this.G.DeferredEntity( e.Target ); // will be loaded later
+							
+							// prepare for handling object later
+							options.on_before_deadlock( obj );
+							
+							// schedule handling of this object after current flow ends
+							setTimeout( () => {
+								options.on_after_deadlock( obj );
+							}, 0 );
+							
+							//console.log( 'OBJ', obj );
+							// break out from deadlock
+							e.Next( obj );
+							return next( obj );
+						}
+					}
+					return fail( e );
+				})
 			;
 		});
 	}

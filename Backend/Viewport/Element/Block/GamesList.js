@@ -58,7 +58,10 @@ class GamesList extends require( '../Layout/Block' ) {
 						remove_game( game );
 					})
 					.On( 'event', ( data ) => {
-						console.log( 'EVENT', data.EventType );
+						if ( data.EventType == 'player_join' && data.Data.Player.User.ID == this.Viewport.Session.User.ID )
+							add_game( data.Entity );
+						else if ( data.EventType == 'player_leave' && data.Data.Player.User.ID == this.Viewport.Session.User.ID )
+							remove_game( data.Entity );
 					})
 				;
 				

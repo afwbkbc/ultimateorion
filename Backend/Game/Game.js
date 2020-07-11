@@ -41,16 +41,39 @@ class Game extends require( '../_Entity' ) {
 			// players
 			if ( data.Players && data.Players.length ) {
 				
+				var deferred_players = [];
+				
+				var p = {
+					caller: this.Id,
+					parameters: {
+						Game: this,
+					},
+					on_before_deadlock: ( obj ) => {
+						//console.log( 'G BEFOREDEADLOCK', obj );
+						//deferred_players.push( new this.G.DeferredEntity( obj.EntityId ) );
+					},
+					on_after_deadlock: ( obj ) => {
+						//console.log( 'G AFTERDEADLOCK', obj );
+						this.Manager( 'Player' ).FindPlayer( obj.EntityId, p )
+							.then( ( player ) => {
+								if ( player ) {
+									this.Players[ player.Id ] = player;
+									if ( player.Flags.is_host )
+										this.Host = player;
+									this.Trigger( 'player_join', {
+										Player: player,
+									});
+									this.Save();
+								}
+							})
+					},
+				};
+				
 				var promises = [];
 				for ( var k in data.Players ) {
 					var id = data.Players[ k ];
 					if ( !this.Players[ id ] ) {
-						promises.push( this.Manager( 'Player' ).FindPlayer( id, {
-							caller: this.Id,
-							parameters: {
-								Game: this,
-							},
-						}));
+						promises.push( this.Manager( 'Player' ).FindPlayer( id, p ) );
 					}
 				}
 				Promise.all( promises )
@@ -65,13 +88,13 @@ class Game extends require( '../_Entity' ) {
 						for ( var k in this.Players ) {
 							var player = this.Players[ k ];
 							if ( player.Flags.is_host ) {
-								if ( this.Host )
-									return next( null ); // game can't have 2 hosts
+								//if ( this.Host )
+									//return next( null ); // game can't have 2 hosts
 								this.Host = player;
 							}
 						}
-						if ( !this.Host && this.GameState == 'lobby' )
-							return next( null ); // game can't be without host while in lobby
+						//if ( !this.Host && this.GameState == 'lobby' )
+							//return next( null ); // game can't be without host while in lobby
 						
 						return next( this );
 					})
@@ -103,6 +126,12 @@ class Game extends require( '../_Entity' ) {
 						[ this.Id ]: this,
 					},
 				},
+				/*on_before_deadlock: ( obj ) => {
+					console.log( 'BEFOREDEADLOCK', obj );
+				},
+				on_after_deadlock: ( obj ) => {
+					console.log( 'AFTERDEADLOCK', obj );
+				},*/
 			})
 				.then( done )
 				.catch( fail )

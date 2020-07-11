@@ -44,12 +44,15 @@ if ( typeof( helpers.Config ) !== 'undefined' )
 // engine should be accessible from anywhere
 var g_engine = null;
 
+var globals = require( './Globals' );
+
 class _Base {
 	
 	constructor( fname ) {
 		if ( typeof( fname ) === 'undefined' )
 			throw new Error( 'script filename must be specified, please add super( module.filename ); to constructor' );
 		
+		this.G = globals; // globals
 		this.H = helpers; // helpers
 		if ( g_engine )
 			this.E = g_engine; // engine

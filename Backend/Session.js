@@ -161,9 +161,10 @@ class Session extends require( './_Entity' ) {
 		return new Promise( ( next, fail ) => {
 			
 			// double-joining same game not allowed
-			for ( var k in this.Players )
+			for ( var k in this.Players ) {
 				if ( this.Players[ k ].Game.Id == game.Id )
 					return next();
+			}
 			
 			game.AddPlayerForUser( this.User )
 				.then( ( player ) => {
@@ -185,6 +186,7 @@ class Session extends require( './_Entity' ) {
 			// find relevant player and destroy it
 			for ( var k in this.Players ) {
 				var player = this.Players[ k ];
+				//console.log( 'REMOVEFROMGAME', player, game.Id );
 				if ( player.Game.Id == game.Id ) {
 					//console.log( 'REMOVE FROM GAME ' + this.User.Username + ' #' + game.Id );
 					delete this.Players[ k ];

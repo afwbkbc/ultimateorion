@@ -15,7 +15,7 @@ class GameRow extends require( '../../Layout/Panel' ) {
 		});
 		
 		this.AddElement( 'UI/Label', [ 'LC', 'LC' ], [ 900, 0 ], {
-			Text: this.Attributes.Game.Host.User.Username,
+			Text: this.Attributes.Game.Host ? this.Attributes.Game.Host.User.Username : '',
 		});
 		
 		this.AddElement( 'UI/Button', [ 'RC', 'RC' ], [ -20, 0 ], {
