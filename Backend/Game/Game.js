@@ -58,7 +58,7 @@ class Game extends require( '../_Entity' ) {
 							.then( ( player ) => {
 								if ( player ) {
 									this.Players[ player.Id ] = player;
-									if ( player.Flags.is_host )
+									if ( player.Flags && player.Flags.is_host )
 										this.Host = player;
 									this.Trigger( 'player_join', {
 										Player: player,
@@ -149,7 +149,10 @@ class Game extends require( '../_Entity' ) {
 	
 	OnCreate() {
 		return new Promise( ( next, fail ) => {
-			console.log( '+GAME #' + this.Id );
+			this.Log( this.HostUser.Session.Id, 'Game created', {
+				Game: this.Id,
+			});
+			//console.log( '+GAME #' + this.Id );
 			
 			this.AddPlayerForUser( this.HostUser, {
 				is_host: true,
@@ -171,11 +174,18 @@ class Game extends require( '../_Entity' ) {
 	
 	OnDestroy() {
 		return new Promise( ( next, fail ) => {
-			
-			console.log( '-GAME #' + this.Id );
+
+			//console.log( '-GAME #' + this.Id );
 			
 			this.Repository.Remove( this )
-				.then( next )
+				.then( () => {
+					if ( this.Host ) {
+						this.Log( this.Host.User.Session.Id, 'Game destroyed', {
+							Game: this.Id,
+						});
+					}
+					return next();
+				})
 				.catch( fail )
 			;
 			
@@ -193,7 +203,7 @@ class Game extends require( '../_Entity' ) {
 			
 			this.Manager( 'Player' ).CreatePlayer( user, this, flags )
 				.then( ( player ) => {
-					console.log( 'GAME #' + this.Id + ' : ADD PLAYER #' + player.Id + ' ( ' + user.Username + ' )' );
+					//console.log( 'GAME #' + this.Id + ' : ADD PLAYER #' + player.Id + ' ( ' + user.Username + ' )' );
 					this.Players[ player.Id ] = player;
 					this.Save()
 						.then( () => {
@@ -217,7 +227,7 @@ class Game extends require( '../_Entity' ) {
 		return new Promise( ( next, fail ) => {
 			var player = this.Players[ user.Id ];
 			if ( player ) {
-				console.log( 'GAME #' + this.Id + ' : REMOVE PLAYER #' + player.Id + ' ( ' + player.User.Username + ' )' );
+				//console.log( 'GAME #' + this.Id + ' : REMOVE PLAYER #' + player.Id + ' ( ' + player.User.Username + ' )' );
 				
 				this.Trigger( 'player_leave', {
 					Player: player,

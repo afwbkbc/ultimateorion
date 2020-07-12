@@ -13,6 +13,7 @@ class DebugConsole extends require( '../Layout/Window' ) {
 			HasBorder: false,
 			WithTitlebar: false,
 			WithCloseButton: false,
+			ZIndex: 10000,
 		});
 		
 		this.Prefixes = [ '', '<' ];

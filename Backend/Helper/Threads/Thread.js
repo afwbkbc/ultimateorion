@@ -4,11 +4,11 @@ class Thread {
 		this.Pool = pool;
 		this.Id = id;
 		
-		console.log( '+THREAD #' + this.Id );
+		//console.log( '+THREAD #' + this.Id );
 	}
 	
 	Kill() {
-		console.log( '-THREAD #' + this.Id );
+		//console.log( '-THREAD #' + this.Id );
 		if ( this.Timeout ) {
 			clearTimeout( this.Timeout );
 			this.Timeout = null;

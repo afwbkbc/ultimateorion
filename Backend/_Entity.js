@@ -7,7 +7,7 @@ class Entity extends require( './_EventAwareBase' ) {
 	
 	Create( options ) {
 		return new Promise( ( next, fail ) => {
-			console.log( '+ENTITY #' + this.Id );
+			//console.log( '+ENTITY #' + this.Id );
 
 			this.OnInit()
 				.then( () => {
@@ -28,7 +28,7 @@ class Entity extends require( './_EventAwareBase' ) {
 	
 	Destroy() {
 		return new Promise( ( next, fail ) => {
-			console.log( '-ENTITY #' + this.Id );
+			//console.log( '-ENTITY #' + this.Id );
 
 			var deinit = () => {
 				this.OnDeinit()

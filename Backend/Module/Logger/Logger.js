@@ -22,9 +22,6 @@ class Logger extends require( '../_Module' ) {
 				Target: session,
 				Messages: [],
 			};
-			this.Log( session.Id, 'Attached to Logger', {
-				[ 'Session.Id' ]: session.Id,
-			});
 		}
 	}
 	

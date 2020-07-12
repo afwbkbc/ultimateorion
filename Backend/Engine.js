@@ -29,7 +29,7 @@ class Engine extends require( './_Base' ) {
 	
 	Run() {
 		
-		console.log( 'RUN' );
+		console.log( 'Engine started' );
 		for ( var k in this.M )
 			if ( this.M[ k ].Run )
 				this.M[ k ].Run();

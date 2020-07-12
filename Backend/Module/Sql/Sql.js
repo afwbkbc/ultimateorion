@@ -75,7 +75,9 @@ class Sql extends require( '../_Module' ) {
 										});
 										query = null;
 										break;
-									default: console.log( field ); return fail( 'unknown schema type "' + field.type + '"' );
+									default:
+										console.log( field );
+										return fail( 'unknown schema type "' + field.type + '"' );
 								}
 								
 								if ( query ) {

@@ -50,7 +50,7 @@ class Player extends require( '../_Entity' ) {
 							this.Game.Trigger( 'player_join', {
 								Player: this,
 							});
-							console.log( 'THISGAMEID', this.Game.Id );
+							//console.log( 'THISGAMEID', this.Game.Id );
 						})
 						.catch( fail )
 					;
@@ -79,7 +79,7 @@ class Player extends require( '../_Entity' ) {
 							return next( null );
 						}
 					}
-					console.log( 'RESULT1', this.Id, this.Game ? this.Game.Id : '???' );
+					//console.log( 'RESULT1', this.Id, this.Game ? this.Game.Id : '???' );
 					return next( this );
 				})
 				.catch( fail )

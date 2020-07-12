@@ -76,6 +76,9 @@ class Connection extends require( '../../_Base' ) {
 			
 			var done = ( session ) => {
 				this.Session = session;
+				/*this.Log( session.Id, 'Connected to session', {
+					Session: session.Id,
+				});*/
 				session.AddConnection( this );
 			}
 			
@@ -120,8 +123,12 @@ class Connection extends require( '../../_Base' ) {
 			delete Events[ k ];
 		}
 		
-		if ( this.Session )
+		if ( this.Session ) {
+			/*this.Log( this.Session.Id, 'Disonnected from session', {
+				Session: this.Session.Id,
+			});*/
 			this.Session.RemoveConnection( this );
+		}
 		
 		this.Http.RemoveConnection( this.Id );
 	}
@@ -188,7 +195,8 @@ class Connection extends require( '../../_Base' ) {
 		event.data.data.Reply = event.Reply;
 		switch ( event.data.action ) {
 			case 'viewport_event':
-				this.Session.Viewport.HandleEvent( event );
+				if ( this.Session && this.Session.Viewport )
+					this.Session.Viewport.HandleEvent( event );
 				break;
 			default:
 				console.log( 'dropping invalid/unsupported event "' + event.data.action + '"', event.data );

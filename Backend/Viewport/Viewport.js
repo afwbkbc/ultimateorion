@@ -15,7 +15,9 @@ class Viewport extends require( './_ElementBase' ) {
 	
 	// override if needed
 	Init() {
-		
+		this.Log( this.Session.Id, 'Viewport created', {
+			Viewport: this.Classname,
+		});
 	}
 	
 	Pack() {
@@ -28,6 +30,9 @@ class Viewport extends require( './_ElementBase' ) {
 	
 	Destroy() {
 		this.OnDestroyRecursive();
+		this.Log( this.Session.Id, 'Viewport destroyed', {
+			Viewport: this.Classname,
+		});
 	}
 	
 	RegisterElement( element ) {

@@ -103,7 +103,11 @@ class Session extends require( './_Entity' ) {
 	AddConnection( connection ) {
 		if ( typeof( this.Connections[ connection.Id ] ) !== 'undefined' )
 			throw new Error( 'Session connections collision at #' + connection.Id );
-		console.log( '+CONNECTION', this.Id, connection.Id );
+		//console.log( '+CONNECTION', this.Id, connection.Id );
+		this.Log( 'Connection added to session', {
+			Session: this.Id,
+			Connection: connection.Id,
+		})
 		this.Connections[ connection.Id ] = connection;
 		this.Connect( connection );
 	}
@@ -111,15 +115,19 @@ class Session extends require( './_Entity' ) {
 	RemoveConnection( connection ) {
 		if ( typeof( this.Connections[ connection.Id ] ) === 'undefined' )
 			throw new Error( 'Session connections invalid id #' + connection.Id );
-		console.log( '-CONNECTION', this.Id, connection.Id );
+		//console.log( '-CONNECTION', this.Id, connection.Id );
 		delete this.Connections[ connection.Id ];
+		this.Log( 'Connection removed from session', {
+			Session: this.Id,
+			Connection: connection.Id,
+		})
 		this.Disconnect( connection );
 	}
 	
 	SetGuestId( connection, guest_id ) {
 		if ( this.GuestId )
 			throw new Error( 'GuestId already set', this.Id );
-		console.log( '+GUESTID', this.Id, guest_id );
+		//console.log( '+GUESTID', this.Id, guest_id );
 		this.GuestId = guest_id;
 		connection.Send( 'set_guest_id', {
 			guest_id: this.GuestId,
@@ -168,6 +176,10 @@ class Session extends require( './_Entity' ) {
 			
 			game.AddPlayerForUser( this.User )
 				.then( ( player ) => {
+					this.Log( 'Joined game', {
+						Game: game.Id,
+						Player: player.Id,
+					});
 					//console.log( 'ADD TO GAME ' + player.User.Username + ' #' + game.Id );
 					this.Players[ player.Id ] = player;
 					this.Save()
@@ -186,14 +198,19 @@ class Session extends require( './_Entity' ) {
 			// find relevant player and destroy it
 			for ( var k in this.Players ) {
 				var player = this.Players[ k ];
-				//console.log( 'REMOVEFROMGAME', player, game.Id );
 				if ( player.Game.Id == game.Id ) {
 					//console.log( 'REMOVE FROM GAME ' + this.User.Username + ' #' + game.Id );
 					delete this.Players[ k ];
 					game.RemovePlayer( this.User )
 						.then( () => {
 							this.Save()
-								.then( next )
+								.then( () => {
+									this.Log( 'Left game', {
+										Game: game.Id,
+										Player: player.Id,
+									});
+									return next();
+								})
 								.catch( fail )
 							;
 						})
@@ -245,6 +262,10 @@ class Session extends require( './_Entity' ) {
 				.catch( fail )
 			;
 		});
+	}
+	
+	Log( text, data ) {
+		return super.Log( this.Id, text, data );
 	}
 	
 }

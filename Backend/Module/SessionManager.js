@@ -103,19 +103,22 @@ class SessionManager extends require( './_EntityManager' ) {
 			if ( session.User ) {
 				if ( typeof( this.UserSessions[ session.User.ID ] ) === 'undefined' )
 					throw new Error( 'SessionPool session #' + session.User.ID + ' User ID not found in UserSessions' );
-				console.log( '-USERID', session.Id, session.User.ID );
+				//console.log( '-USERID', session.Id, session.User.ID );
 				delete this.UserSessions[ session.User.ID ];
 			}
 			else if ( session.GuestId ) {
 				if ( typeof( this.GuestSessions[ session.GuestId ] ) === 'undefined' )
 					throw new Error( 'SessionPool session #' + session.Id + ' GuestId not found in GuestSessions' );
-				console.log( '-GUESTID', session.Id, session.GuestId );
+				//console.log( '-GUESTID', session.Id, session.GuestId );
 				delete this.GuestSessions[ session.GuestId ];
 			}
 			else
 				throw new Error( 'SessionPool invalid/malformed session' + session.Id );
 			if ( session.Connections.length > 0 )
 				throw new Error( 'SessionPool session #' + session.Id + ' has active connections on destruction' );
+			this.Log( session.Id, 'Disconnected from session', {
+				Session: session.Id,
+			});
 			if ( this.Config.Debug )
 				this.Module( 'Logger' ).DetachSession( session );
 			this.Delete( session, {

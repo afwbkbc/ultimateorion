@@ -14,7 +14,7 @@ class GameManager extends require( './_EntityManager' ) {
 				},
 			})
 				.then( ( game ) => {
-					console.log( '+GAME', game.Id );
+					//console.log( '+GAME', game.Id );
 					
 					return next( game );
 				})
@@ -26,7 +26,7 @@ class GameManager extends require( './_EntityManager' ) {
 	DestroyGame( game ) {
 		if ( typeof( this.GamePool[ game.Id ] ) === 'undefined' )
 			throw new Error( 'GamePool game #' + game.Id + ' does not exist' );
-		console.log( '-GAME', game.Id );
+		//console.log( '-GAME', game.Id );
 		delete this.GamePool[ game.Id ];
 		game.Destroy();
 	}

@@ -15,7 +15,11 @@ class PlayerManager extends require( './_EntityManager' ) {
 				}
 			})
 				.then( ( player ) => {
-					
+					this.Log( user.Session.Id, 'Player created', {
+						Player: player.Id,
+						Game: game.Id,
+						User: user.Username,
+					});
 					return next( player );
 				})
 				.catch( fail )
@@ -26,7 +30,14 @@ class PlayerManager extends require( './_EntityManager' ) {
 	DeletePlayer( player ) {
 		return new Promise( ( next, fail ) => {
 			this.Delete( player )
-				.then( next )
+				.then( () => {
+					this.Log( player.User.Session.Id, 'Player destroyed', {
+						Player: player.Id,
+						Game: player.Game.Id,
+						User: player.User.Username,
+					});
+					return next();
+				})
 				.catch( fail )
 			;
 		});
