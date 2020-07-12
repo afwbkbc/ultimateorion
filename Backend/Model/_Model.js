@@ -178,15 +178,13 @@ module.exports = ( filename, schema ) => {
 	Model.schema = schema;
 
 	// handy static methods
-	Model.Find = ( query, relations_to_fetch ) => {
+	Model.FindRaw = ( parameters, relations_to_fetch ) => {
 		return new Promise( ( next, fail ) => {
 			
-			query = sanitize_query( query );
+			parameters.table = model_name;
+			parameters.query = sanitize_query( parameters.query );
 			
-			basemodel.E.M.Sql.Query({
-				table: model_name,
-				query: query,
-			})
+			basemodel.E.M.Sql.Query( parameters )
 				.then( ( results ) => {
 					sanitize_results( results, relations_to_fetch )
 						.then( ( results ) => {
@@ -203,6 +201,11 @@ module.exports = ( filename, schema ) => {
 			
 		});
 	};
+	Model.Find = ( query, relations_to_fetch ) => {
+		return Model.FindRaw({
+			query: query,
+		}, relations_to_fetch );
+	}
 	Model.FindOne = ( query, relations_to_fetch ) => {
 		return new Promise( ( next, fail ) => {
 			Model.Find( query, relations_to_fetch )

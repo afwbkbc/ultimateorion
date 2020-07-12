@@ -17,8 +17,9 @@ class Loader extends require( './_Helper' ) {
 				if ( !this.E.M )
 					this.E.M = {};
 				
-				if ( stages.length == 0 )
+				if ( stages.length == 0 ) {
 					return next(); // nothing to do
+				}
 				
 				var init_next_stage = () => {
 					var stage = stages.splice( 0, 1 )[ 0 ];
@@ -26,22 +27,26 @@ class Loader extends require( './_Helper' ) {
 					for ( var k in stage ) {
 						var o = stage[ k ];
 						o.E = this.E; // link to Engine
-						o.Init()
-							.then( ( module ) => {
-								if ( !--toinit ) {
-									// this stage initialized
-									for ( var kk in stage ) {
-										var oo = stage[ kk ];
-										this.E.M[ kk ] = oo;
-									}
-									if ( stages.length > 0 )
-										return init_next_stage();
-									else
-										return next(); // everything loaded successfully
+						var after_init = () => {
+							if ( !--toinit ) {
+								// this stage initialized
+								for ( var kk in stage ) {
+									var oo = stage[ kk ];
+									this.E.M[ kk ] = oo;
 								}
-							})
-							.catch( fail )
-						;
+								if ( stages.length > 0 )
+									return init_next_stage();
+								else
+									return next(); // everything loaded successfully
+							}
+						};
+						if ( o.Init )
+							o.Init()
+								.then( after_init )
+								.catch( fail )
+							;
+						else
+							return after_init();
 					}
 				}
 				init_next_stage();
@@ -64,11 +69,11 @@ class Loader extends require( './_Helper' ) {
 								break;
 							}
 						}
-						if ( is_ok ) {
+						if ( is_ok )
 							stage[ k ] = o;
-							delete unstaged_objects[ k ];
-						}
 					}
+					for ( var k in stage )
+						delete unstaged_objects[ k ];
 					if ( Object.keys( stage ).length == 0 )
 						throw new Error( 'unable to resolve module dependencies' );
 					stages.push( stage );

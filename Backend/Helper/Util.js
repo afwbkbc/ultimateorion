@@ -17,6 +17,28 @@ class Util extends require( './_Helper' ) {
 		return obj1; 
 	}
 	
+	GetEntityTypeById( entity_id ) {
+		var entity_type = entity_id;
+		var pos;
+		
+		// cut off part after _
+		if ( ( pos = entity_type.indexOf( '_' ) ) >= 0 )
+			entity_type = entity_type.substring( 0, pos );
+		
+		// cut off part before / if it's present
+		if ( ( pos = entity_type.indexOf( '/' ) ) >= 0 )
+			entity_type = entity_type.substring( pos + 1 );
+		
+		return entity_type;
+	}
+
+	GetManagerByEntityId( entity_id ) {
+		var entity_type = this.GetEntityTypeById( entity_id );
+		
+		var manager = this.E.M[ entity_type + 'Manager' ];
+
+		return manager;
+	}
 }
 
 module.exports = Util;

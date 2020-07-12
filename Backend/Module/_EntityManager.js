@@ -1,6 +1,6 @@
 var entity_ids_in_progress = {}; // to prevent entity id race conditions
 
-class EntityManager extends require( './_Module' ) {
+class BaseEntityManager extends require( './_Module' ) {
 	
 	constructor( filename, namespace ) {
 		super( filename );
@@ -120,47 +120,54 @@ class EntityManager extends require( './_Module' ) {
 		return new Promise( ( next, fail ) => {
 			//console.log( 'LOAD', entity_id, options && options.parameters ? Object.keys( options.parameters ) : null );
 			this.CacheScope( options && options.caller ? options.caller : null, entity_id, ( next, fail ) => {
+				
+				var handle_db_entity = ( db_entity ) => {
+					if ( db_entity ) {
+						var entity = this.ConstructEntity( db_entity );
+						if ( options ) {
+							if ( options.parameters ) {
+								for ( var k in options.parameters )
+									entity[ k ] = options.parameters[ k ];
+							}
+						}
+						//console.log( 'UNPACK', entity.Classname, Object.keys( entity ) );
+						entity.Unpack( JSON.parse( entity.Db.Data ), options )
+							.then( ( entity ) => {
+								if ( !entity ) {
+									// entity invalid, delete it and return 'not found'
+									db_entity.Delete()
+										.then( () => {
+											return next( null );
+										})
+										.catch( fail )
+									;
+								}
+								else {
+									//console.log( 'UNPACK DONE' );
+									entity.OnInit( options )
+										.then( () => {
+											return next( entity );
+										})
+										.catch( fail )
+									;
+								}
+								
+							})
+							.catch( fail )
+						;
+					}
+					else
+						return next( null );
+				};
+				
+				if ( options && options.db_entity ) // db record already provided
+					return handle_db_entity( options.db_entity );
+				
+				// otherwise we need to fetch it from db
 				this.EntityModel.FindOne({
 					EntityId: entity_id,
 				})
-					.then( ( model ) => {
-						if ( model ) {
-							var entity = this.ConstructEntity( model );
-							if ( options ) {
-								if ( options.parameters ) {
-									for ( var k in options.parameters )
-										entity[ k ] = options.parameters[ k ];
-								}
-							}
-							//console.log( 'UNPACK', entity.Classname, Object.keys( entity ) );
-							entity.Unpack( JSON.parse( entity.Db.Data ), options )
-								.then( ( entity ) => {
-									if ( !entity ) {
-										// entity invalid, delete it and return 'not found'
-										model.Delete()
-											.then( () => {
-												return next( null );
-											})
-											.catch( fail )
-										;
-									}
-									else {
-										//console.log( 'UNPACK DONE' );
-										entity.OnInit( options )
-											.then( () => {
-												return next( entity );
-											})
-											.catch( fail )
-										;
-									}
-									
-								})
-								.catch( fail )
-							;
-						}
-						else
-							return next( null );
-					})
+					.then( handle_db_entity )
 					.catch( fail )
 				;
 			})
@@ -169,7 +176,7 @@ class EntityManager extends require( './_Module' ) {
 					if ( e instanceof this.G.DeadlockError ) {
 						if ( options && options.on_before_deadlock && options.on_after_deadlock ) {
 							
-							//console.log( 'DEADLOCK', e, options );
+							console.log( 'DEADLOCK', e.Target );
 							// some information about object
 							var obj = new this.G.DeferredEntity( e.Target ); // will be loaded later
 							
@@ -232,4 +239,4 @@ class EntityManager extends require( './_Module' ) {
 
 }
 
-module.exports = EntityManager;
+module.exports = BaseEntityManager;

@@ -55,7 +55,7 @@ class ObjectCache extends require( './_Module' ) {
 							// breakout handler
 							//delete this.Caching[ target_key ];
 							return caching_done( null );
-						}, fail ) );
+						}, fail, 'unhandled deadlock' ) );
 					}
 					
 					// something is already building this object, wait for it and return when object ready

@@ -248,6 +248,7 @@ class Sql extends require( '../_Module' ) {
 				' FROM `' + parameters.table + '`' +
 				join_str +
 				wv.where +
+				( parameters.group ? ' GROUP BY ' + parameters.group : '' ) +
 				( parameters.order ? ' ORDER BY ' + parameters.order : '' ) +
 				( parameters.limit ? ' LIMIT ' + parameters.limit : '' )
 			;
