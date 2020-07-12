@@ -17,6 +17,9 @@
 		"Password": "",
 		"LowerCaseTableNamesWorkaround": false
 	},
+	"EntityPreloader": {
+		"Enabled": true
+	},
 	"Auth": {
 		"MinPasswordLength": 6,
 		"MaxPasswordLength": 21,

@@ -10,18 +10,9 @@ class Engine extends require( './_Base' ) {
 			for ( var k in this.H )
 				this.H.E = this;
 			
-			this.H.Loader.LoadClasses( this.NS + '/Module' )
-				.then( ( modules ) => {
-					
-					// link to engine
-					for( var k in modules )
-						modules[ k ].E = this;
-					
-					this.M = modules;
-					
-					next();
-				})
-				.catch( this.Error )
+			this.H.Loader.LoadModules( this.NS + '/Module' )
+				.then( next )
+				.catch( fail )
 			;
 			
 		});

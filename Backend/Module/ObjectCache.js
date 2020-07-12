@@ -3,6 +3,8 @@ class ObjectCache extends require( './_Module' ) {
 	constructor() {
 		super( module.filename );
 		
+		this.DependsOn( [ 'Sql' ] );
+		
 		this.Cache = {}; // to keep cached objects
 		this.Caching = {}; // to temporarily keep and accumulate callbacks during cache building period ( i.e. when object is fetched from db )
 		this.Removing = {}; // to temporarily mark cache as being removed to avoid some race conditions

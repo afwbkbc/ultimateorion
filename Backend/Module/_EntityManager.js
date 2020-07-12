@@ -5,13 +5,15 @@ class EntityManager extends require( './_Module' ) {
 	constructor( filename, namespace ) {
 		super( filename );
 		
+		this.DependsOn( [ 'Crypto' ] );
+		
 		this.EntityModel = require( '../Model/Entity' );
 		this.EntityName = namespace;
 		this.EntityClass = require( '../' + namespace );
 		this.EntityPool = {};
 	}
 	
-	Run() {
+	Init() {
 		return new Promise( ( next, fail ) => {
 			
 			this.Crypto = this.Module( 'Crypto' );

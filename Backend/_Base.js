@@ -59,8 +59,11 @@ class _Base {
 		this.NS = this.H.Fs.PathToNamespace( fname );
 		this.Classname = this.constructor.name;
 		
-		if ( this.Classname == 'Engine' )
+		if ( this.Classname == 'Engine' ) {
 			g_engine = this;
+			for ( var k in helpers )
+				helpers[ k ].E = this;
+		}
 
 		this.Error = error_handler;
 		this.Config = this.H.Config.GetConfig( this.Classname );

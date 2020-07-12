@@ -1,15 +1,14 @@
 var engine = new ( require( './Backend/Engine' ) );
 
 var error_handler = ( e ) => {
-	console.log( 'ERROR' );
-	process.Exit( 1 );
+	console.log( 'ERROR', e );
+	process.exit( 1 );
 }
 
 try {
 
 	engine.Init()
 		.then( () => {
-			console.log( 'init done' );
 			
 			engine.Run();
 		})

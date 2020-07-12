@@ -2,10 +2,11 @@ class Auth extends require( './_Module' ) {
 	
 	constructor() {
 		super( module.filename );
-
+		
+		this.DependsOn( [ 'Crypto', 'Sql' ] );
 	}
 
-	Run() {
+	Init() {
 		return new Promise( ( next, fail ) => {
 
 			// handy shortcuts
