@@ -7,10 +7,13 @@ class Block extends require( '../BlockElement' ) {
 		
 		this.SetAttributes({
 			Expand: 'V',
-			ElementWidth: 0,
-			ElementHeight: 0,
-			ElementMargin: 0,
-			ElementHasBorder: false,
+			ElementAttributes: {
+				Width: 0,
+				Height: 0,
+				Margin: 0,
+				HasBorder: false,
+				Anchors: [ 'CT', 'CT' ],
+			},
 		});
 		
 		this.ManagedElements = [];
@@ -22,7 +25,7 @@ class Block extends require( '../BlockElement' ) {
 		var exp = this.Attributes.Expand;
 		if ( exp == 'V' ) {
 			this.InnerWidth = 0;
-			this.InnerHeight = this.Attributes.ElementMargin; // top margin
+			this.InnerHeight = this.Attributes.ElementAttributes.Margin; // top margin
 		}
 		else
 			throw new Error( 'unsupported expand type "' + exp + '"' );
@@ -47,24 +50,23 @@ class Block extends require( '../BlockElement' ) {
 		var anchors, coords;
 		if ( exp == 'V' ) {
 			// center horizontally, expand down
-			anchors = [ 'CT', 'CT' ];
+			anchors = this.Attributes.ElementAttributes.Anchors;
 			coords = [ 0, ypos ];
 		}
 		
 		// add element
 		if ( !attributes.Width )
-			attributes.Width = this.Attributes.ElementWidth - this.Attributes.ElementMargin * 2;
+			attributes.Width = this.Attributes.ElementAttributes.Width - this.Attributes.ElementAttributes.Margin * 2;
 		if ( !attributes.Height )
-			attributes.Height = this.Attributes.ElementHeight;
-		attributes.HasBorder = this.Attributes.ElementHasBorder;
-		var element = this.AddElement( namespace, anchors, coords, attributes );
+			attributes.Height = this.Attributes.ElementAttributes.Height;
+		attributes.HasBorder = this.Attributes.ElementAttributes.HasBorder;
 		
 		// resize if needed
 		var updated_attributes = {};
 		var final_width, final_height;
 		if ( exp == 'V' ) {
-			final_width = xpos + element.GetWidth() + this.Attributes.ElementMargin * 2; // hmargins from both sides
-			final_height = ypos + element.GetHeight() + this.Attributes.ElementMargin; // vmargin after
+			final_width = xpos + attributes.Width + this.Attributes.ElementAttributes.Margin * 2; // hmargins from both sides
+			final_height = ypos + attributes.Height + this.Attributes.ElementAttributes.Margin; // vmargin after
 		}
 		if ( this.InnerWidth < final_width ) {
 			this.InnerWidth = final_width;
@@ -79,8 +81,15 @@ class Block extends require( '../BlockElement' ) {
 			this.Background.SetAttributes( updated_attributes, true );
 		}
 		
-		this.ManagedElements.push( element );
+		// set some other attributes
+		for ( var k of [ 'FontSize' ] ) {
+			var v = this.Attributes.ElementAttributes[ k ];
+			if ( v )
+				attributes[ k ] = v;
+		}
 		
+		var element = this.AddElement( namespace, anchors, coords, attributes );
+		this.ManagedElements.push( element );
 		return element;
 	}
 	
@@ -93,7 +102,7 @@ class Block extends require( '../BlockElement' ) {
 				el.SetOffsets( [ o[ 0 ], o[ 1 ] - shifting_by ] );
 			}
 			else if ( el.Id == element.Id ) {
-				shifting_by = element.GetHeight() + this.Attributes.ElementMargin;
+				shifting_by = element.GetHeight() + this.Attributes.ElementAttributes.Margin;
 				this.RemoveElement( element );
 				delete this.ManagedElements[ k ];
 			}

@@ -85,6 +85,9 @@ class _Base {
 	CacheRemove( key, func ) {
 		return this.Module( 'ObjectCache' ).Remove( key, func );
 	}
+	Log( target_id, text, data ) {
+		return this.Module( 'Logger' ).Log( target_id, text, data );
+	}
 	
 }
 

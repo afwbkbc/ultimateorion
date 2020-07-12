@@ -10,6 +10,7 @@ class Viewport extends require( './_ElementBase' ) {
 		this.AllElements = {}; // all children included
 		this.FocusedElement = null;
 		this.DisabledLayers = []; // needed for DisableLayer() / RestoreLayer() calls, i.e. for ShowWindow
+		
 	}
 	
 	// override if needed
@@ -18,11 +19,11 @@ class Viewport extends require( './_ElementBase' ) {
 	}
 	
 	Pack() {
-		return {};
+		return {}; // TODO
 	}
 	
 	Unpack( data ) {
-		
+		// TODO
 	}
 	
 	Destroy() {
@@ -62,29 +63,55 @@ class Viewport extends require( './_ElementBase' ) {
 	}
 	
 	GetElementById( id ) {
-		if ( typeof( this.AllElements[ id ] ) === 'undefined' )
+		if ( !id || typeof( this.AllElements[ id ] ) === 'undefined' )
 			return null;
 		return this.AllElements[ id ];
+	}
+	
+	Trigger( event, data ) {
+		data.event = event;
+		this.HandleEvent({
+			data: {
+				data: data,
+			},
+		});
 	}
 	
 	HandleEvent( event ) {
 		var data = event.data.data;
 		var element = this.GetElementById( data.element );
-		if ( !element ) // deleted?
-			return;
 		
 		switch ( data.event ) {
 			case 'focus': {
-				this.FocusElement( element );
+				if ( element )
+					this.FocusElement( element );
 				break;
 			}
 			case 'blur': {
-				this.BlurElement( element );
+				if ( element )
+					this.BlurElement( element );
+				break;
+			}
+			case 'toggle_debug_console': {
+				if ( this.Config.Debug ) {
+					if ( this.DebugConsole ) {
+						this.DebugConsole.Close();
+						delete this.DebugConsole;
+					}
+					else
+						this.DebugConsole = this.ShowWindow( 'Window/DebugConsole' );
+				}
+				break;
+			}
+			case 'debug_log': {
+				if ( this.DebugConsole )
+					this.DebugConsole.AddMessage( data );
 				break;
 			}
 		}
-		
-		element.Trigger( data.event, data, event ); // element-specific handlers
+
+		if ( element )
+			element.Trigger( data.event, data, event ); // element-specific handlers
 	}
 	
 	DisableLayer() {

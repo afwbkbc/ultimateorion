@@ -3,7 +3,7 @@ window.App.Viewport.Extend({
 	Render: function( ctx, element ) {
 			var a = element.data.attributes;
 			var c = element.coords;
-			ctx.font = "40px Monospace";
+			ctx.font = a.FontSize + "px Monospace";
 			ctx.textAlign = 'left';
 			ctx.textBaseline = 'top';
 			ctx.fillStyle = 'silver';
@@ -11,9 +11,10 @@ window.App.Viewport.Extend({
 	},
 	
 	GetBounds: function( ctx, element ) {
-		ctx.font = "40px Monospace";
-		var m = ctx.measureText( element.data.attributes.Text.trim().length ? element.data.attributes.Text : '▍' );
-		return [ 0, 0, m.width, 40 ];
+		var a = element.data.attributes;
+		ctx.font = a.FontSize + "px Monospace";
+		var m = ctx.measureText( a.Text.trim().length ? a.Text : '▍' );
+		return [ 0, 0, m.width, a.FontSize ];
 	},
 	
 });

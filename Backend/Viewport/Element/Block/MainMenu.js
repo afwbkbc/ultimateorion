@@ -5,9 +5,11 @@ class MainMenu extends require( '../Layout/Block' ) {
 		
 		this.SetAttributes({
 			Style: 'main-menu-block',
-			ElementWidth: 460,
-			ElementHeight: 64,
-			ElementMargin: 20,
+			ElementAttributes: {
+				Width: 460,
+				Height: 64,
+				Margin: 20,
+			},
 			HasBorder: true,
 		});
 		

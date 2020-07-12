@@ -13,7 +13,7 @@
 		
 		// set defaults
 		
-		this.SendAttributes( [ 'Style', 'offsets', 'anchors' ] );
+		this.SendAttributes( [ 'offsets', 'anchors', 'Style', 'ZIndex' ] );
 		
 		this.SetAttributes({
 			Style: 'default',
@@ -40,7 +40,9 @@
 	}
 	
 	SetAttributes( attributes, is_sync_needed ) {
-		this.Attributes = Object.assign( this.Attributes, attributes );
+		//this.Attributes = Object.assign( this.Attributes, attributes );
+		this.Attributes = this.H.Util.DeepMerge( this.Attributes, attributes );
+		
 		var attributes_to_send = {};
 		
 		/*for ( var k in attributes )
@@ -50,6 +52,7 @@
 		for ( var k of this.AttributesToSend ) {
 			var a = attributes[ k ];
 			if ( typeof( a ) !== 'undefined' ) {
+				var a = this.Attributes[ k ];
 				attributes_to_send[ k ] = a;
 				this.SendableAttributes[ k ] = a;
 			}

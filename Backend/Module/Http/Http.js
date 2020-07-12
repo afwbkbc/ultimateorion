@@ -22,6 +22,7 @@ class Http extends require( '../_Module' ) {
 			
 			this.ConfigJson = JSON.stringify({
 				UseSSL: this.Config.UseSSL,
+				Debug: this.Config.Debug,
 			});
 			
 			if ( this.Config.UseSSL )

@@ -99,6 +99,11 @@ class _ElementBase extends require( '../_EventAwareBase' ) {
 		}, 1 );
 		return listener;
 	}
+
+	Log( text, data ) {
+		if ( this.Viewport && this.Viewport.Session )
+			return super.Log( this.Viewport.Session.Id, text, data );
+	}
 	
 	// override if needed
 	Prepare() {}

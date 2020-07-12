@@ -18,6 +18,7 @@
   "homepage": "https://github.com/afwbkbc/ultimateorion#readme",
   "dependencies": {
     "bcrypt": "^5.0.0",
+    "dateformat": "^3.0.3",
     "md5": "^2.2.1",
     "mysql": "^2.18.1",
     "ws": "^7.3.0"

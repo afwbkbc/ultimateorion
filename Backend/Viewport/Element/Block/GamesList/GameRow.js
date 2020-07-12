@@ -15,7 +15,8 @@ class GameRow extends require( '../../Layout/Panel' ) {
 		});
 		this.AddElement( 'UI/Button', [ 'RC', 'RC' ], [ -14, 0 ], {
 			Width: 120,
-			Height: 46,
+			FontSize: 36,
+			Padding: 6,
 			Label: 'Play',
 		})
 			.On( 'click', () => {

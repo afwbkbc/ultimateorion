@@ -28,7 +28,10 @@ class SessionManager extends require( './_EntityManager' ) {
 							guest_id = this.Crypto.RandomMd5Hash();
 						} while ( typeof( this.GuestSessions[ guest_id ] ) !== 'undefined' );
 						session.SetGuestId( connection, guest_id );
+						session.Id = 'GUEST_' + session.GuestId;
 						this.GuestSessions[ guest_id ] = session;
+						if ( this.Config.Debug )
+							this.Module( 'Logger' ).AttachSession( session );
 						return next( session );
 					})
 					.catch( fail )
@@ -51,6 +54,8 @@ class SessionManager extends require( './_EntityManager' ) {
 			var session_found = ( session ) => {
 				user.Session = session;
 				this.UserSessions[ user.ID ] = session;
+				if ( this.Config.Debug )
+					this.Module( 'Logger' ).AttachSession( session );
 				return next( session );
 			}
 			
@@ -111,6 +116,8 @@ class SessionManager extends require( './_EntityManager' ) {
 				throw new Error( 'SessionPool invalid/malformed session' + session.Id );
 			if ( session.Connections.length > 0 )
 				throw new Error( 'SessionPool session #' + session.Id + ' has active connections on destruction' );
+			if ( this.Config.Debug )
+				this.Module( 'Logger' ).DetachSession( session );
 			this.Delete( session, {
 				keep_in_db: true,
 			})

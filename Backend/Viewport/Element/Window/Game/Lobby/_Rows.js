@@ -8,10 +8,12 @@ class Rows extends require( '../../../Layout/Block' ) {
 	
 	Prepare() {
 		this.SetAttributes({
-			 ElementMargin: 20,
-			 ElementWidth: this.Attributes.Width,
-			 ElementHeight: 60,
-			 ElementHasBorder: true,
+			 ElementAttributes: {
+				 Margin: 20,
+				 Width: this.Attributes.Width,
+				 Height: 60,
+				 HasBorder: true,
+			 },
 		});
 		
 		super.Prepare();

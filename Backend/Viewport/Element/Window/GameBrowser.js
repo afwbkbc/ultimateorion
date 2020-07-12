@@ -17,10 +17,12 @@ class GameBrowser extends require( '../Layout/Window' ) {
 		this.GameRows = {};
 		this.GameRowsBlock = this.Body.AddElement( 'Layout/Block', [ 'LT', 'LT' ], [ 0, 0 ], {
 			Width: this.Body.Attributes.Width,
-			ElementWidth: this.Body.Attributes.Width,
-			ElementHeight: 100,
-			ElementMargin: 20,
-			ElementHasBorder: true,
+			ElementAttributes: {
+				Width: this.Body.Attributes.Width,
+				Height: 100,
+				Margin: 20,
+				HasBorder: true,
+			},
 		});
 		
 		this.GetRepository( 'Games_List' )

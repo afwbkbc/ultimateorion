@@ -5,10 +5,12 @@ class GamesList extends require( '../Layout/Block' ) {
 		
 		this.SetAttributes({
 			Style: 'main-menu-block',
-			ElementWidth: 680,
-			ElementHeight: 64,
-			ElementMargin: 14,
-			ElementHasBorder: true,
+			ElementAttributes: {
+				Width: 680,
+				Height: 64,
+				Margin: 14,
+				HasBorder: true,
+			},
 			HasBorder: true,
 		});
 	}

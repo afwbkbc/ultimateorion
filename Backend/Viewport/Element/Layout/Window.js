@@ -8,6 +8,7 @@ class Window extends require( '../BlockElement' ) {
 		this.SetAttributes({
 			Title: '',
 			TitlebarHeight: 64,
+			HasBorder: true,
 			WithTitlebar: true,
 			WithCloseButton: true,
 			WithFadeBackground: true,
@@ -22,7 +23,8 @@ class Window extends require( '../BlockElement' ) {
 				Style: 'window-titlebar',
 				Width: this.Attributes.Width - ( this.Attributes.WithCloseButton ? this.Attributes.TitlebarHeight : 0 ),
 				Height: this.Attributes.TitlebarHeight,
-				HasBorder: true,
+				HasBorder: this.Attributes.HasBorder,
+				HasBackground: this.Attributes.HasBackground,
 			});
 			{
 				this.TitlebarText = this.Titlebar.AddElement( 'UI/Label', [ 'CC', 'CC' ], [ 0, 0 ], {
@@ -47,7 +49,8 @@ class Window extends require( '../BlockElement' ) {
 			Style: 'window-body',
 			Width: this.Attributes.Width,
 			Height: this.Attributes.Height - ( this.Attributes.WithTitlebar ? this.Attributes.TitlebarHeight : 0 ),
-			HasBorder: true,
+			HasBorder: this.Attributes.HasBorder,
+			HasBackground: this.Attributes.HasBackground,
 		});
 		
 		this.On( 'close', ( data, event ) => {

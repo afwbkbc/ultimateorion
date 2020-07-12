@@ -243,6 +243,17 @@ window.App.Extend({
 		}
 		
 		window.onkeydown = function( e ) {
+
+			// debug key always has priority
+			if ( window.App.Config.Debug ) {
+				if ( e.key == '`' ) {
+					that.SendEvent({
+						event: 'toggle_debug_console',
+					});
+					return false;
+				}
+			}
+			
 			var el = that.FocusedElement;
 			if ( el && el.behavior.typeable && that.IsElementEnabled( el ) ) {
 				var defs = that[ el.data.element ];
@@ -291,7 +302,7 @@ window.App.Extend({
 			else if ( e.key == 'Enter' ) {
 				if ( that.DefaultButtons.length ) {
 					var el = that.Elements[ that.DefaultButtons[ that.DefaultButtons.length - 1 ] ];
-					if ( el && that[ el.data.element ].OnClick )
+					if ( el && that.IsElementEnabled( el ) && that[ el.data.element ].OnClick )
 						that[ el.data.element ].OnClick( that.Ctx, el );
 					return false;
 				}
@@ -573,14 +584,22 @@ window.App.Extend({
 					break;
 				case 'attributes':
 					var is_reposition_needed = false;
+					var is_redraw_needed = false;
 					var a = el.data.attributes;
 					for ( var k in value ) {
 						a[ k ] = value[ k ];
 						if ( [ 'Width', 'Height' ].indexOf( k ) >= 0 )
 							is_reposition_needed = true;
+						if ( [ 'Value' ].indexOf( k ) >= 0 )
+							is_redraw_needed = true;
 					}
 					if ( is_reposition_needed )
 						this.PositionElement( el, true );
+					else if ( is_redraw_needed ) {
+						if ( this[ el.data.element ] && this[ el.data.element ].OnRedraw )
+							this[ el.data.element ].OnRedraw( this.Ctx, el );
+						this.Redraw();
+					}
 					break;
 				case 'enabled':
 					if ( value )

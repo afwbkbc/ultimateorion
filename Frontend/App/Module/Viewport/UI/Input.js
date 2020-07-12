@@ -64,6 +64,10 @@ window.App.Viewport.Extend({
 		return false;
 	},
 	
+	OnRedraw: function( ctx, element ) {
+		this.UpdateLabel( ctx, element );
+	},
+	
 	UpdateLabel: function( ctx, element ) {
 		if ( element.label ) {
 			element.label.data.attributes.Text = 

@@ -36,7 +36,7 @@ class Session extends require( './_Entity' ) {
 	
 	Unpack( data ) {
 		return new Promise( ( next, fail ) => {
-			
+
 			var init_viewport = () => {
 				if ( data.Viewport ) {
 					this.Viewport = new ( this.H.Loader.Require( 'Viewport/Template/' + data.Viewport.Classname ) )( this );

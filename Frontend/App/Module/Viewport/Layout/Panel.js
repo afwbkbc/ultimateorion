@@ -7,8 +7,10 @@ window.App.Viewport.Extend({
 			ctx.strokeStyle = 'aqua';
 			ctx.strokeRect( c[0], c[1], a.Width, a.Height );
 		}
-		ctx.fillStyle = element.bgstyle ? element.bgstyle : 'rgba( 0, 0, 0, 0.5 )';
-		ctx.fillRect( c[0] + 1, c[1] + 1, a.Width - 2, a.Height - 2 );
+		if ( a.HasBackground ) {
+			ctx.fillStyle = element.bgstyle ? element.bgstyle : 'rgba( 0, 0, 0, 0.5 )';
+			ctx.fillRect( c[0] + 1, c[1] + 1, a.Width - 2, a.Height - 2 );
+		}
 	},
 	
 })
