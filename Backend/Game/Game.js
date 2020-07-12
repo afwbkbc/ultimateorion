@@ -209,6 +209,14 @@ class Game extends require( '../_Entity' ) {
 						.then( () => {
 							user.Session.AddToGame( this );
 							
+							if ( this.Host ) {
+								this.Log( this.Host.User.Session.Id, 'Other player joined game', {
+									Game: this.Id,
+									Player: player.Id,
+									User: player.User.Username,
+								});
+							}
+							
 							this.Trigger( 'player_join', {
 								Player: player,
 							});
@@ -232,6 +240,14 @@ class Game extends require( '../_Entity' ) {
 				this.Trigger( 'player_leave', {
 					Player: player,
 				});
+				
+				if ( this.Host ) {
+					this.Log( this.Host.User.Session.Id, 'Other player left game', {
+						Game: this.Id,
+						Player: player.Id,
+						User: player.User.Username,
+					});
+				}
 				
 				this.Manager( 'Player' ).DeletePlayer( player )
 					.then( () => {
