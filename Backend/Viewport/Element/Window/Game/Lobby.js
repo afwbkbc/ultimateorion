@@ -58,7 +58,7 @@ class Lobby extends require( '../../Layout/Window' ) {
 		
 		// listen to game events and update UI accordingly
 		this.Listen( this.Attributes.Game )
-			.On( 'player_join', ( data ) => {
+			.On( 'player_add', ( data ) => {
 				var player = data.Player;
 				//console.log( 'player_join', player.Id );
 				if ( !this.Players[ player.Id ] ) {

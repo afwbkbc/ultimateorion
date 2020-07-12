@@ -10,13 +10,17 @@ class GameRow extends require( '../../Layout/Panel' ) {
 	
 	Prepare() {
 		
-		this.AddElement( 'UI/Label', [ 'LC', 'LC' ], [ 14, 0 ], {
-			Text: this.Attributes.Game.Name,
+		super.Prepare();
+		
+		this.Label = this.AddElement( 'UI/Label', [ 'LC', 'LC' ], [ 14, 0 ], {
+			Text: this.Attributes.Game.GetTitleString(),
+			FontSize: 34,
 		});
+		
 		this.AddElement( 'UI/Button', [ 'RC', 'RC' ], [ -14, 0 ], {
-			Width: 120,
-			FontSize: 36,
-			Padding: 6,
+			Width: 100,
+			FontSize: 34,
+			Padding: 4,
 			Label: 'Play',
 		})
 			.On( 'click', () => {
@@ -26,6 +30,14 @@ class GameRow extends require( '../../Layout/Panel' ) {
 			})
 		;
 		
+		var update_text = () => {
+			this.Label.SetAttribute( 'Text', this.Attributes.Game.GetTitleString(), true );
+		}
+		
+		this.Listen( this.Attributes.Game )
+			.On( 'player_join', update_text )
+			.On( 'player_leave', update_text )
+		;
 	}
 	
 }

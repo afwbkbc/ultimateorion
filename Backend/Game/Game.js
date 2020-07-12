@@ -60,7 +60,7 @@ class Game extends require( '../_Entity' ) {
 									this.Players[ player.Id ] = player;
 									if ( player.Flags && player.Flags.is_host )
 										this.Host = player;
-									this.Trigger( 'player_join', {
+									this.Trigger( 'player_add', {
 										Player: player,
 									});
 									this.Save();
@@ -217,6 +217,9 @@ class Game extends require( '../_Entity' ) {
 								});
 							}
 							
+							this.Trigger( 'player_add', {
+								Player: player,
+							});
 							this.Trigger( 'player_join', {
 								Player: player,
 							});
@@ -288,7 +291,12 @@ class Game extends require( '../_Entity' ) {
 											new_host.Flags = {};
 										new_host.Flags.is_host = true;
 										new_host.Save()
-											.then( next )
+											.then( () => {
+												this.Trigger( 'host_change', {
+													Host: this.Host,
+												});
+												return next();
+											})
 											.catch( fail )
 										;
 									}
@@ -318,10 +326,19 @@ class Game extends require( '../_Entity' ) {
 	
 	OnListen( listener ) {
 		for ( var k in this.Players ) {
-			listener.Trigger( 'player_join', {
+			listener.Trigger( 'player_add', {
 				Player: this.Players[ k ],
 			});
 		}
+	}
+	
+	// formatted data for convenience
+	GetTitleString() {
+		return this.Name + ' (' + Object.keys( this.Players ).length + ')';
+	}
+	
+	GetHostString() {
+		return this.Host ? this.Host.User.Username : '';
 	}
 	
 }

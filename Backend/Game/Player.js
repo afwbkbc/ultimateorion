@@ -47,7 +47,7 @@ class Player extends require( '../_Entity' ) {
 						.then( ( game ) => {
 							this.Game = game;
 							this.Save();
-							this.Game.Trigger( 'player_join', {
+							this.Game.Trigger( 'player_add', {
 								Player: this,
 							});
 							//console.log( 'THISGAMEID', this.Game.Id );

@@ -590,7 +590,7 @@ window.App.Extend({
 						a[ k ] = value[ k ];
 						if ( [ 'Width', 'Height' ].indexOf( k ) >= 0 )
 							is_reposition_needed = true;
-						if ( [ 'Value' ].indexOf( k ) >= 0 )
+						if ( [ 'Value', 'Text' ].indexOf( k ) >= 0 )
 							is_redraw_needed = true;
 					}
 					if ( is_reposition_needed )

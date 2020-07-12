@@ -25,16 +25,19 @@ class EventAwareBase extends require( './_Base' ) {
 	}
 	
 	Trigger( eventtype, data, event ) {
-		if ( this.Events[ eventtype ] )
-			for ( var k in this.Events[ eventtype ] ) {
-				if ( this.Events[ eventtype ][ k ].apply( this, [ data ? data : {}, event ? event : {} ] ) === false )
-					break;
+		setTimeout( () => {
+			if ( this.Events[ eventtype ] ) {
+				for ( var k in this.Events[ eventtype ] ) {
+					if ( this.Events[ eventtype ][ k ].apply( this, [ data ? data : {}, event ? event : {} ] ) === false )
+						break;
+				}
 			}
-		var listeners = [ ...this.Listeners ];
-		for ( var k in listeners )
-			listeners[ k ].Trigger( eventtype, data, event );
-		for ( var k in this.TriggerRepositories )
-			this.TriggerRepositories[ k ].TriggerEvent( this, eventtype, data, event );
+			var listeners = [ ...this.Listeners ];
+			for ( var k in listeners )
+				listeners[ k ].Trigger( eventtype, data, event );
+			for ( var k in this.TriggerRepositories )
+				this.TriggerRepositories[ k ].TriggerEvent( this, eventtype, data, event );
+		}, 0 ); // avoid running events in the middle of current code execution
 	}
 	
 	CreateListener() {

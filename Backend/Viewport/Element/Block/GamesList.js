@@ -7,8 +7,8 @@ class GamesList extends require( '../Layout/Block' ) {
 			Style: 'main-menu-block',
 			ElementAttributes: {
 				Width: 680,
-				Height: 64,
-				Margin: 14,
+				Height: 54,
+				Margin: 12,
 				HasBorder: true,
 			},
 			HasBorder: true,
@@ -60,7 +60,7 @@ class GamesList extends require( '../Layout/Block' ) {
 						remove_game( game );
 					})
 					.On( 'event', ( data ) => {
-						if ( data.EventType == 'player_join' && data.Data.Player.User.ID == this.Viewport.Session.User.ID )
+						if ( data.EventType == 'player_add' && data.Data.Player.User.ID == this.Viewport.Session.User.ID )
 							add_game( data.Entity );
 						else if ( data.EventType == 'player_leave' && data.Data.Player.User.ID == this.Viewport.Session.User.ID )
 							remove_game( data.Entity );
