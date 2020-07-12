@@ -87,7 +87,7 @@ class Game extends require( '../_Entity' ) {
 						// find host
 						for ( var k in this.Players ) {
 							var player = this.Players[ k ];
-							if ( player.Flags.is_host ) {
+							if ( player.Flags && player.Flags.is_host ) {
 								//if ( this.Host )
 									//return next( null ); // game can't have 2 hosts
 								this.Host = player;
@@ -210,7 +210,7 @@ class Game extends require( '../_Entity' ) {
 							user.Session.AddToGame( this );
 							
 							if ( this.Host ) {
-								this.Log( this.Host.User.Session.Id, 'Other player joined game', {
+								this.Log( this.Host.User.Session.Id, 'Player joined game', {
 									Game: this.Id,
 									Player: player.Id,
 									User: player.User.Username,
@@ -242,7 +242,7 @@ class Game extends require( '../_Entity' ) {
 				});
 				
 				if ( this.Host ) {
-					this.Log( this.Host.User.Session.Id, 'Other player left game', {
+					this.Log( this.Host.User.Session.Id, 'Player left game', {
 						Game: this.Id,
 						Player: player.Id,
 						User: player.User.Username,
@@ -253,7 +253,9 @@ class Game extends require( '../_Entity' ) {
 					.then( () => {
 						delete this.Players[ user.Id ];
 						
-						if ( Object.keys( this.Players ).length == 0 ) { // no players left, delete game
+						var player_ids = Object.keys( this.Players );
+						var players_left = player_ids.length;
+						if ( players_left == 0 ) { // no players left, destroy game
 							this.Delete()
 								.then( next )
 								.catch( fail )
@@ -261,7 +263,38 @@ class Game extends require( '../_Entity' ) {
 						}
 						else {
 							this.Save()
-								.then( next )
+								.then( () => {
+									
+									if ( player.Flags && player.Flags.is_host ) {
+										// assign new game host as previous left
+										var new_host_id = player_ids[ Math.floor( Math.random() * players_left ) ];
+										var new_host = this.Players[ new_host_id ];
+										
+										this.Host = new_host;
+										
+										for ( var target_id of [ player.User.Session.Id, new_host.User.Session.Id ] ) {
+											this.Log( target_id, 'Host transfered to another player', {
+												From: {
+													Player: player.Id,
+													User: player.User.Username,
+												},
+												To: {
+													Player: new_host.Id,
+													User: new_host.User.Username,
+												}
+											});
+										}
+										if ( new_host.Flags )
+											new_host.Flags = {};
+										new_host.Flags.is_host = true;
+										new_host.Save()
+											.then( next )
+											.catch( fail )
+										;
+									}
+									else
+										return next();
+								})
 								.catch( fail )
 							;
 						}
