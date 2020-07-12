@@ -11,6 +11,9 @@ class Viewport extends require( './_ElementBase' ) {
 		this.FocusedElement = null;
 		this.DisabledLayers = []; // needed for DisableLayer() / RestoreLayer() calls, i.e. for ShowWindow
 		
+		this.MaxZIndexPerWindow = 100; // in scope of window z-index is capped at this value. For each ShowWindow stack, though, every window gets z-index increased by this value over previous window
+		
+		this.CurrentWindowZIndex = 0;
 	}
 	
 	// override if needed
@@ -141,8 +144,13 @@ class Viewport extends require( './_ElementBase' ) {
 	
 	ShowWindow( namespace, attributes ) {
 		this.DisableLayer();
-		var window = this.AddElement( namespace, [ 'CC', 'CC' ], [ 0, 0 ], attributes ? attributes : {} )
+		this.CurrentWindowZIndex += this.MaxZIndexPerWindow;
+		if ( !attributes )
+			attributes = {};
+		attributes.ZIndexFromViewport = this.CurrentWindowZIndex;
+		var window = this.AddElement( namespace, [ 'CC', 'CC' ], [ 0, 0 ], attributes )
 			.On( 'close', () => {
+				this.CurrentWindowZIndex -= this.MaxZIndexPerWindow;
 				this.RestoreLayer();
 			})
 		;

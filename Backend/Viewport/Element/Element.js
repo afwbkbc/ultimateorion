@@ -41,6 +41,16 @@
 	
 	SetAttributes( attributes, is_sync_needed ) {
 		//this.Attributes = Object.assign( this.Attributes, attributes );
+		
+		if ( this.Viewport && attributes.ZIndex && attributes.ZIndex >= this.Viewport.MaxZIndexPerWindow ) {
+			console.log( 'WARNING', 'MaxZIndexPerWindow exceeded', attributes );
+			attributes.ZIndex = this.Viewport.MaxZIndexPerWindow - 1;
+		}
+		if ( attributes.ZIndexFromViewport ) { // viewport can override zindex as needed
+			attributes.ZIndex = attributes.ZIndexFromViewport;
+			delete attributes.ZIndexFromViewport;
+		}
+		
 		this.Attributes = this.H.Util.DeepMerge( this.Attributes, attributes );
 		
 		var attributes_to_send = {};
