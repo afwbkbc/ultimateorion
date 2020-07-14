@@ -12,9 +12,12 @@ class Row extends require( '../../../../Layout/Panel' ) {
 	Prepare() {
 		super.Prepare();
 		
+		var player = this.Attributes.Player;
+		var flags = player.GetFlags();
+		
 		// player name
 		this.AddElement( 'UI/Label', [ 'LC', 'LC'], [ 20, 0 ], {
-			Text: this.Attributes.Player.User.Username,
+			Text: player.User.Username,
 		});
 		
 		// race ( placeholder )
@@ -23,9 +26,16 @@ class Row extends require( '../../../../Layout/Panel' ) {
 		});
 		
 		// ready / not ready
-		this.AddElement( 'UI/Label', [ 'RC', 'RC'], [ -20, 0 ], {
-			Text: 'Not ready',
+		this.ReadyText = this.AddElement( 'UI/Label', [ 'RC', 'RC'], [ -20, 0 ], {
+			Text: flags.is_ready ? 'Ready' : 'Not ready',
 		});
+		
+		this.Listen( player )
+			.On( 'flag_change', ( data ) => {
+				if ( data.Key == 'is_ready' )
+					this.ReadyText.SetAttribute( 'Text', data.Value ? 'Ready' : 'Not ready', true );
+			})
+		;
 		
 	}
 	

@@ -590,12 +590,17 @@ window.App.Extend({
 						a[ k ] = value[ k ];
 						if ( [ 'Width', 'Height' ].indexOf( k ) >= 0 )
 							is_reposition_needed = true;
-						if ( [ 'Value', 'Text' ].indexOf( k ) >= 0 )
+						else if ( k == 'Text' ) {
+							if ( a.anchors[ 0 ][ 0 ] == 'R' || a.anchors[ 1 ][ 0 ] == 'R' ) // if it's right-anchored label then it's width may change so need to reposition
+								is_reposition_needed = true;
+						}
+						if ( is_reposition_needed || [ 'Value', 'Text' ].indexOf( k ) >= 0 ) {
 							is_redraw_needed = true;
+						}
 					}
 					if ( is_reposition_needed )
 						this.PositionElement( el, true );
-					else if ( is_redraw_needed ) {
+					if ( is_redraw_needed ) {
 						if ( this[ el.data.element ] && this[ el.data.element ].OnRedraw )
 							this[ el.data.element ].OnRedraw( this.Ctx, el );
 						this.Redraw();

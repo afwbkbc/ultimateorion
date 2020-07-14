@@ -3,7 +3,10 @@ class Player extends require( '../_Entity' ) {
 	constructor() {
 		super( module.filename );
 		
-		this.Flags = {}; 
+		this.Flags = {
+			is_host: false,
+			is_ready: false,
+		};
 	}
 
 	Pack() {
@@ -103,6 +106,23 @@ class Player extends require( '../_Entity' ) {
 				.catch( fail )
 			;
 		});
+	}
+	
+	SetFlag( key, value ) {
+		if ( this.Flags[ key ] !== value ) {
+			this.Flags[ key ] = value;
+			this.Trigger( 'flag_change', {
+				Key: key,
+				Value: value,
+			});
+			this.Save();
+			if ( key == 'is_ready' )
+				this.Game.AddMessage( this.User.Username + ' is ' + ( value ? 'ready!' : 'not ready.' ) );
+		}
+	}
+	
+	GetFlags() {
+		return this.Flags;
 	}
 	
 }

@@ -15,13 +15,13 @@ class Chat extends require( '../../../Layout/Panel' ) {
 			Text: 'CHAT',
 		});
 		
-		this.ChatLog = this.AddElement( 'Layout/Panel', [ 'LT', 'LT' ], [ 15, 60 ], {
+		this.Messages = this.AddElement( 'Window/Game/Lobby/Chat/Messages', [ 'LT', 'LT' ], [ 15, 60 ], {
 			Width: this.Attributes.Width - 30,
 			Height: this.Attributes.Height - 150,
 			HasBorder: true,
 		});
 		
-		this.ChatInput = this.AddElement( 'Layout/Panel', [ 'LB', 'LB' ], [ 15, -15 ], {
+		this.ChatInput = this.AddElement( 'UI/Input', [ 'LB', 'LB' ], [ 15, -15 ], {
 			Width: this.Attributes.Width - 210,
 			Height: 60,
 			HasBorder: true,
@@ -31,14 +31,28 @@ class Chat extends require( '../../../Layout/Panel' ) {
 			Width: 160,
 			Height: 60,
 			Label: 'Send',
-		});
+			DefaultButton: true,
+		})
+			.On( 'click', () => {
+				var text = this.ChatInput.Attributes.Value;
+				if ( text ) {
+					this.ChatInput.SetAttribute( 'Value', '', true );
+					this.Trigger( 'message', {
+						Text: text,
+					});
+				}
+				this.ChatInput.Focus();
+			})
+		;
 		
-		//console.log( 'CHATLOG', this.ChatLog );
-		
-		/*this.Rows = this.AddElement( 'Window/Game/Lobby/' + this.Attributes.BlockType + '/Rows', [ 'LT', 'LT' ], [ 0, 60 ], {
-			Width: this.Attributes.Width,
-			Height: this.Attributes.Height - 60,
-		});*/
+	}
+	
+	PushMessage( text ) {
+		this.Messages.PushMessage( text );
+	}
+	
+	PopMessage() {
+		this.Messages.PopMessage();
 	}
 
 }

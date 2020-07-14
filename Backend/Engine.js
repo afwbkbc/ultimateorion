@@ -7,9 +7,6 @@ class Engine extends require( './_Base' ) {
 	Init() {
 		return new Promise( ( next, fail ) => {
 			
-			for ( var k in this.H )
-				this.H.E = this;
-			
 			this.H.Loader.LoadModules( this.NS + '/Module' )
 				.then( next )
 				.catch( fail )

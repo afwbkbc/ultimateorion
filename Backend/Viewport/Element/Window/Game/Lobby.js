@@ -45,16 +45,27 @@ class Lobby extends require( '../../Layout/Window' ) {
 		this.Chat = this.Body.AddElement( 'Window/Game/Lobby/Chat', [ 'LT', 'LT' ], [ 20, 640 ], {
 			Width: 1540,
 			Height: 360,
-		});
+		})
+			.On( 'message', ( data ) => {
+				this.Game.AddMessage( '<' + this.Player.User.Username + '> ' + data.Text );
+			})
+		;
 		
 		this.ActionBlock = this.Body.AddElement( 'Window/Game/Lobby/ActionBlock', [ 'LT', 'LT' ], [ 1580, 690 ], {
 			Width: 320,
 			Height: 360,
 		})
+			.On( 'ready', ( data ) => {
+				this.Player.SetFlag( 'is_ready', data.State );
+			})
 			.On( 'leave', ( data ) => {
 				this.Game.RemovePlayer( this.Player );
 			})
 		;
+		
+		var messages = this.Game.GetMessages();
+		for ( var k in messages )
+			this.Chat.PushMessage( messages[ k ] );
 		
 		// listen to game events and update UI accordingly
 		this.Listen( this.Attributes.Game )
@@ -78,6 +89,12 @@ class Lobby extends require( '../../Layout/Window' ) {
 						delete this.Players[ player.Id ];
 					}
 				}
+			})
+			.On( 'push_message', ( data ) => {
+				this.Chat.PushMessage( data.Text );
+			})
+			.On( 'pop_message', () => {
+				this.Chat.PopMessage();
 			})
 		;
 		

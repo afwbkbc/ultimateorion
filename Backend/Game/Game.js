@@ -6,6 +6,9 @@ class Game extends require( '../_Entity' ) {
 		this.GamesListRepository = 'Games_List';
 		
 		this.Players = {};
+
+		this.MaxMessages = 128;
+		this.Messages = [];
 		
 		this.GameState = 'lobby';
 	}
@@ -23,6 +26,8 @@ class Game extends require( '../_Entity' ) {
 			for ( var k in this.Players )
 				data.Players.push( this.Players[ k ].Id );
 			
+			data.Messages = this.Messages;
+			
 			return next( data );
 		});
 	}
@@ -36,12 +41,14 @@ class Game extends require( '../_Entity' ) {
 			this.Name = data.Name;
 			this.GameState = data.GameState;
 			
+			this.Messages = data.Messages ? data.Messages : [];
+			
 			this.Host = null; // will be fetched from players
 			
 			// players
 			if ( data.Players && data.Players.length ) {
 				
-				var deferred_players = [];
+				//var deferred_players = [];
 				
 				var p = {
 					caller: this.Id,
@@ -152,6 +159,7 @@ class Game extends require( '../_Entity' ) {
 			this.Log( this.HostUser.Session.Id, 'Game created', {
 				Game: this.Id,
 			});
+			this.AddMessage( this.Name + ' created.' );
 			//console.log( '+GAME #' + this.Id );
 			
 			this.AddPlayerForUser( this.HostUser, {
@@ -216,6 +224,7 @@ class Game extends require( '../_Entity' ) {
 									User: player.User.Username,
 								});
 							}
+							this.AddMessage( player.User.Username + ' joined the game.' );
 							
 							this.Trigger( 'player_add', {
 								Player: player,
@@ -251,6 +260,7 @@ class Game extends require( '../_Entity' ) {
 						User: player.User.Username,
 					});
 				}
+				this.AddMessage( player.User.Username + ' left the game.' );
 				
 				this.Manager( 'Player' ).DeletePlayer( player )
 					.then( () => {
@@ -287,6 +297,7 @@ class Game extends require( '../_Entity' ) {
 												}
 											});
 										}
+										this.AddMessage( new_host.User.Username + ' is now host.' );
 										if ( new_host.Flags )
 											new_host.Flags = {};
 										new_host.Flags.is_host = true;
@@ -341,6 +352,21 @@ class Game extends require( '../_Entity' ) {
 		return this.Host ? this.Host.User.Username : '';
 	}
 	
+	AddMessage( text ) {
+		this.Messages.push( text );
+		if ( this.Messages.length > this.MaxMessages ) {
+			this.Messages.splice( 0, 1 );
+			this.Trigger( 'pop_message' );
+		}
+		this.Trigger( 'push_message', {
+			Text: text,
+		});
+		this.Save();
+	}
+	
+	GetMessages() {
+		return this.Messages;
+	}
 }
 
 module.exports = Game;

@@ -19,11 +19,23 @@ class ActionBlock extends require( '../../../Layout/Block' ) {
 		
 		this.Append( 'UI/Button', {
 			Label: 'Ready',
-		});
+		})
+			.On( 'click', () => {
+				this.Trigger( 'ready', {
+					State: true,
+				});
+			})
+		;
 		
 		this.Append( 'UI/Button', {
 			Label: 'Not ready',
-		});
+		})
+			.On( 'click', () => {
+				this.Trigger( 'ready', {
+					State: false,
+				});
+			})
+		;
 		
 		this.Append( 'UI/Button', {
 			Label: 'Leave game',
