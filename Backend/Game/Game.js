@@ -10,7 +10,21 @@ class Game extends require( '../_Entity' ) {
 		this.MaxMessages = 128;
 		this.Messages = [];
 		
-		this.GameState = 'lobby';
+		this.GameState = 'lobby'; // always start from lobby
+
+		this.GameStartMessage = 'Everybody is ready, starting game in... ';
+		this.GameStartCountdown = 5;
+		
+		this.GameStartInterval = null;
+		this.GameStartTimer = 0;
+		
+		this.PlayersListener = this.CreateListenerPool();
+		this.PlayersListener
+			.On( 'flag_change', ( data, event ) => {
+				this.AddMessage( data.Source.User.Username + ' is ' + ( data.Value ? 'ready!' : 'not ready.' ) );
+				this.ReadyCheck();
+			})
+		;
 	}
 	
 	Pack() {
@@ -64,7 +78,7 @@ class Game extends require( '../_Entity' ) {
 						this.Manager( 'Player' ).FindPlayer( obj.EntityId, p )
 							.then( ( player ) => {
 								if ( player ) {
-									this.Players[ player.Id ] = player;
+									this.AddPlayer( player );
 									if ( player.Flags && player.Flags.is_host )
 										this.Host = player;
 									this.Trigger( 'player_add', {
@@ -87,8 +101,9 @@ class Game extends require( '../_Entity' ) {
 					.then( ( results ) => {
 						for ( var k in results ) {
 							var player = results[ k ];
-							if ( player )
+							if ( player ) {
 								this.Players[ player.Id ] = player;
+							}
 						}
 						
 						// find host
@@ -100,6 +115,11 @@ class Game extends require( '../_Entity' ) {
 								this.Host = player;
 							}
 						}
+						
+						// init all players
+						for ( var k in this.Players )
+							this.AddPlayer( this.Players[ k ], true );
+						
 						//if ( !this.Host && this.GameState == 'lobby' )
 							//return next( null ); // game can't be without host while in lobby
 						
@@ -185,6 +205,17 @@ class Game extends require( '../_Entity' ) {
 
 			//console.log( '-GAME #' + this.Id );
 			
+			// players can't exist without game
+			for ( var k in this.Players ) {
+				var player = this.Players[ k ];
+				delete this.Players[ k ];
+				player.Delete();
+			}
+			
+			this.PlayersListener.Destroy();
+			
+			this.Trigger( 'destroy' );
+			
 			this.Repository.Remove( this )
 				.then( () => {
 					if ( this.Host ) {
@@ -212,7 +243,7 @@ class Game extends require( '../_Entity' ) {
 			this.Manager( 'Player' ).CreatePlayer( user, this, flags )
 				.then( ( player ) => {
 					//console.log( 'GAME #' + this.Id + ' : ADD PLAYER #' + player.Id + ' ( ' + user.Username + ' )' );
-					this.Players[ player.Id ] = player;
+					this.AddPlayer( player );
 					this.Save()
 						.then( () => {
 							user.Session.AddToGame( this );
@@ -243,15 +274,27 @@ class Game extends require( '../_Entity' ) {
 		});
 	}
 	
-	RemovePlayer( user ) {
+	RemovePlayerForUser( user ) {
 		return new Promise( ( next, fail ) => {
-			var player = this.Players[ user.Id ];
+			//console.log( 'REMOVEPLAYERFORUSER', user.ID );
+			var player = null;
+			for ( var k in this.Players ) {
+				var p = this.Players[ k ];
+				if ( p.User.ID == user.ID ) { // found
+					player = p;
+					break;
+				}
+			}
+			
 			if ( player ) {
 				//console.log( 'GAME #' + this.Id + ' : REMOVE PLAYER #' + player.Id + ' ( ' + player.User.Username + ' )' );
+				
+				this.RemovePlayer( player );
 				
 				this.Trigger( 'player_leave', {
 					Player: player,
 				});
+				this.ReadyCheck();
 				
 				if ( this.Host ) {
 					this.Log( this.Host.User.Session.Id, 'Player left game', {
@@ -264,7 +307,6 @@ class Game extends require( '../_Entity' ) {
 				
 				this.Manager( 'Player' ).DeletePlayer( player )
 					.then( () => {
-						delete this.Players[ user.Id ];
 						
 						var player_ids = Object.keys( this.Players );
 						var players_left = player_ids.length;
@@ -297,7 +339,7 @@ class Game extends require( '../_Entity' ) {
 												}
 											});
 										}
-										this.AddMessage( new_host.User.Username + ' is now host.' );
+										this.AddMessage( new_host.User.Username + ' is now game host.' );
 										if ( new_host.Flags )
 											new_host.Flags = {};
 										new_host.Flags.is_host = true;
@@ -366,6 +408,56 @@ class Game extends require( '../_Entity' ) {
 	
 	GetMessages() {
 		return this.Messages;
+	}
+	
+	AddPlayer( player, force_init ) {
+		if ( force_init || !this.Players[ player.Id ] ) {
+			this.Players[ player.Id ] = player;
+			this.PlayersListener.Add( player );
+		}
+	}
+	
+	RemovePlayer( player ) {
+		if ( this.Players[ player.Id ] ) {
+			this.PlayersListener.Remove( player );
+			delete this.Players[ player.Id ];
+		}
+	}
+	
+	ReadyCheck() {
+		// start game when everyone is ready
+		var is_everyone_ready = true;
+		for ( var k in this.Players ) {
+			if ( !this.Players[ k ].Flags.is_ready ) {
+				is_everyone_ready = false;
+				break;
+			}
+		}
+		if ( is_everyone_ready ) {
+			if ( !this.GameStartInterval ) {
+				this.GameStartTimer = this.GameStartCountdown;
+				this.AddMessage( this.GameStartMessage + this.GameStartTimer );
+				this.GameStartInterval = setInterval( () => {
+					this.GameStartTimer--;
+					this.AddMessage( ' '.repeat( this.GameStartMessage.length ) + this.GameStartTimer );
+					if ( !this.GameStartTimer ) {
+						clearInterval( this.GameStartInterval );
+						this.GameStartInterval = null;
+						
+						this.Trigger( 'game_start' );
+						this.Delete(); // TODO: START UNIVERSE!
+						
+					}
+				}, 1000 );
+			}
+		}
+		else {
+			if ( this.GameStartInterval ) {
+				clearInterval( this.GameStartInterval );
+				this.GameStartInterval = null;
+				this.AddMessage( 'Countdown canceled.' );
+			}
+		}
 	}
 }
 

@@ -201,7 +201,7 @@ class Session extends require( './_Entity' ) {
 				if ( player.Game.Id == game.Id ) {
 					//console.log( 'REMOVE FROM GAME ' + this.User.Username + ' #' + game.Id );
 					delete this.Players[ k ];
-					game.RemovePlayer( this.User )
+					game.RemovePlayerForUser( this.User )
 						.then( () => {
 							this.Save()
 								.then( () => {

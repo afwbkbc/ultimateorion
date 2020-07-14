@@ -171,7 +171,10 @@ class BaseEntityManager extends require( './_Module' ) {
 					.catch( fail )
 				;
 			})
-				.then( next )
+				.then( ( entity ) => {
+					//console.log( 'FOUND', entity.Id );
+					return next( entity );
+				})
 				.catch( ( e ) => {
 					if ( e instanceof this.G.DeadlockError ) {
 						if ( options && options.on_before_deadlock && options.on_after_deadlock ) {

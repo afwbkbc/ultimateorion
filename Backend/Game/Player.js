@@ -100,7 +100,7 @@ class Player extends require( '../_Entity' ) {
 		return new Promise( ( next, fail ) => {
 			Promise.all([
 				this.User.Session.RemoveFromGame( this.Game ),
-				this.Game.RemovePlayer( this.User ),
+				this.Game.RemovePlayerForUser( this.User ),
 			])
 				.then( next )
 				.catch( fail )
@@ -116,8 +116,6 @@ class Player extends require( '../_Entity' ) {
 				Value: value,
 			});
 			this.Save();
-			if ( key == 'is_ready' )
-				this.Game.AddMessage( this.User.Username + ' is ' + ( value ? 'ready!' : 'not ready.' ) );
 		}
 	}
 	

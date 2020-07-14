@@ -59,7 +59,7 @@ class Lobby extends require( '../../Layout/Window' ) {
 				this.Player.SetFlag( 'is_ready', data.State );
 			})
 			.On( 'leave', ( data ) => {
-				this.Game.RemovePlayer( this.Player );
+				this.Game.RemovePlayerForUser( this.Player.User );
 			})
 		;
 		
@@ -96,6 +96,15 @@ class Lobby extends require( '../../Layout/Window' ) {
 			.On( 'pop_message', () => {
 				this.Chat.PopMessage();
 			})
+			.On( 'destroy', () => {
+				this.Close();
+			})
+			.On( 'game_start', () => {
+				this.Viewport.ShowWindow( 'Window/Error', {
+					ErrorText: 'Not implemented yet!',
+				});
+			})
+			
 		;
 		
 	}

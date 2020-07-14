@@ -26,9 +26,11 @@ class EventAwareBase extends require( './_Base' ) {
 	
 	Trigger( eventtype, data, event ) {
 		setTimeout( () => {
+			if ( !data )
+				data = {};
 			if ( this.Events[ eventtype ] ) {
 				for ( var k in this.Events[ eventtype ] ) {
-					if ( this.Events[ eventtype ][ k ].apply( this, [ data ? data : {}, event ? event : {} ] ) === false )
+					if ( this.Events[ eventtype ][ k ].apply( this, [ data, event ? event : {} ] ) === false )
 						break;
 				}
 			}
@@ -37,11 +39,21 @@ class EventAwareBase extends require( './_Base' ) {
 				listeners[ k ].Trigger( eventtype, data, event );
 			for ( var k in this.TriggerRepositories )
 				this.TriggerRepositories[ k ].TriggerEvent( this, eventtype, data, event );
+			
+			if ( eventtype != '*' ) {
+				// also trigger for '*' listeners
+				data.Event = eventtype; // pass triggered event type
+				this.Trigger( '*', data, event );
+			}
 		}, 0 ); // avoid running events in the middle of current code execution
 	}
 	
 	CreateListener() {
 		return new ( require( './Listener' ) )( this );
+	}
+	
+	CreateListenerPool() {
+		return new ( require( './ListenerPool' ) )( this );
 	}
 	
 	AttachListener( listener ) {
