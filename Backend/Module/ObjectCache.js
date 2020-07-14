@@ -88,6 +88,8 @@ class ObjectCache extends require( './_Module' ) {
 				this.Removing[ key ].push( func );
 				return next();
 			}
+			if ( !this.Cache[ key ] )
+				return; // already removed or not in cache
 			if ( this.Debug )
 				console.log( 'CACHEREMOVE ' + key );
 			this.Removing[ key ] = [];
@@ -96,13 +98,14 @@ class ObjectCache extends require( './_Module' ) {
 			return func( () => {
 				if ( this.Debug )
 					console.log( 'CACHEREMOVEDONE ' + key );
+				var removing = this.Removing[ key ];
+				delete this.Removing[ key ];
 				// continue flow
 				next();
 				// also return to whatever was waiting
-				for ( var k in this.Removing[ key ] )
-					this.Removing[ key ][ k ]();
+				for ( var k in removing )
+					removing[ key ][ k ]();
 				// cleanup
-				delete this.Removing[ key ];
 			}, fail );
 		});
 	}

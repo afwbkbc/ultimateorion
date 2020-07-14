@@ -220,7 +220,9 @@ class BaseEntityManager extends require( './_Module' ) {
 	
 	Delete( entity, options ) {
 		return new Promise( ( next, fail ) => {
+			//console.log( 'BEFORE CACHEREMOVE' );
 			this.CacheRemove( entity.Id, ( next, fail ) => {
+				//console.log( 'AFTER CACHEREMOVE' );
 				entity.Destroy()
 					.then( () => {
 						//console.log( 'DELETE', entity.Classname, entity.Db.ID );

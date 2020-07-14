@@ -80,14 +80,9 @@ class Lobby extends require( '../../Layout/Window' ) {
 			.On( 'player_leave', ( data ) => {
 				var player = data.Player;
 				//console.log( 'player_leave', player.Id );
-				if ( player.Id == this.Player.Id ) {
-					this.Close(); // we left this game, return to main menu
-				}
-				else {
-					if ( this.Players[ player.Id ] ) {
-						this.Players.RemovePlayer( player );
-						delete this.Players[ player.Id ];
-					}
+				if ( this.Players[ player.Id ] ) {
+					this.Players.RemovePlayer( player );
+					delete this.Players[ player.Id ];
 				}
 			})
 			.On( 'push_message', ( data ) => {

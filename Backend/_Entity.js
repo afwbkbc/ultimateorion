@@ -29,7 +29,7 @@ class Entity extends require( './_EventAwareBase' ) {
 	Destroy() {
 		return new Promise( ( next, fail ) => {
 			//console.log( '-ENTITY #' + this.Id );
-
+//console.log( 'DESTROY', this.Id );
 			var deinit = () => {
 				this.OnDeinit()
 					.then( next )
