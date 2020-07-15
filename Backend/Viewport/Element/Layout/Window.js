@@ -42,7 +42,9 @@ class Window extends require( '../BlockElement' ) {
 				Label: 'X',
 			});
 			this.CloseButton.On( 'click', () => {
-				this.Close();
+				this.Close({
+					closed_by_user: true,
+				});
 			});
 		}
 			
@@ -59,10 +61,10 @@ class Window extends require( '../BlockElement' ) {
 		});
 	}
 	
-	Close() {
+	Close( data ) {
 		if ( this.IsOpen ) {
 			this.IsOpen = false;
-			this.Trigger( 'close' );
+			this.Trigger( 'close', data );
 		}
 	}
 	

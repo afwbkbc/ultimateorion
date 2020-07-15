@@ -27,7 +27,7 @@ class Player extends require( '../_Entity' ) {
 			if ( data.Flags )
 				this.Flags = JSON.parse( data.Flags );
 			
-			console.log( 'UNPACK', this.Flags );
+			//console.log( 'UNPACK', this.Flags );
 			
 			//console.log( 'UNPACK PLAYER', data, options );
 

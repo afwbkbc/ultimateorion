@@ -14,7 +14,12 @@ class Game extends require( '../Layout/Window' ) {
 	Prepare() {
 		super.Prepare();
 
-		//this.Hide();
+		this.On( 'close', () => {
+			if ( this.Window ) {
+				this.Window.Close();
+				this.Window = null;
+			}
+		})
 		
 		this.Manager( 'Game' ).FindGame( this.Attributes.Game.Id, {
 			caller: this.Id,
@@ -26,27 +31,65 @@ class Game extends require( '../Layout/Window' ) {
 		})
 			.then( ( game ) => {
 				
-				if ( this.Window )
-					this.Viewport.RemoveElement( this.Window );
-				
-				if ( game.GameState == 'lobby' ) {
-					this.Window = this.Viewport.ShowWindow( 'Window/Game/Lobby', {
-						Game: this.Attributes.Game,
-					});
-				}
-				else
-					throw new Error( 'unknown/invalid game state "' + game.GameState + '"' );
-				
-				this.Window.On( 'close', () => {
-					//console.log( 'CLOSED' );
+				if ( !game ) { // invalid game id
 					this.Close();
-				});
+					return;
+				}
 				
+				this.Game = game;
+				this.Player = this.Game.FindPlayerForUser( this.Viewport.Session.User );
+				if ( !this.Player ) {
+					this.Close();
+					return;
+				}
+				
+				this.DisplayGameWindow();
+				
+				this.Listen( this.Game )
+					.On( 'player_leave', ( data ) => {
+						if ( data.Player.Id == this.Player.Id )
+							this.Close();
+					})
+					.On( 'state_change', ( data ) => {
+						this.DisplayGameWindow();
+					})
+					.On( 'destroy', () => {
+						this.Close();
+					})
+				;
 			})
 			.catch( ( e ) => {
 				throw ( e );
 			})
 		;
+		
+	}
+	
+	DisplayGameWindow() {
+		
+		if ( this.Window ) {
+			this.Window.Close();
+			this.Window = null;
+		}
+		
+		var p = {
+			Game: this.Game,
+			Player: this.Player,
+		};
+		
+		if ( this.Game.GameState == 'lobby' ) {
+			this.Window = this.Viewport.ShowWindow( 'Window/Game/Lobby', p );
+		}
+		else if ( this.Game.GameState == 'universe' ) {
+			this.Window = this.Viewport.ShowWindow( 'Window/Game/Universe', p );
+		}
+		else
+			throw new Error( 'unknown/invalid game state "' + this.Game.GameState + '"' );
+		
+		this.Window.On( 'close', ( data ) => {
+			if ( this.Window && data.ElementId == this.Window.Id) // existing window has been closed so it's not window switch
+				this.Close();
+		});
 		
 	}
 	

@@ -1,29 +1,41 @@
-class Lobby extends require( '../../Layout/Window' ) {
+class Universe extends require( '../../Layout/Window' ) {
 
 	constructor() {
 		super( module.filename );
 		
 		this.SetAttributes({
-			Style: 'game-lobby',
+			Style: 'game-universe',
 			Width: 1920,
 			Height: 1080,
+			WithTitlebar: false,
+			WithCloseButton: false,
+			HasBorder: false,
 		});
 		
-		this.Players = {};
 	}
 	
 	Prepare() {
 		
+		this.Game = this.Attributes.Game;
+		
 		this.SetAttributes({
-			Title: this.Attributes.Game.Name + ' (lobby)',
 		});
 		
 		super.Prepare();
 		
-		this.Game = this.Attributes.Game;
-		this.Player = this.Attributes.Player;
+		this.Player = this.Game.FindPlayerForUser( this.Viewport.Session.User );
+		if ( !this.Game || !this.Player ) {
+			this.Close();
+			return;
+		}
 		
-		this.Settings = this.Body.AddElement( 'Window/Game/Lobby/Settings', [ 'LT', 'LT' ], [ 20, 20 ], {
+		var p = {
+			UniverseWindow: this,
+		};
+		
+		this.TopBar = this.Body.AddElement( 'Window/Game/Universe/TopBar', [ 'LT', 'LT' ], [ 0, 0 ], p );
+		
+/*		this.Settings = this.Body.AddElement( 'Window/Game/Lobby/Settings', [ 'LT', 'LT' ], [ 20, 20 ], {
 			Width: 500,
 			Height: 600,
 		});
@@ -84,6 +96,9 @@ class Lobby extends require( '../../Layout/Window' ) {
 					this.Players.RemovePlayer( player );
 					delete this.Players[ player.Id ];
 				}
+				if ( player.Id == this.Player.Id ) {
+					this.Close();
+				}
 			})
 			.On( 'push_message', ( data ) => {
 				this.Chat.PushMessage( data.Text );
@@ -92,10 +107,10 @@ class Lobby extends require( '../../Layout/Window' ) {
 				this.Chat.PopMessage();
 			})
 		;
-		
+		*/
 		
 	}
 	
 }
 
-module.exports = Lobby;
+module.exports = Universe;

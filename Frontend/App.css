@@ -16,7 +16,6 @@ html, body {
 	left: 0;
 	bottom: 0;
 	right: 0;
-	background: url( '/Assets/MenuBackground.jpg' ) repeat black;
 	opacity: 0;
 }
 
@@ -34,4 +33,5 @@ html, body {
 	width: 0;
 	height: 0;
 	z-index: 10;
+	background: url( '/Assets/MenuBackground.jpg' ) repeat black;
 }

@@ -105,6 +105,16 @@ class _ElementBase extends require( '../_EventAwareBase' ) {
 			return super.Log( this.Viewport.Session.Id, text, data );
 	}
 	
+	Trigger( eventtype, data, event ) {
+		if ( !eventtype )
+			return;
+		if ( !data )
+			data = {};
+		if ( this.Id )
+			data.ElementId = this.Id;
+		return super.Trigger( eventtype, data, event );
+	}
+	
 	// override if needed
 	Prepare() {}
 }

@@ -3,8 +3,6 @@ class Game extends require( '../_Entity' ) {
 	constructor( parameters ) {
 		super( module.filename, parameters );
 		
-		this.GamesListRepository = 'Games_List';
-		
 		this.Players = {};
 
 		this.MaxMessages = 128;
@@ -146,12 +144,14 @@ class Game extends require( '../_Entity' ) {
 			if( options && options.parameters && options.parameters.Repository )
 				return done( options.parameters.Repository );
 			
+			var entities = {};
+			if ( this.GameState == 'lobby' )
+				entities[ this.Id ] = this;
+			
 			this.GetRepository( 'Games_List', {
 				caller: this.Id,
 				parameters: {
-					Entities: {
-						[ this.Id ]: this,
-					},
+					Entities: entities,
 				},
 				/*on_before_deadlock: ( obj ) => {
 					console.log( 'BEFOREDEADLOCK', obj );
@@ -168,7 +168,10 @@ class Game extends require( '../_Entity' ) {
 	
 	OnDeinit() {
 		return new Promise( ( next, fail ) => {
-			this.Repository = null;
+			if ( this.Repository ) {
+				this.Repository.Remove( this );
+				this.Repository = null;
+			}
 			this.TriggerRepositories = [];
 			return next();
 		});
@@ -216,15 +219,17 @@ class Game extends require( '../_Entity' ) {
 			
 			this.Trigger( 'destroy' );
 			
+			if ( this.Host ) {
+				this.Log( this.Host.User.Session.Id, 'Game destroyed', {
+					Game: this.Id,
+				});
+			}
+			
+			if ( !this.Repository )
+				return next();
+			
 			this.Repository.Remove( this )
-				.then( () => {
-					if ( this.Host ) {
-						this.Log( this.Host.User.Session.Id, 'Game destroyed', {
-							Game: this.Id,
-						});
-					}
-					return next();
-				})
+				.then( next )
 				.catch( fail )
 			;
 			
@@ -239,6 +244,9 @@ class Game extends require( '../_Entity' ) {
 				if ( player.User.ID == user.ID )
 					return next( player ); // already added
 			}
+			
+			if ( this.GameState != 'lobby' )
+				return next( null ); // joining possible only on lobby stage
 			
 			this.Manager( 'Player' ).CreatePlayer( user, this, flags )
 				.then( ( player ) => {
@@ -414,6 +422,7 @@ class Game extends require( '../_Entity' ) {
 		if ( force_init || !this.Players[ player.Id ] ) {
 			this.Players[ player.Id ] = player;
 			this.PlayersListener.Add( player );
+			this.ResetReadyCheck(); // any change in players = everyone must become ready again
 		}
 	}
 	
@@ -421,12 +430,18 @@ class Game extends require( '../_Entity' ) {
 		if ( this.Players[ player.Id ] ) {
 			this.PlayersListener.Remove( player );
 			delete this.Players[ player.Id ];
+			this.ResetReadyCheck(); // any change in players = everyone must become ready again
 		}
+	}
+	
+	ResetReadyCheck() {
+		for ( var k in this.Players )
+			this.Players[ k ].SetFlag( 'is_ready', false );
 	}
 	
 	ReadyCheck() {
 		// start game when everyone is ready
-		var is_everyone_ready = true;
+		var is_everyone_ready = ( Object.keys( this.Players ).length > 0 ); // don't start without players
 		for ( var k in this.Players ) {
 			if ( !this.Players[ k ].Flags.is_ready ) {
 				is_everyone_ready = false;
@@ -444,9 +459,7 @@ class Game extends require( '../_Entity' ) {
 						clearInterval( this.GameStartInterval );
 						this.GameStartInterval = null;
 						
-						this.Trigger( 'game_start' );
-						this.Delete(); // TODO: START UNIVERSE!
-						
+						this.StartUniverse();
 					}
 				}, 1000 );
 			}
@@ -469,9 +482,27 @@ class Game extends require( '../_Entity' ) {
 					NewState: new_state,
 				});
 			}
+			this.Trigger( 'state_change', {
+				State: new_state,
+			});
 			
 			this.GameState = new_state;
 		}
+	}
+	
+	StartUniverse() {
+		
+		// remove from game browsers, nobody can join now
+		if ( this.Repository ) {
+			this.Repository.Remove( this );
+			this.Repository = null;
+		}
+		this.TriggerRepositories = [];
+		
+		this.ChangeState( 'universe' );
+		
+		// TODO: start magic here!
+		
 	}
 	
 }

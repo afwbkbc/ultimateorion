@@ -27,52 +27,46 @@ class GamesList extends require( '../Layout/Block' ) {
 		
 		this.GameRows = {};
 		
-		this.GetRepository( 'Games_List' )
-			.then( ( repository ) => {
-
-				var add_game = ( game ) => {
-					if ( !this.GameRows[ game.Id ] ) {
-						this.GameRows[ game.Id ] = this.Append( 'Block/GamesList/GameRow', {
-							Game: game,
-						});
-						
-						this.Show();
-					}
-				}
+		var remove_game = ( game ) => {
+			if ( this.GameRows[ game.Id ] ) {
+				this.Remove( this.GameRows[ game.Id ] );
+				delete this.GameRows[ game.Id ];
+				if ( Object.keys( this.GameRows ).length == 0 )
+					this.Hide();
+			}
+		}
+		
+		var add_game = ( game ) => {
+			if ( !this.GameRows[ game.Id ] ) {
+				this.GameRows[ game.Id ] = this.Append( 'Block/GamesList/GameRow', {
+					Game: game,
+				});
 				
-				var remove_game = ( game ) => {
-					if ( this.GameRows[ game.Id ] ) {
-						this.Remove( this.GameRows[ game.Id ] );
-						delete this.GameRows[ game.Id ];
-						if ( Object.keys( this.GameRows ).length == 0 )
-							this.Hide();
-					}
-				}
-				
-				this.Listen( repository )
-					.On( 'add', ( data ) => {
-						var game = data.Entity;
-						if ( game.FindPlayerForUser( this.Viewport.Session.User ) ) // show only if joined this game
-							add_game( game );
-					})
-					.On( 'remove', ( data ) => {
-						var game = data.Entity;
+				game
+					.On( 'destroy', () => {
 						remove_game( game );
-					})
-					.On( 'event', ( data ) => {
-						if ( data.EventType == 'player_add' && data.Data.Player.User.ID == this.Viewport.Session.User.ID )
-							add_game( data.Entity );
-						else if ( data.EventType == 'player_leave' && data.Data.Player.User.ID == this.Viewport.Session.User.ID )
-							remove_game( data.Entity );
 					})
 				;
 				
+				this.Show();
+			}
+		}
+		
+		this.Session = this.Viewport.Session;
+		
+		for ( var k in this.Session.Players ) {
+			var player = this.Session.Players[ k ];
+			add_game( player.Game );
+		}
+		
+		this.Session
+			.On( 'game_join', ( data ) => {
+				add_game( data.Game );
 			})
-			.catch( ( e ) => {
-				throw e;
+			.On( 'game_leave', ( data ) => {
+				remove_game( data.Game );
 			})
 		;
-
 		
 	}
 	

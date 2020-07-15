@@ -21,7 +21,7 @@ window.App.Extend({
 	
 	Init: function( next ) {
 		this.el = {
-			background: document.getElementById( 'homebackground' ),
+			background: document.getElementById( 'viewport' ),
 		};
 		
 		next();

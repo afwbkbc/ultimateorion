@@ -39,12 +39,14 @@ class GameBrowser extends require( '../Layout/Window' ) {
 								Game: game,
 							})
 								.On( 'join', () => {
-									this.Close();
 									game.AddPlayerForUser( this.Viewport.Session.User )
-										.then( () => {
-											this.Viewport.ShowWindow( 'Window/Game', {
-												Game: game,
-											});
+										.then( ( player ) => {
+											if ( player ) {
+												this.Close();
+												this.Viewport.ShowWindow( 'Window/Game', {
+													Game: game,
+												});
+											}
 										})
 										.catch( ( e ) => {
 											throw e;
@@ -60,9 +62,6 @@ class GameBrowser extends require( '../Layout/Window' ) {
 							this.GameRowsBlock.Remove( this.GameRows[ game.Id ] );
 							delete this.GameRows[ game.Id ];
 						}
-					})
-					.On( 'change', ( data ) => {
-						console.log( 'CHANGE', data.Entity );
 					})
 				;
 				

@@ -45,10 +45,6 @@ class ActionBlock extends require( '../../../Layout/Block' ) {
 			})
 		;
 		
-		/*this.Rows = this.AddElement( 'Window/Game/Lobby/' + this.Attributes.BlockType + '/Rows', [ 'LT', 'LT' ], [ 0, 60 ], {
-			Width: this.Attributes.Width,
-			Height: this.Attributes.Height - 60,
-		});*/
 	}
 
 }

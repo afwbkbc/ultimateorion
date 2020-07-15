@@ -176,12 +176,17 @@ class Session extends require( './_Entity' ) {
 			
 			game.AddPlayerForUser( this.User )
 				.then( ( player ) => {
+					if ( !player )
+						return next();
 					this.Log( 'Joined game', {
 						Game: game.Id,
 						Player: player.Id,
 					});
 					//console.log( 'ADD TO GAME ' + player.User.Username + ' #' + game.Id );
 					this.Players[ player.Id ] = player;
+					this.Trigger( 'game_join', {
+						Game: game,
+					});
 					this.Save()
 						.then( next )
 						.catch( fail )
@@ -201,6 +206,9 @@ class Session extends require( './_Entity' ) {
 				if ( player.Game.Id == game.Id ) {
 					//console.log( 'REMOVE FROM GAME ' + this.User.Username + ' #' + game.Id );
 					delete this.Players[ k ];
+					this.Trigger( 'game_leave', {
+						Game: game,
+					});
 					game.RemovePlayerForUser( this.User )
 						.then( () => {
 							this.Save()
