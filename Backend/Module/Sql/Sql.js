@@ -271,6 +271,7 @@ class Sql extends require( '../_Module' ) {
 			var data = parameters.data;
 			
 			var is_insert = typeof( data.ID ) === 'undefined' || data.ID === null;
+			var is_async = this.Config.AsyncWrites && !parameters.force_sync && !is_insert;
 			
 			var fields = '';
 			var values = [];
@@ -333,8 +334,11 @@ class Sql extends require( '../_Module' ) {
 				if ( is_insert ) {
 					data.ID = result.insertId;
 				}
-				return next( data );
+				if ( !is_async ) // if sync - return after query
+					return next( data );
 			});
+			if ( is_async ) // if async - return immediately, finish query in background
+				return next( data );
 			
 		});
 	}
@@ -344,14 +348,17 @@ class Sql extends require( '../_Module' ) {
 		return new Promise( ( next, fail ) => {
 			
 			var wv = this._QueryToWhereValues( parameters );
+			var is_async = this.Config.AsyncWrites && !parameters.force_sync;
 			
 			this.Sql.query( 'DELETE FROM `' + parameters.table + '`' + wv.where, wv.values, function( err, result ) {
 				if ( err )
 					return fail( err );
 				
-				return next();
+				if ( !is_async ) // if sync - return after deletion
+					return next();
 			});
-			
+			if ( is_async ) // if async - return immediately
+				return next();
 		});
 	}
 }

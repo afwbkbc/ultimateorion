@@ -14,6 +14,7 @@ class Window extends require( '../BlockElement' ) {
 			WithFadeBackground: true,
 		});
 		
+		this.IsOpen = true;
 	}
 	
 	Prepare() {
@@ -59,7 +60,10 @@ class Window extends require( '../BlockElement' ) {
 	}
 	
 	Close() {
-		this.Trigger( 'close' );
+		if ( this.IsOpen ) {
+			this.IsOpen = false;
+			this.Trigger( 'close' );
+		}
 	}
 	
 }

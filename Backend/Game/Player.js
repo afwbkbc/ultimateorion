@@ -3,10 +3,6 @@ class Player extends require( '../_Entity' ) {
 	constructor() {
 		super( module.filename );
 		
-		this.Flags = {
-			is_host: false,
-			is_ready: false,
-		};
 	}
 
 	Pack() {
@@ -30,6 +26,8 @@ class Player extends require( '../_Entity' ) {
 			
 			if ( data.Flags )
 				this.Flags = JSON.parse( data.Flags );
+			
+			console.log( 'UNPACK', this.Flags );
 			
 			//console.log( 'UNPACK PLAYER', data, options );
 
@@ -92,6 +90,12 @@ class Player extends require( '../_Entity' ) {
 	
 	OnCreate() {
 		return new Promise( ( next, fail ) => {
+			
+			this.Flags = {
+				is_host: false,
+				is_ready: false,
+			};
+			
 			return next();
 		});
 	}
@@ -109,7 +113,8 @@ class Player extends require( '../_Entity' ) {
 	}
 	
 	SetFlag( key, value ) {
-		if ( this.Flags[ key ] !== value ) {
+		if ( this.Flags[ key ] != value ) {
+			//console.log( 'SETFLAG', key, this.Flags, value );
 			this.Flags[ key ] = value;
 			this.Trigger( 'flag_change', {
 				Key: key,

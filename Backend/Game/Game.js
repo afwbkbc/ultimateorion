@@ -340,7 +340,7 @@ class Game extends require( '../_Entity' ) {
 											});
 										}
 										this.AddMessage( new_host.User.Username + ' is now game host.' );
-										if ( new_host.Flags )
+										if ( !new_host.Flags )
 											new_host.Flags = {};
 										new_host.Flags.is_host = true;
 										new_host.Save()
@@ -459,6 +459,21 @@ class Game extends require( '../_Entity' ) {
 			}
 		}
 	}
+	
+	ChangeState( new_state ) {
+		if ( new_state != this.GameState ) {
+			if ( this.Host ) {
+				this.Log( this.Host.User.Session.Id, 'Game state change', {
+					Game: this.Id,
+					OldState: this.GameState,
+					NewState: new_state,
+				});
+			}
+			
+			this.GameState = new_state;
+		}
+	}
+	
 }
 
 module.exports = Game;

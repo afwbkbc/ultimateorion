@@ -128,7 +128,7 @@ module.exports = ( filename, schema ) => {
 					this[ k ] = data[ k ];
 		}
 		
-		Save() {
+		Save( parameters ) {
 			return new Promise( ( next, fail ) => {
 				
 				var data = {};
@@ -142,10 +142,12 @@ module.exports = ( filename, schema ) => {
 				
 				data = sanitize_query( data );
 				
-				this.Module( 'Sql' ).Save({
-					table: model_name,
-					data: data,
-				})
+				if ( !parameters )
+					parameters = {};
+				parameters.table = model_name;
+				parameters.data = data;
+				
+				this.Module( 'Sql' ).Save( parameters )
 					.then( ( data ) => {
 						if ( data.ID )
 							this.ID = data.ID;
@@ -156,20 +158,23 @@ module.exports = ( filename, schema ) => {
 			});
 		}
 
-		Delete() {
+		Delete( parameters ) {
 			return new Promise( ( next, fail ) => {
 				
 				if ( !this.ID )
 					return fail( new Error( 'can\'t delete object without ID' ) );
 				
-				this.Module( 'Sql' ).Delete({
-					table: model_name,
-					query: {
-						ID: this.ID,
-					},
-				});
+				if ( !parameters )
+					parameters = {};
+				parameters.table = model_name;
+				parameters.query = {
+					ID: this.ID,
+				};
 				
-				return next();
+				this.Module( 'Sql' ).Delete( parameters )
+					.then( next )
+					.catch( fail )
+				;
 			});
 		}
 		

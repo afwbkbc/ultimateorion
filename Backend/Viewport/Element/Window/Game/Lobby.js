@@ -88,6 +88,9 @@ class Lobby extends require( '../../Layout/Window' ) {
 					this.Players.RemovePlayer( player );
 					delete this.Players[ player.Id ];
 				}
+				if ( player.Id == this.Player.Id ) {
+					this.Close();
+				}
 			})
 			.On( 'push_message', ( data ) => {
 				this.Chat.PushMessage( data.Text );

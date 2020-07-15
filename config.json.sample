@@ -15,7 +15,8 @@
 		"Database": "ultimateorion",
 		"Username": "",
 		"Password": "",
-		"LowerCaseTableNamesWorkaround": false
+		"LowerCaseTableNamesWorkaround": false,
+		"AsyncWrites": true
 	},
 	"EntityPreloader": {
 		"Enabled": true
