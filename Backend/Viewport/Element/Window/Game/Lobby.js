@@ -67,6 +67,10 @@ class Lobby extends require( '../../Layout/Window' ) {
 		for ( var k in messages )
 			this.Chat.PushMessage( messages[ k ] );
 		
+		this.On( 'close', () => {
+			this.Player.SetFlag( 'is_ready', false );
+		});
+		
 		// listen to game events and update UI accordingly
 		this.Listen( this.Attributes.Game )
 			.On( 'player_add', ( data ) => {
@@ -94,13 +98,8 @@ class Lobby extends require( '../../Layout/Window' ) {
 			.On( 'destroy', () => {
 				this.Close();
 			})
-			.On( 'game_start', () => {
-				this.Viewport.ShowWindow( 'Window/Error', {
-					ErrorText: 'Not implemented yet!',
-				});
-			})
-			
 		;
+		
 		
 	}
 	

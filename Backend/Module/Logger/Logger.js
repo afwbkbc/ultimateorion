@@ -5,7 +5,7 @@ class Logger extends require( '../_Module' ) {
 		
 		this.Outputs = {};
 		
-		this.MaxMessages = 128;
+		this.MaxMessages = 28;
 	}
 	
 	Init() {
@@ -44,10 +44,12 @@ class Logger extends require( '../_Module' ) {
 				Timestamp: new Date(),
 			};
 			output.Messages.push( message );
-			if ( output.Messages.length > this.MaxMessages )
+			if ( output.Messages.length > this.MaxMessages ) {
 				output.Messages.splice( 0, 1 );
+				output.Target.Viewport.Trigger( 'debug_pop' );
+			}
 			if ( output.Target.Viewport )
-				output.Target.Viewport.Trigger( 'debug_log', message );
+				output.Target.Viewport.Trigger( 'debug_push', message );
 		}
 	}
 	

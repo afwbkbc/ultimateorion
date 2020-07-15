@@ -77,6 +77,8 @@ class Viewport extends require( './_ElementBase' ) {
 	}
 	
 	Trigger( event, data ) {
+		if ( !data )
+			data = {};
 		data.event = event;
 		this.HandleEvent({
 			data: {
@@ -111,9 +113,14 @@ class Viewport extends require( './_ElementBase' ) {
 				}
 				break;
 			}
-			case 'debug_log': {
+			case 'debug_push': {
 				if ( this.DebugConsole )
-					this.DebugConsole.AddMessage( data );
+					this.DebugConsole.PushMessage( data );
+				break;
+			}
+			case 'debug_pop': {
+				if ( this.DebugConsole )
+					this.DebugConsole.PopMessage();
 				break;
 			}
 		}

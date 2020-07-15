@@ -7,12 +7,14 @@ class MessageLog extends require( '../../Layout/Panel' ) {
 			Width: 1920,
 			Height: 510,
 		});
+		
+		this.Messages = [];
 	}
 	
 	Prepare() {
 		super.Prepare();
 		
-		this.Messages = this.AddElement( 'Layout/Block', [ 'CB', 'CB' ], [ 0, 0 ], {
+		this.MessageBlock = this.AddElement( 'Layout/Block', [ 'CB', 'CB' ], [ 0, 0 ], {
 			ElementAttributes: {
 				Width: 1920,
 				Height: this.Attributes.FontSize,
@@ -23,10 +25,15 @@ class MessageLog extends require( '../../Layout/Panel' ) {
 		});
 	}
 
-	AddLine( line ) {
-		this.Messages.Append( 'UI/Label', {
+	PushMessage( line ) {
+		this.Messages.push( this.MessageBlock.Append( 'UI/Label', {
 			Text: line,
-		});
+		}));
+	}
+	
+	PopMessage() {
+		if ( this.Messages.length > 0 )
+			this.MessageBlock.Remove( this.Messages.splice( 0, 1 )[ 0 ] );
 	}
 }
 

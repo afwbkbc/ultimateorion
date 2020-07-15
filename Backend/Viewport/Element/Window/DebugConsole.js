@@ -59,18 +59,22 @@ class DebugConsole extends require( '../Layout/Window' ) {
 		
 		var messages = this.Module( 'Logger' ).GetMessages( this.Viewport.Session.Id );
 		for ( var k in messages )
-			this.AddMessage( messages[ k ] );
+			this.PushMessage( messages[ k ] );
 		
 		this.Input.Focus();
 	}
 	
-	AddMessage( message ) {
+	PushMessage( message ) {
 		var line;
 		if ( message.Data.FromDebugConsole ) // sent from myself
 			line = this.Prefixes[ 1 ] + ' ' + message.Text;
 		else
 			line = this.Prefixes[ 0 ] + ' ' + message.Text + ' ' + JSON.stringify( message.Data );
-		this.MessageLog.AddLine( line );
+		this.MessageLog.PushMessage( line );
+	}
+	
+	PopMessage() {
+		this.MessageLog.PopMessage();
 	}
 	
 }
