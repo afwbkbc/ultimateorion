@@ -19,7 +19,10 @@ class Fs extends require( './_Helper' ) {
 	}
 	
 	GetExtension( path ) {
-		return this.Path.extname( path );
+		var ext = this.Path.extname( path );
+		if ( ext[ 0 ] == '.' )
+			return ext.substring( 1 );
+		return ext;
 	}
 	
 	GetFiles( path ) {
@@ -66,7 +69,7 @@ class Fs extends require( './_Helper' ) {
 			.replace( /\\/g, '/' )
 			.substring( 1 ) // remove leading slash
 		;
-	}	
+	}
 
 	// converts filesystem path to class name
 	PathToName( path ) {

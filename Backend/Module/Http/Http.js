@@ -87,23 +87,23 @@ class Http extends require( '../_Module' ) {
 				}
 				var ext = this.H.Fs.GetExtension( filepath );
 				switch ( ext ) {
-					case '.html':
+					case 'html':
 						contenttype = 'text/html; charset=utf-8';
 						break;
-					case '.css':
+					case 'css':
 						contenttype = 'text/css';
 						break;
-					case '.js':
+					case 'js':
 						contenttype = 'text/javascript';
 						break;
-					case '.png':
+					case 'png':
 						contenttype = 'image/png';
 						break;
-					case '.jpg':
-					case '.jpeg':
+					case 'jpg':
+					case 'jpeg':
 						contenttype = 'image/jpeg';
 						break;
-					case '.gif':
+					case 'gif':
 						contenttype = 'image/gif';
 						break;
 					default:
