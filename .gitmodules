@@ -1,0 +1,3 @@
+[submodule "Backend/Scripts/ultimateorion-vanilla"]
+	path = Backend/Scripts/ultimateorion-vanilla
+	url = https://github.com/ultimateorion/ultimateorion-vanilla
