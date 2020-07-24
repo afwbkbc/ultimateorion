@@ -74,7 +74,7 @@ class Http extends require( '../_Module' ) {
 						status = 200;
 						break;
 					default:
-						filepath = req.url;
+						filepath = req.url.replace( /\.\./g, '' );
 						status = 200;
 				}
 				if ( !this.H.Fs.IsFile( this.FrontendPath + filepath ) ) {
