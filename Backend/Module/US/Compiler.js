@@ -4,6 +4,16 @@ class Compiler extends require( '../../_Base' ) {
 		super( module.filename );
 		
 		this.Source = require( './Source' );
+		
+		this.Handlers = {};
+		let handlers_path = 'Backend/Module/US/Handler';
+		let dir = this.H.Fs.GetFiles( handlers_path );
+		for ( var file_name of dir ) {
+			var ext = this.H.Fs.GetExtension( file_name );
+			if ( ext === 'js' && file_name[ 0 ] !== '_' ) {
+				this.Handlers[ file_name.substring( 0, file_name.length - ext.length - 1 ) ] = new ( require( './Handler/' + file_name ) );
+			}
+		}
 	}
 	
 	ReadSources( base_path, path, sources ) {
@@ -42,6 +52,7 @@ class Compiler extends require( '../../_Base' ) {
 		// compile into javascript code
 		for ( var k in sources ) {
 			sources[ k ].Compile();
+			break; // tmp
 		}
 		
 	}
