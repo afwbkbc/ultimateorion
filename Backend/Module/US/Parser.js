@@ -13,7 +13,8 @@ class Parser {
 		this.InvisibleCharacters = '\r\n';
 		
 		this.IsInsideString = false;
-		this.CommentDepth = 0;
+		this.IsInsideSingleLineComment = false;
+		this.MultilineCommentDepth = 0;
 		
 		this.Context = null;
 		this.ParsedData = [];
@@ -33,6 +34,7 @@ class Parser {
 		while ( !this.IsFinished() ) {
 			this.GetNextCharacter();
 		}
+		
 		if ( this.Context ) {
 			if ( this.Context.Handler.StopOn ) {
 				throw this.CreateError( 'expected ' + this.Context.Handler.StopOn + ', got ' + ( this.ParentContext ? this.ParentContext.Handler.StopOn : 'end of file' ) );
@@ -41,7 +43,7 @@ class Parser {
 				this.FinalizeContext();
 			}
 		}
-		if ( this.CommentDepth > 0 ) {
+		if ( this.MultilineCommentDepth > 0 ) {
 			throw this.CreateError( 'expected */, got end of file' );
 		}
 		
@@ -78,12 +80,7 @@ class Parser {
 				data: this.Context.Data,
 			});
 		}
-		else if ( [
-			'Whitespace'
-		].indexOf( this.Context.Handler.Name ) < 0 )
-			console.log( 'no data from ' + this.Context.Handler.Name );
 		this.Context = null;
-		
 	}
 	
 	GetNextCharacter() {
@@ -92,20 +89,38 @@ class Parser {
 		
 		if ( !this.IsInsideString ) { // strings have priority over comments
 		
-			if ( character === '/' && this.Source[ this.SourcePos + 1 ] === '*' ) { // comment start
-				this.CommentDepth++;
+			if ( this.IsInsideSingleLineComment ) {
+				if ( character === '\n' ) { // comment end
+					this.IsInsideSingleLineComment = false;
+					this.LineNum++;
+					this.LinePos = 0;
+				}
+				this.SourcePos++;
+				this.LinePos++;
+				return;
+			}
+			
+			if ( character === '/' && this.Source[ this.SourcePos + 1 ] === '/' ) { // comment start
+				this.IsInsideSingleLineComment = true;
 				this.SourcePos += 2;
 				this.LinePos += 2;
 				return;
 			}
 			
-			if ( this.CommentDepth > 0 ) { // inside /* ... */, can be multi-line
+			if ( character === '/' && this.Source[ this.SourcePos + 1 ] === '*' ) { // comment start
+				this.MultilineCommentDepth++;
+				this.SourcePos += 2;
+				this.LinePos += 2;
+				return;
+			}
+			
+			if ( this.MultilineCommentDepth > 0 ) { // inside /* ... */, can be multi-line
 				if ( character === '\n' ) {
 					this.LineNum++;
 					this.LinePos = 0;
 				}
 				else if ( character === '*' && this.Source[ this.SourcePos + 1 ] === '/' ) { // comment end
-					this.CommentDepth--;
+					this.MultilineCommentDepth--;
 					this.SourcePos++;
 					this.LinePos++;
 				}
