@@ -8,6 +8,14 @@ class String extends require( './_Handler' ) {
 		
 	}
 	
+	OnBegin( context ) {
+		context.Parser.IsInsideString = true;
+	}
+	
+	OnEnd( context ) {
+		context.Parser.IsInsideString = false;
+	}
+	
 }
 
 module.exports = String;

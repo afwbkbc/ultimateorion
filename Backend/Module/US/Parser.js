@@ -8,14 +8,19 @@ class Parser {
 		this.Source = null;
 		this.SourcePos = 0;
 		this.LineNum = this.ParentContext ? this.ParentContext.LineNum : 1;
-		this.LinePos = this.ParentContext ? this.ParentContext.LinePos : 1;
+		this.LinePos = this.ParentContext ? this.ParentContext.LinePos + 1 : 1; // + 1 to include length of opening bracket of parent scope
 		
 		this.InvisibleCharacters = '\r\n';
 		
-		this.IsInComment = false;
+		this.IsInsideString = false;
+		this.CommentDepth = 0;
 		
 		this.Context = null;
 		this.ParsedData = [];
+	}
+	
+	CreateError( message ) {
+		return new Error( this.Namespace + '.us:' + this.LineNum + ':' + this.LinePos + ' : ' + message );
 	}
 	
 	Parse( namespace, source, callbacks ) {
@@ -28,15 +33,18 @@ class Parser {
 		while ( !this.IsFinished() ) {
 			this.GetNextCharacter();
 		}
-		try {
 		if ( this.Context ) {
 			if ( this.Context.Handler.StopOn ) {
-				throw new Error( this.Namespace + '.us:' + this.LineNum + ':' + this.LinePos + ' : expected ' + this.Context.Handler.StopOn + ', got end of file', this.Context );
+				throw this.CreateError( 'expected ' + this.Context.Handler.StopOn + ', got ' + ( this.ParentContext ? this.ParentContext.Handler.StopOn : 'end of file' ) );
+			}
+			else {
+				this.FinalizeContext();
 			}
 		}
-		} catch ( e ) {
-			console.log( 'ERROR', e );
+		if ( this.CommentDepth > 0 ) {
+			throw this.CreateError( 'expected */, got end of file' );
 		}
+		
 		return this.ParsedData;
 	}
 	
@@ -53,36 +61,57 @@ class Parser {
 		return new ( require( './Context' ) )( parser, handler );
 	}
 	
+	FinalizeContext() {
+		// finalize, save result and get out
+		this.Context.Handler.End( this.Context );
+		if ( true || this.Context.Data ) {
+			this.ParsedData.push({
+				handler: this.Context.Handler.Name,
+				source_pos_from: this.Context.SourcePos,
+				source_pos_to: this.SourcePos,
+				line_num_from: this.Context.LineNum,
+				line_pos_from: this.Context.LinePos,
+				line_num_to: this.LineNum,
+				line_pos_to: this.LinePos - ( this.Context.ConsumeNeeded ? 0 : 1 ), // - 1 to make range non-inclusive
+				source : this.Context.Source ? this.Context.Source : null,
+				data: this.Context.Data ? this.Context.Data : null,
+			});
+		}
+		this.Context = null;
+	}
+	
 	GetNextCharacter() {
 		let character = this.Source[ this.SourcePos ];
 		let is_visible_character = this.InvisibleCharacters.indexOf( character ) < 0;
 		
-		if ( this.IsInComment ) { // inside /* ... */, can be multi-line
-			if ( character === '\n') {
-				this.LineNum++;
-				this.LinePos = 0;
+		if ( !this.IsInsideString ) { // strings have priority over comments
+		
+			if ( character === '/' && this.Source[ this.SourcePos + 1 ] === '*' ) { // comment start
+				this.CommentDepth++;
+				this.SourcePos += 2;
+				this.LinePos += 2;
+				return;
 			}
-			else if ( character === '*' && this.Source[ this.SourcePos + 1 ] === '/' ) { // comment end
-				this.IsInComment = false;
+			
+			if ( this.CommentDepth > 0 ) { // inside /* ... */, can be multi-line
+				if ( character === '\n' ) {
+					this.LineNum++;
+					this.LinePos = 0;
+				}
+				else if ( character === '*' && this.Source[ this.SourcePos + 1 ] === '/' ) { // comment end
+					this.CommentDepth--;
+					this.SourcePos++;
+					this.LinePos++;
+				}
 				this.SourcePos++;
 				if ( is_visible_character )
 					this.LinePos++;
+				return;
 			}
-			this.SourcePos++;
-			this.LinePos++;
-			return;
 		}
-		
-		if ( character === '/' && this.Source[ this.SourcePos + 1 ] === '*' ) { // comment start
-			this.IsInComment = true;
-			this.SourcePos += 2;
-			return;
-		}
-		
-		let context = null;
-		let handler_to_use = null;
 		
 		if ( !this.Context ) {
+			let handler_to_use = null;
 			for ( let handler_name in this.Compiler.Handlers ) {
 				let handler = this.Compiler.Handlers[ handler_name ];
 				if ( handler.TriggerOn.indexOf( character ) >= 0 ) {
@@ -91,51 +120,37 @@ class Parser {
 				}
 			}
 			if ( !handler_to_use ) {
-				throw new Error( 'unexpected character "' + character + '", aborting' );
+				throw this.CreateError( 'unexpected character "' + character + '", aborting' );
 			}
-			context = this.CreateContext( this, handler_to_use );
-			context.SourcePos = this.SourcePos;
-			context.LineNum = this.LineNum;
-			context.LinePos = this.LinePos;
-			
-			this.Context = context;
-			handler_to_use.Begin( context );
+			this.Context = this.CreateContext( this, handler_to_use );
+			this.Context.SourcePos = this.SourcePos;
+			this.Context.LineNum = this.LineNum;
+			this.Context.LinePos = this.LinePos;
+			this.Context.Handler.Begin( this.Context );
 		}
-		else {
-			context = this.Context;
-			handler_to_use = context.Handler;
+		
+		if ( character === '\n' ) {
+			this.LineNum++;
+			this.LinePos = 1;
+			this.Context.Source += character;
+			this.SourcePos++;
+			return;
 		}
 		
 		let consume_needed = false;
-		if ( handler_to_use.Process( context, character ) ) {
+		if ( this.Context.Handler.Process( this.Context, character ) ) {
 			consume_needed = true;
 		} else {
-			// finalize, save result and get out
-			handler_to_use.End( context );
-			consume_needed = context.ConsumeNeeded;
-			if ( true || context.Data ) {
-				this.ParsedData.push({
-					handler: handler_to_use.Name,
-					source_pos_from: context.SourcePos,
-					source_pos_to: this.SourcePos,
-					line_num_from: context.LineNum,
-					line_pos_from: context.LinePos,
-					line_num_to: this.LineNum,
-					line_pos_to: this.LinePos - ( consume_needed ? 0 : 1 ),
-					source : context.Source ? context.Source : null,
-					//data: context.Data ? context.Data : null,
-					data: context.Data,
-				});
-			}
-			this.Context = null;
+			consume_needed = this.Context.ConsumeNeeded;
+			this.FinalizeContext();
 		}
+		
 		
 		if ( consume_needed ) {
 			// read next character
 			this.SourcePos++;
-			if ( is_visible_character ) {
+			if ( is_visible_character )
 				this.LinePos++;
-			}
 		}
 	}
 }

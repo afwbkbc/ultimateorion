@@ -9,12 +9,11 @@ class Source {
 	Compile() {
 		
 		let parser = new ( require( './Parser' ) )( this.Compiler );
-		
 		let parsed_data = parser.Parse( this.Namespace, this.Code );
 		
-		var lines = [];
+/*		var lines = [];
 		
-/*		// test reconstruct
+		// test reconstruct
 		for ( let k in parsed_data ) {
 			var d = parsed_data[ k ];
 			while ( d.line_num_to > lines.length )
@@ -33,9 +32,9 @@ class Source {
 			console.log( l );
 		}*/
 		
-		/*for ( let k in parsed_data ) {
-			console.log( 'all done', parsed_data[ k ] );
-		}*/
+		//for ( let k in parsed_data ) {
+			//console.log( 'all done', parsed_data[ k ] );
+		//}
 		
 		//console.log( 'COMPILE', this.Namespace, this.Code );
 		

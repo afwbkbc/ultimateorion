@@ -27,8 +27,8 @@ class Compiler extends require( '../../_Base' ) {
 			var full_file_path = full_path + '/' + file;
 			if ( this.H.Fs.IsFile( full_file_path ) ) {
 				var ext = this.H.Fs.GetExtension( file );
-				if ( ext == 'us' ) {
-					var sources_key = file == 'main.us'
+				if ( ext === 'us' ) {
+					var sources_key = file === 'main.us'
 						? '' // special key for entry point
 						: path + '/' + file.substring( 0, file.length - ext.length - 1 )
 					;
@@ -52,7 +52,7 @@ class Compiler extends require( '../../_Base' ) {
 		// compile into javascript code
 		for ( var k in sources ) {
 			sources[ k ].Compile();
-			break; // tmp
+			//break; // tmp
 		}
 		
 	}
