@@ -7,6 +7,12 @@ class Identifier extends require( './_Handler' ) {
 		this.ContinueOn = this.TriggerOn + '1234567890';
 		
 	}
+
+	OnProcess( context ) {
+		context.Data = {
+			name: context.Source,
+		};
+	}
 	
 }
 

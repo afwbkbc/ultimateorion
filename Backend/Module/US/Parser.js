@@ -19,8 +19,8 @@ class Parser {
 		this.ParsedData = [];
 	}
 	
-	CreateError( message ) {
-		return new Error( this.Namespace + '.us:' + this.LineNum + ':' + this.LinePos + ' : ' + message );
+	CreateError( message, pos_back_by ) {
+		return new Error( ( this.Namespace ? ( this.Namespace + '.us' ) : '<core>' ) + ':' + this.LineNum + ':' + ( this.LinePos - ( pos_back_by ? pos_back_by : 0 ) ) + ' : ' + message );
 	}
 	
 	Parse( namespace, source, callbacks ) {
@@ -62,9 +62,10 @@ class Parser {
 	}
 	
 	FinalizeContext() {
+		
 		// finalize, save result and get out
 		this.Context.Handler.End( this.Context );
-		if ( true || this.Context.Data ) {
+		if ( typeof( this.Context.Data ) !== 'undefined' ) {
 			this.ParsedData.push({
 				handler: this.Context.Handler.Name,
 				source_pos_from: this.Context.SourcePos,
@@ -73,11 +74,16 @@ class Parser {
 				line_pos_from: this.Context.LinePos,
 				line_num_to: this.LineNum,
 				line_pos_to: this.LinePos - ( this.Context.ConsumeNeeded ? 0 : 1 ), // - 1 to make range non-inclusive
-				source : this.Context.Source ? this.Context.Source : null,
-				data: this.Context.Data ? this.Context.Data : null,
+				//source : this.Context.Source ? this.Context.Source : null,
+				data: this.Context.Data,
 			});
 		}
+		else if ( [
+			'Whitespace'
+		].indexOf( this.Context.Handler.Name ) < 0 )
+			console.log( 'no data from ' + this.Context.Handler.Name );
 		this.Context = null;
+		
 	}
 	
 	GetNextCharacter() {

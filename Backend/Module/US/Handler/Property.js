@@ -7,6 +7,10 @@ class Property extends require( './_Handler' ) {
 		
 	}
 	
+	OnProcess( context ) {
+		context.Data = null;
+	}
+	
 }
 
 module.exports = Property;
