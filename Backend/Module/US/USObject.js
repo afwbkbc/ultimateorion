@@ -13,11 +13,10 @@ class USObject {
 		
 		// multipass processing of data, from raw code to compiled scripts
 		for ( let i in this.Compiler.Stages ) {
-			let stage = this.Compiler.Stages[ i ]( this );
-			data.push( stage.Process( data[ i ] ) );
+			data.push( this.Compiler.Stages[ i ]( this ).Process( data[ i ] ) );
 		}
 		
-		console.log( 'DATA', data );
+		console.log( 'FINAL DATA', data.length, data[ data.length - 1 ] );
 		
 	}
 }

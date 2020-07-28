@@ -3,7 +3,8 @@ class Compiler extends require( '../../_Base' ) {
 	constructor() {
 		super( module.filename );
 		
-		this.Stages = [ 'Parser' ];
+		// ordered list of stages
+		this.Stages = [ 'Parser', 'Sorter' ];
 		
 		this.USObject = require( './USObject' );
 
@@ -18,11 +19,14 @@ class Compiler extends require( '../../_Base' ) {
 			};
 			
 			this.Handlers[ stage ] = {};
-			let dir = this.H.Fs.GetFiles( stage_path + '/' + stage );
-			for ( let file_name of dir ) {
-				var ext = this.H.Fs.GetExtension( file_name );
-				if ( ext === 'js' && file_name[ 0 ] !== '_' ) {
-					this.Handlers[ stage ][ file_name.substring( 0, file_name.length - ext.length - 1 ) ] = new ( require( './Stage/' + stage + '/' + file_name ) );
+			let path = stage_path + '/' + stage;
+			if ( this.H.Fs.IsDirectory( path ) ) {
+				let dir = this.H.Fs.GetFiles( path );
+				for ( let file_name of dir ) {
+					var ext = this.H.Fs.GetExtension( file_name );
+					if ( ext === 'js' && file_name[ 0 ] !== '_' ) {
+						this.Handlers[ stage ][ file_name.substring( 0, file_name.length - ext.length - 1 ) ] = new ( require( './Stage/' + stage + '/' + file_name ) );
+					}
 				}
 			}
 		}
@@ -65,6 +69,8 @@ class Compiler extends require( '../../_Base' ) {
 		if ( !us_objects[ '' ] )
 			throw new Error( 'main.us not found' );
 		us_objects[ '' ].Compile();
+		
+		return; // tmp
 		
 		// compile others
 		for ( var k in us_objects ) {

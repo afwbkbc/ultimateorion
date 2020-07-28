@@ -18,6 +18,10 @@ class Fs extends require( './_Helper' ) {
 		return this.Fs.existsSync( path ) && this.Fs.lstatSync( path ).isFile();
 	}
 	
+	IsDirectory( path ) {
+		return this.Fs.existsSync( path ) && this.Fs.lstatSync( path ).isDirectory();
+	}
+	
 	GetExtension( path ) {
 		var ext = this.Path.extname( path );
 		if ( ext[ 0 ] == '.' )
