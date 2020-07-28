@@ -8,20 +8,26 @@ class Parser extends require( './_Stage' ) {
 		return new Error( ( this.Namespace ? ( this.Namespace + '.us' ) : '<core>' ) + ':' + this.LineNum + ':' + ( this.LinePos - ( pos_back_by ? pos_back_by : 0 ) ) + ' : ' + message );
 	}
 	
-	Process( source ) {
+	Process( source, parent_context ) {
 		
 		this.InvisibleCharacters = '\r\n';
 		
 		this.Source = source;
 		this.Namespace = this.USObject.Namespace;
 		this.SourcePos = 0;
-		this.LineNum = this.ParentContext ? this.ParentContext.LineNum : 1;
-		this.LinePos = this.ParentContext ? this.ParentContext.LinePos + 1 : 1; // + 1 to include length of opening bracket of parent scope
+		this.LineNum = 1;
+		this.LinePos = 1;
 		this.IsInsideString = false;
 		this.IsInsideSingleLineComment = false;
 		this.MultilineCommentDepth = 0;
 		this.Context = null;
 		this.ParsedData = [];
+		
+		if ( parent_context ) {
+			this.ParentContext = parent_context;
+			this.LineNum = this.ParentContext.LineNum;
+			this.LinePos = this.ParentContext.LinePos + 1; // + 1 to include length of opening bracket of parent scope
+		}
 		
 		let finalize = () => {
 			
@@ -95,8 +101,8 @@ class Parser extends require( './_Stage' ) {
 			
 			if ( !this.Context ) {
 				let handler_to_use = null;
-				for ( let handler_name in this.Handlers ) {
-					let handler = this.Handlers[ handler_name ];
+				for ( let handler_name in this.USObject.Compiler.Handlers.Parser ) {
+					let handler = this.USObject.Compiler.Handlers.Parser[ handler_name ];
 					if ( handler.TriggerOn.indexOf( character ) >= 0 ) {
 						handler_to_use = handler;
 						break;

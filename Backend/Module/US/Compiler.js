@@ -10,14 +10,19 @@ class Compiler extends require( '../../_Base' ) {
 		this.Handlers = {};
 		let stage_path = 'Backend/Module/US/Stage';
 		for ( let i in this.Stages ) {
-			let handler_type = this.Stages[ i ];
-			this.Stages[ i ] = require( './Stage/' + this.Stages[ i ] );
-			this.Handlers[ handler_type ] = {};
-			let dir = this.H.Fs.GetFiles( stage_path + '/' + handler_type );
+			let stage = this.Stages[ i ];
+			
+			// stage generator function
+			this.Stages[ i ] = ( us_object ) => {
+				return new ( require( './Stage/' + stage ) )( stage, us_object );
+			};
+			
+			this.Handlers[ stage ] = {};
+			let dir = this.H.Fs.GetFiles( stage_path + '/' + stage );
 			for ( let file_name of dir ) {
 				var ext = this.H.Fs.GetExtension( file_name );
 				if ( ext === 'js' && file_name[ 0 ] !== '_' ) {
-					this.Handlers[ handler_type ][ file_name.substring( 0, file_name.length - ext.length - 1 ) ] = new ( require( './Stage/' + handler_type + '/' + file_name ) );
+					this.Handlers[ stage ][ file_name.substring( 0, file_name.length - ext.length - 1 ) ] = new ( require( './Stage/' + stage + '/' + file_name ) );
 				}
 			}
 		}
