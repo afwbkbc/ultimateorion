@@ -3,15 +3,22 @@ class Compiler extends require( '../../_Base' ) {
 	constructor() {
 		super( module.filename );
 		
-		this.Source = require( './Source' );
+		this.Stages = [ 'Parser' ];
 		
+		this.USObject = require( './USObject' );
+
 		this.Handlers = {};
-		let handlers_path = 'Backend/Module/US/Handler';
-		let dir = this.H.Fs.GetFiles( handlers_path );
-		for ( var file_name of dir ) {
-			var ext = this.H.Fs.GetExtension( file_name );
-			if ( ext === 'js' && file_name[ 0 ] !== '_' ) {
-				this.Handlers[ file_name.substring( 0, file_name.length - ext.length - 1 ) ] = new ( require( './Handler/' + file_name ) );
+		let stage_path = 'Backend/Module/US/Stage';
+		for ( let i in this.Stages ) {
+			let handler_type = this.Stages[ i ];
+			this.Stages[ i ] = require( './Stage/' + this.Stages[ i ] );
+			this.Handlers[ handler_type ] = {};
+			let dir = this.H.Fs.GetFiles( stage_path + '/' + handler_type );
+			for ( let file_name of dir ) {
+				var ext = this.H.Fs.GetExtension( file_name );
+				if ( ext === 'js' && file_name[ 0 ] !== '_' ) {
+					this.Handlers[ handler_type ][ file_name.substring( 0, file_name.length - ext.length - 1 ) ] = new ( require( './Stage/' + handler_type + '/' + file_name ) );
+				}
 			}
 		}
 	}
@@ -34,7 +41,7 @@ class Compiler extends require( '../../_Base' ) {
 					;
 					if ( typeof( sources[ sources_key ] ) !== 'undefined' )
 						throw new Error( 'sources key "' + sources_key + '" already exists' );
-					sources[ sources_key ] = new this.Source( this, sources_key, this.H.Fs.ReadFile( full_file_path ).toString() );
+					sources[ sources_key ] = new this.USObject( this, sources_key, this.H.Fs.ReadFile( full_file_path ).toString() );
 				}
 			}
 			else { // is directory
@@ -47,12 +54,18 @@ class Compiler extends require( '../../_Base' ) {
 	CompilePackage( path ) {
 		
 		// read all sources and arrange by their namespaces
-		var sources = this.ReadSources( this.H.Fs.GetRootPath() + '/Backend/' + path );
+		var us_objects = this.ReadSources( this.H.Fs.GetRootPath() + '/Backend/' + path );
 		
-		// compile into javascript code
-		for ( var k in sources ) {
-			sources[ k ].Compile();
-			//break; // tmp
+		// compile core first
+		if ( !us_objects[ '' ] )
+			throw new Error( 'main.us not found' );
+		us_objects[ '' ].Compile();
+		
+		// compile others
+		for ( var k in us_objects ) {
+			if ( k !== '' ) {
+				us_objects[ k ].Compile();
+			}
 		}
 		
 	}

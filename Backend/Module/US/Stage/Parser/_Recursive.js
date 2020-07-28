@@ -9,8 +9,8 @@ class Recursive extends require( './_Handler' ) {
 		//console.log( 'SUBSCOPE', "|" + source + "|" );
 		
 		// parse scope contents recursively
-		let parser = new ( require( '../Parser' ) )( context.Parser.Compiler, context );
-		context.Data = parser.Parse( context.Parser.Namespace, source );
+		let parser = new ( require( '../../Stage/Parser' ) )( context.Parser.USObject );
+		context.Data = parser.Process( source, context );
 		
 		// update linenum / linepos
 		context.Parser.LineNum = parser.LineNum;
