@@ -7,6 +7,10 @@ class Stage {
 		this.ParentContext = parent_context ? parent_context : null;
 	}
 	
+	GetFileName() {
+		return this.Namespace ? ( this.Namespace + '.us' ) : '<core>';
+	}
+	
 	SpawnChild( context ) {
 		return new ( require( './' + this.StageName ) )( this.StageName, this.USObject, context );
 	}

@@ -5,7 +5,7 @@
 class Parser extends require( './_Stage' ) {
 	
 	CreateError( message, pos_back_by ) {
-		return new Error( ( this.Namespace ? ( this.Namespace + '.us' ) : '<core>' ) + ':' + this.LineNum + ':' + ( this.LinePos - ( pos_back_by ? pos_back_by : 0 ) ) + ' : ' + message );
+		return new Error( this.GetFileName() + ':' + this.LineNum + ':' + ( this.LinePos - ( pos_back_by ? pos_back_by : 0 ) ) + ' : ' + message );
 	}
 	
 	Process( source ) {

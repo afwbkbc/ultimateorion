@@ -4,7 +4,7 @@ class Compiler extends require( '../../_Base' ) {
 		super( module.filename );
 		
 		// ordered list of stages
-		this.Stages = [ 'Parser', 'Sorter' ];
+		this.Stages = [ 'Parser', 'Arranger' ];
 		
 		this.USObject = require( './USObject' );
 
@@ -23,6 +23,8 @@ class Compiler extends require( '../../_Base' ) {
 			if ( this.H.Fs.IsDirectory( path ) ) {
 				let dir = this.H.Fs.GetFiles( path );
 				for ( let file_name of dir ) {
+					if ( file_name[ 0 ] === '_' )
+						continue;
 					var ext = this.H.Fs.GetExtension( file_name );
 					if ( ext === 'js' && file_name[ 0 ] !== '_' ) {
 						this.Handlers[ stage ][ file_name.substring( 0, file_name.length - ext.length - 1 ) ] = new ( require( './Stage/' + stage + '/' + file_name ) );
