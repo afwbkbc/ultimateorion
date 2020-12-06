@@ -290,10 +290,12 @@ window.App.Extend({
 					if ( el.is_closeable ) { // only closeable windows can be closed
 						if ( !el.closing ) { // to prevent event spam
 							el.closing = true;
-							that.SendEvent({
+                                                that[ el.close_button_el.data.element ].OnClick( that.Ctx, el.close_button_el );
+
+/*							that.SendEvent({
 								element: el.data.id,
 								event: 'close',
-							});
+							});*/
 						}
 					}
 				}

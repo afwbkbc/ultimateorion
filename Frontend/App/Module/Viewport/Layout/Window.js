@@ -13,8 +13,16 @@ window.App.Viewport.Extend({
 	},
 	
 	OnAddChild: function( ctx, element, child ) {
-		if ( child.data.attributes.Style == 'window-closebutton' )
+		if ( child.data.attributes.Style == 'window-closebutton' ) {
 			element.is_closeable = true; // hack?
+			element.close_button_el = child;
+		}
 	},
 	
+	OnRemoveChild: function( ctx, element, child ) {
+		if ( child.data.attributes.Style == 'window-closebutton' ) {
+			delete element.close_button_el;
+			element.is_closeable = false;
+		}
+	}
 })
