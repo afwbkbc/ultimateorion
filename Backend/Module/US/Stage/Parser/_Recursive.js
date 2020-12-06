@@ -6,7 +6,7 @@ class Recursive extends require( './_Handler' ) {
 		
 		let source = context.Source.substring( 1, context.Source.length - 1 ); // strip brackets
 		
-		// parse scope contents recursively, then attack to context
+		// parse scope contents recursively, then attach to context
 		let parser = context.Parser.SpawnChild( context );
 		context.Data = parser.Process( source );
 		

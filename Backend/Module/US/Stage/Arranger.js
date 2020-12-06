@@ -16,7 +16,7 @@ class Arranger extends require( './_Stage' ) {
 			this.Element = source[ this.ElementIdx ];
 			
 			let handler = this.Handlers[ this.Element.handler ];
-			if ( !this.handler )
+			if ( !handler )
 				throw this.CreateError( 'unsupported source element "' + this.Element.handler + '"' );
 			
 			let result = handler.Process( this.Element, this.ElementIdx );

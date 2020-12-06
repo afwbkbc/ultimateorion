@@ -6,4 +6,3 @@ config.json
 SSL/ca.pem
 SSL/cert.pem
 SSL/key.pem
-Backend/Scripts/*
