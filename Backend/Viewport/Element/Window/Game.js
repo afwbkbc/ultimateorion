@@ -16,7 +16,7 @@ class Game extends require( '../Layout/Window' ) {
 
 		this.On( 'close', () => {
 			if ( this.Window ) {
-				this.Window.Close();
+				//this.Window.Close();
 				this.Window = null;
 			}
 		})
