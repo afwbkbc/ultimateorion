@@ -17,11 +17,11 @@ class Http extends require( '../_Module' ) {
 		return new Promise( ( next, fail ) => {
 			
 			this.ConfigJson = JSON.stringify({
-				UseSSL: this.Config.UseSSL,
+				UseWSS: this.Config.UseWSS,
 				Debug: this.Config.Debug,
 			});
 			
-			if ( this.Config.UseSSL )
+			if ( this.Config.UseHTTPS )
 				this.Server = this.Https.createServer({
 					cert: this.H.Fs.ReadFile( this.H.Fs.GetRootPath() + '/SSL/cert.pem' ),
 					key: this.H.Fs.ReadFile( this.H.Fs.GetRootPath() + '/SSL/key.pem' ),

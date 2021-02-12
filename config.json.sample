@@ -4,7 +4,8 @@
 	},
 	"Http": {
 		"Port": "5000",
-		"UseSSL": false
+		"UseHTTPS": false,
+		"UseWSS": false
 	},
 	"SessionManager": {
 		"GuestSessionTimeout": "60",
@@ -12,6 +13,7 @@
 	},
 	"Sql": {
 		"Host": "localhost",
+		"Socket": "",
 		"Database": "ultimateorion",
 		"Username": "",
 		"Password": "",

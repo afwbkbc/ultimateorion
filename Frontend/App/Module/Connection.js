@@ -51,7 +51,7 @@ window.App.Extend({
 		if ( this.ws )
 			delete this.ws;
 		
-		this.ws = new WebSocket( ( window.App.Config.UseSSL ? 'wss' : 'ws' ) + '://' + document.location.host );
+		this.ws = new WebSocket( ( window.App.Config.UseWSS ? 'wss' : 'ws' ) + '://' + document.location.host );
 		
 		this.ws.onopen = function() {
 			that.OnConnect.apply( that );

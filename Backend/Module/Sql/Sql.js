@@ -9,13 +9,21 @@ class Sql extends require( '../_Module' ) {
 	Init() {
 		return new Promise( ( next, fail ) => {
 			
-			// init connection
-			this.Sql = this.Mysql.createPool({
-				host: this.Config.Host,
+			var settings = {
 				database: this.Config.Database,
 				user: this.Config.Username,
 				password: this.Config.Password,
-			});
+			};
+			
+			if (this.Config.Socket) {
+				settings.socketPath = this.Config.Socket;
+			}
+			else {
+				settings.host = this.Config.Host;
+			}
+			
+			// init connection
+			this.Sql = this.Mysql.createPool(settings);
 			
 			// load models
 			this.Models = {};

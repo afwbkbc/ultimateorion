@@ -12,7 +12,7 @@ window.App.Extend({
 	SetCookie: function( key, value ) {
 		console.log( '+COOKIE', key, value );
 		var cookie = key + '=' + value + '; SameSite=strict;';
-		if ( window.App.Config.UseSSL )
+		if ( document.location.protocol == 'https:' )
 			cookie += ' Secure=true;';
 		cookie += ' Path=/; Expires=Fri, 31 Dec 9999 23:59:59 GMT;';
 		document.cookie += cookie;
